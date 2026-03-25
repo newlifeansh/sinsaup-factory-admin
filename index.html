@@ -3,1161 +3,924 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>신사업팩토리 통합 어드민 — 기획서 v2.0</title>
+<title>신사업팩토리 Admin Console</title>
 <style>
-  :root {
-    --bg: #0D1117;
-    --bg2: #161B22;
-    --bg3: #21262D;
-    --border: #30363D;
-    --primary: #F5C518;
-    --primary-dim: rgba(245,197,24,0.12);
-    --text: #E6EDF3;
-    --text2: #8B949E;
-    --green: #3FB950;
-    --blue: #58A6FF;
-    --teal: #39D353;
-    --gray: #484F58;
-    --red: #F85149;
-    --sidebar-w: 260px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: -apple-system, 'Noto Sans KR', sans-serif; font-size: 14px; display: flex; height: 100vh; overflow: hidden; }
+:root{
+  --bg:#0D1117;--bg2:#161B22;--bg3:#21262D;--bg4:#2D333B;
+  --border:#30363D;--primary:#F5C518;--pdim:rgba(245,197,24,0.12);
+  --text:#E6EDF3;--text2:#8B949E;--text3:#6E7681;
+  --green:#3FB950;--blue:#58A6FF;--red:#F85149;--orange:#F0883E;
+  --sw:248px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:13px;display:flex;height:100vh;overflow:hidden}
+button{cursor:pointer;font-family:inherit;font-size:13px}
+input,select,textarea{font-family:inherit;font-size:13px;color:var(--text)}
 
-  /* SIDEBAR */
-  #sidebar {
-    width: var(--sidebar-w);
-    background: var(--bg2);
-    border-right: 1px solid var(--border);
-    display: flex; flex-direction: column;
-    overflow-y: auto;
-    flex-shrink: 0;
-  }
-  .sidebar-header {
-    padding: 20px 16px 14px;
-    border-bottom: 1px solid var(--border);
-  }
-  .sidebar-logo {
-    display: flex; align-items: center; gap: 8px;
-    margin-bottom: 4px;
-  }
-  .sidebar-logo .star {
-    width: 28px; height: 28px; background: var(--primary);
-    border-radius: 6px; display: flex; align-items: center; justify-content: center;
-    font-size: 14px; font-weight: 900; color: #000;
-  }
-  .sidebar-logo span { font-weight: 700; font-size: 13px; line-height: 1.3; }
-  .sidebar-sub { font-size: 11px; color: var(--text2); padding-left: 36px; }
-  .sidebar-version { display: inline-block; margin-top: 8px; margin-left: 36px; background: var(--primary-dim); color: var(--primary); font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+/* ─── LOGIN ─── */
+#login-screen{display:flex;align-items:center;justify-content:center;width:100%;height:100vh}
+.lbox{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:40px;width:360px}
+.llogo{display:flex;align-items:center;gap:10px;margin-bottom:32px}
+.llogo .star{width:34px;height:34px;background:var(--primary);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#000}
+.llogo .n1{font-size:15px;font-weight:700}.llogo .n2{font-size:10px;color:var(--text2)}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:11px;color:var(--text2);margin-bottom:5px;font-weight:600}
+.fg input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:9px 12px;color:var(--text);outline:none;transition:.15s}
+.fg input:focus{border-color:var(--primary)}
+.btn-login{width:100%;background:var(--primary);color:#000;border:none;border-radius:6px;padding:11px;font-weight:700;font-size:14px;margin-top:6px}
+.btn-login:hover{filter:brightness(.92)}
 
-  .nav-section { padding: 8px 0; }
-  .nav-label { font-size: 10px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.8px; padding: 8px 16px 4px; }
-  .nav-item {
-    display: flex; align-items: center; gap: 8px;
-    padding: 7px 16px; cursor: pointer;
-    border-left: 2px solid transparent;
-    transition: all 0.15s;
-    color: var(--text2); font-size: 13px;
-  }
-  .nav-item:hover { background: var(--bg3); color: var(--text); }
-  .nav-item.active { background: var(--primary-dim); color: var(--primary); border-left-color: var(--primary); font-weight: 600; }
-  .nav-item .nav-id { font-size: 10px; color: var(--text2); background: var(--bg3); padding: 1px 5px; border-radius: 3px; flex-shrink: 0; }
-  .nav-item.active .nav-id { background: rgba(245,197,24,0.2); color: var(--primary); }
-  .nav-badge { font-size: 9px; padding: 1px 5px; border-radius: 3px; font-weight: 700; flex-shrink: 0; }
-  .badge-master { background: rgba(245,197,24,0.2); color: var(--primary); }
-  .badge-todo { background: rgba(248,81,73,0.15); color: var(--red); }
+/* ─── APP SHELL ─── */
+#app{display:none;width:100%;height:100vh;flex-direction:row}
 
-  /* MAIN */
-  #main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+/* ─── SIDEBAR ─── */
+#sidebar{width:var(--sw);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.si-user{padding:14px 16px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px;flex-shrink:0}
+.si-av{width:30px;height:30px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#000;flex-shrink:0}
+.si-name{font-size:13px;font-weight:700;line-height:1.2}
+.si-email{font-size:10px;color:var(--text2)}
+/* nav groups */
+.ng{padding:6px 0}
+.nl{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;padding:8px 16px 3px;display:flex;align-items:center;justify-content:space-between}
+.nl .nl-svc{font-size:11px;color:var(--primary);font-weight:700;text-transform:none;letter-spacing:0}
+.ni{display:flex;align-items:center;gap:8px;padding:8px 16px;cursor:pointer;border-left:2px solid transparent;color:var(--text2);transition:.1s;white-space:nowrap;overflow:hidden}
+.ni:hover{background:var(--bg3);color:var(--text)}
+.ni.on{background:var(--primary);color:#000;border-left-color:var(--primary);font-weight:700}
+.ni .ico{font-size:14px;width:16px;text-align:center;flex-shrink:0}
+.ni .lbl{flex:1;font-size:13px;overflow:hidden;text-overflow:ellipsis}
+.ni .tag{font-size:9px;padding:1px 5px;border-radius:3px;font-weight:700;flex-shrink:0;background:rgba(245,197,24,.18);color:var(--primary)}
+.ni.on .tag{background:rgba(0,0,0,.2);color:#000}
+/* depth 1 sub */
+.ni-d1{padding-left:32px;font-size:12px}
+.ni-d1.on{background:rgba(245,197,24,.13);color:var(--primary);border-left-color:var(--primary);font-weight:700}
+/* depth 2 sub */
+.ni-d2{padding-left:48px;font-size:12px;color:var(--text3)}
+.ni-d2:hover{background:var(--bg3);color:var(--text)}
+.ni-d2.on{background:rgba(245,197,24,.08);color:var(--primary);border-left-color:var(--primary);font-weight:600}
+/* section group header */
+.ng-header{display:flex;align-items:center;gap:8px;padding:8px 16px;cursor:pointer;color:var(--text2);font-size:12px;font-weight:700;border-left:2px solid transparent}
+.ng-header:hover{background:var(--bg3);color:var(--text)}
+#svc-submenu .ng-header{padding-left:32px}
+.ng-header .ico{font-size:14px;width:16px;text-align:center}
+.ng-header .arrow{margin-left:auto;transition:.2s;font-size:10px}
+.ng-header.open .arrow{transform:rotate(90deg)}
+.ng-children{overflow:hidden;max-height:0;transition:max-height .25s ease}
+.ng-children.open{max-height:500px}
+/* logout */
+.si-logout{margin:12px 16px;padding:8px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text2);font-size:12px;width:calc(100% - 32px)}
+.si-logout:hover{border-color:var(--red);color:var(--red)}
+.si-divider{height:1px;background:var(--border);margin:4px 0}
 
-  /* TOP BAR */
-  .topbar {
-    background: var(--bg2); border-bottom: 1px solid var(--border);
-    padding: 0 28px; height: 52px; display: flex; align-items: center;
-    justify-content: space-between; flex-shrink: 0; position: sticky; top: 0; z-index: 10;
-  }
-  .topbar-left { display: flex; align-items: center; gap: 8px; }
-  .breadcrumb { font-size: 12px; color: var(--text2); }
-  .breadcrumb span { color: var(--text); font-weight: 600; }
-  .topbar-right { display: flex; gap: 8px; align-items: center; }
-  .chip { font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 600; }
-  .chip-green { background: rgba(63,185,80,0.15); color: var(--green); }
-  .chip-blue { background: rgba(88,166,255,0.15); color: var(--blue); }
-  .chip-gray { background: rgba(72,79,88,0.3); color: var(--text2); }
-  .chip-yellow { background: var(--primary-dim); color: var(--primary); }
+/* ─── RIGHT PANE ─── */
+#right{flex:1;display:flex;flex-direction:column;overflow:hidden}
+/* topbar */
+.topbar{height:50px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0}
+.bc{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
+.bc .sep{color:var(--text3)}.bc .cur{color:var(--text);font-weight:700}
+.tb-right{display:flex;align-items:center;gap:10px}
+.tb-icon{width:30px;height:30px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:15px;cursor:pointer}
+.tb-user{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:4px 12px 4px 4px;cursor:pointer}
+.tb-av{width:22px;height:22px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#000}
+.tb-name{font-size:12px;font-weight:600}
 
-  /* CONTENT */
-  .content { padding: 32px 36px; max-width: 1100px; }
+/* ─── MAIN ─── */
+#main{flex:1;overflow-y:auto;padding:28px 32px}
+.page{display:none}.page.on{display:block}
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.pt{font-size:20px;font-weight:700;display:flex;align-items:center;gap:8px}
+.mbadge{font-size:10px;background:var(--pdim);color:var(--primary);border:1px solid rgba(245,197,24,.25);padding:2px 7px;border-radius:4px;font-weight:700}
 
-  .page-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
-  .page-desc { color: var(--text2); font-size: 13px; margin-bottom: 28px; line-height: 1.6; }
+/* ─── BUTTONS ─── */
+.btn{border:none;border-radius:6px;padding:8px 16px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:.15s;cursor:pointer}
+.bp{background:var(--primary);color:#000}.bp:hover{filter:brightness(.92)}
+.bd{background:var(--bg3);color:var(--text);border:1px solid var(--border)}.bd:hover{border-color:var(--text2)}
+.bsm{padding:5px 10px;font-size:12px}
+.bxs{padding:3px 8px;font-size:11px;border-radius:4px}
 
-  .section { margin-bottom: 36px; }
-  .section-title {
-    font-size: 13px; font-weight: 700; color: var(--text2); text-transform: uppercase;
-    letter-spacing: 0.6px; margin-bottom: 12px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+/* ─── INPUT / FORM ─── */
+.search-wrap{display:flex;gap:8px;margin-bottom:16px}
+.si{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px 12px 8px 34px;color:var(--text);outline:none;transition:.15s;flex:1;max-width:360px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%238B949E' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:10px center}
+.si:focus{border-color:var(--primary)}
+.fsec{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:22px;margin-bottom:18px}
+.fst{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.fr.full{grid-template-columns:1fr}
+.fi label{display:block;font-size:11px;font-weight:700;color:var(--text2);margin-bottom:5px}
+.fi label .r{color:var(--red)}
+.fi input,.fi select,.fi textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px 11px;color:var(--text);outline:none;transition:.15s}
+.fi input:focus,.fi select:focus,.fi textarea:focus{border-color:var(--primary)}
+.fi input[readonly]{color:var(--text2)}
+.fi textarea{resize:vertical;min-height:76px}
+.fi select option{background:var(--bg3)}
+.fa{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
 
-  h3 { font-size: 14px; font-weight: 700; margin: 20px 0 10px; color: var(--text); }
-  h4 { font-size: 13px; font-weight: 600; margin: 16px 0 8px; color: var(--text2); }
+/* ─── TABLE ─── */
+.tw{border:1px solid var(--border);border-radius:8px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+thead th{background:var(--bg3);padding:9px 13px;text-align:left;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;white-space:nowrap}
+tbody td{padding:10px 13px;border-top:1px solid var(--border);vertical-align:middle}
+tbody tr:hover td{background:var(--bg3)}
+.tid{font-weight:700;color:var(--primary);font-size:12px}
+.tmono{font-family:'SF Mono',monospace;font-size:11px;color:var(--blue)}
 
-  /* TABLE */
-  .tbl-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
-  table { width: 100%; border-collapse: collapse; }
-  thead th { background: var(--bg3); padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
-  tbody td { padding: 10px 14px; border-top: 1px solid var(--border); font-size: 13px; vertical-align: top; }
-  tbody tr:hover td { background: var(--bg3); }
-  .td-id { font-weight: 700; color: var(--primary); font-size: 12px; }
-  .td-url { font-family: 'SF Mono', monospace; font-size: 11px; color: var(--blue); background: rgba(88,166,255,0.08); padding: 2px 6px; border-radius: 4px; }
-  .td-link { color: var(--primary); cursor: pointer; text-decoration: none; }
-  .td-link:hover { text-decoration: underline; }
+/* ─── BADGE ─── */
+.b{display:inline-flex;align-items:center;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;white-space:nowrap}
+.bg{background:rgba(63,185,80,.12);color:var(--green)}
+.bb{background:rgba(88,166,255,.12);color:var(--blue)}
+.by{background:rgba(245,197,24,.12);color:var(--primary)}
+.bgr{background:rgba(72,79,88,.3);color:var(--text2)}
+.br{background:rgba(248,81,73,.12);color:var(--red)}
+.bo{background:rgba(240,136,62,.12);color:var(--orange)}
 
-  /* STATUS BADGES */
-  .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; white-space: nowrap; }
-  .badge-active { background: rgba(63,185,80,0.15); color: var(--green); }
-  .badge-review { background: rgba(88,166,255,0.15); color: var(--blue); }
-  .badge-inactive { background: rgba(72,79,88,0.3); color: var(--text2); }
-  .badge-done { background: rgba(63,185,80,0.12); color: var(--green); }
-  .badge-todo2 { background: rgba(248,81,73,0.1); color: var(--red); }
+/* ─── TOGGLE ─── */
+.tog{position:relative;display:inline-block;width:34px;height:18px}
+.tog input{opacity:0;width:0;height:0}
+.sl{position:absolute;cursor:pointer;inset:0;background:var(--bg4);border-radius:18px;transition:.2s}
+.sl:before{position:absolute;content:'';height:12px;width:12px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s}
+input:checked+.sl{background:var(--green)}
+input:checked+.sl:before{transform:translateX(16px)}
 
-  /* INFO BOX */
-  .info-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin-bottom: 16px; }
-  .info-box .meta { display: flex; flex-wrap: wrap; gap: 16px; }
-  .info-box .meta-item { font-size: 12px; }
-  .info-box .meta-item .label { color: var(--text2); margin-right: 4px; }
-  .info-box .meta-item .val { color: var(--text); font-weight: 600; font-family: 'SF Mono', monospace; }
+/* ─── STAT CARDS ─── */
+.sc4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.scard{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
+.snum{font-size:26px;font-weight:800;color:var(--primary)}
+.slbl{font-size:12px;color:var(--text2);margin-top:2px}
+.schg{font-size:11px;margin-top:3px}
 
-  /* GOAL BOX */
-  .goal-box { background: linear-gradient(135deg, rgba(245,197,24,0.06), rgba(245,197,24,0.02)); border: 1px solid rgba(245,197,24,0.2); border-radius: 8px; padding: 14px 18px; margin-bottom: 20px; }
-  .goal-box .goal-label { font-size: 10px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
-  .goal-box p { font-size: 13px; line-height: 1.6; color: var(--text); }
+/* ─── SERVICE CARDS ─── */
+.svc-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+.svc-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px;cursor:pointer;transition:.15s}
+.svc-card:hover{border-color:var(--primary);background:var(--bg3)}
+.svc-icon{width:42px;height:42px;border-radius:10px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:10px}
+.svc-nm{font-size:14px;font-weight:700;margin-bottom:3px}
+.svc-pt{font-size:11px;color:var(--text2);margin-bottom:9px}
 
-  /* CODE */
-  pre {
-    background: var(--bg3); border: 1px solid var(--border); border-radius: 8px;
-    padding: 16px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px;
-    line-height: 1.7; overflow-x: auto; color: var(--text2);
-  }
-  code { font-family: 'SF Mono', monospace; font-size: 12px; background: var(--bg3); padding: 1px 5px; border-radius: 3px; color: var(--blue); }
+/* ─── TABS ─── */
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:18px}
+.tab{padding:8px 16px;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;font-size:13px;transition:.15s}
+.tab:hover{color:var(--text)}.tab.on{color:var(--primary);border-bottom-color:var(--primary);font-weight:700}
+.tp{display:none}.tp.on{display:block}
 
-  /* NOTE */
-  .note { background: rgba(88,166,255,0.08); border-left: 3px solid var(--blue); border-radius: 0 6px 6px 0; padding: 10px 14px; margin: 12px 0; font-size: 12px; color: var(--text); line-height: 1.6; }
-  .note.warn { background: rgba(245,197,24,0.06); border-left-color: var(--primary); }
+/* ─── CARD ─── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.act{display:flex;flex-direction:column}
+.ai{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.ai:last-child{border:none}
+.adot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.adot.g{background:var(--green)}.adot.b{background:var(--blue)}.adot.y{background:var(--primary)}
+.atxt{flex:1;font-size:12px}.atime{font-size:11px;color:var(--text2)}
 
-  /* REQUIRED PILL */
-  .req { font-size: 10px; padding: 1px 5px; border-radius: 3px; font-weight: 700; }
-  .req-y { background: rgba(248,81,73,0.15); color: var(--red); }
-  .req-n { background: var(--bg3); color: var(--text2); }
+/* ─── PERM ─── */
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:7px}
+.pitem{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px 10px;cursor:pointer}
+.pitem input[type=checkbox]{accent-color:var(--primary);width:13px;height:13px}
+.pnm{font-size:12px;font-weight:600}
+.pid{font-size:10px;color:var(--text2)}
 
-  /* IA TREE */
-  .ia-tree { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; }
-  .ia-tree pre { background: transparent; border: none; padding: 0; }
+/* ─── MODAL ─── */
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:100;align-items:center;justify-content:center}
+.mo.open{display:flex}
+.mbox{background:var(--bg2);border:1px solid var(--border);border-radius:12px;width:520px;max-height:82vh;overflow-y:auto}
+.mh{padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.mt{font-size:15px;font-weight:700}
+.mc{background:none;border:none;color:var(--text2);font-size:20px;line-height:1}
+.mc:hover{color:var(--text)}
+.mb{padding:18px 22px}
+.mf{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
 
-  /* ROLE CARDS */
-  .role-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .role-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
-  .role-card .role-name { font-size: 15px; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
-  .role-card p { font-size: 12px; color: var(--text2); line-height: 1.6; }
+/* ─── NOTICE ─── */
+.notice{background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:0 6px 6px 0;padding:10px 14px;font-size:12px;margin-bottom:16px;line-height:1.6}
+.code-mock{background:#0D1117;border:1px solid var(--border);border-radius:6px;padding:10px 12px;font-family:'SF Mono',monospace;font-size:11px;color:#79C0FF;min-height:72px;resize:vertical;width:100%;outline:none}
 
-  /* DESIGN TOKENS */
-  .tokens { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
-  .token-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
-  .token-card .t-label { font-size: 11px; color: var(--text2); margin-bottom: 6px; }
-  .token-card .t-val { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-  .color-dot { width: 16px; height: 16px; border-radius: 4px; flex-shrink: 0; }
-
-  /* TAB NAV (for screen detail) */
-  .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
-  .tab { padding: 8px 16px; cursor: pointer; font-size: 13px; color: var(--text2); border-bottom: 2px solid transparent; transition: all 0.15s; }
-  .tab:hover { color: var(--text); }
-  .tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
-  .tab-content { display: none; }
-  .tab-content.active { display: block; }
-
-  /* SUB SECTION */
-  .sub-label { font-size: 11px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin: 16px 0 8px; }
-
-  /* PROGRESS */
-  .progress-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); }
-  .progress-row:last-child { border: none; }
-  .progress-id { font-size: 11px; font-weight: 700; color: var(--primary); width: 60px; flex-shrink: 0; }
-  .progress-name { flex: 1; font-size: 13px; }
-  .progress-note { font-size: 11px; color: var(--text2); }
-
-  /* OVERVIEW CARDS */
-  .overview-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
-  .ov-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; }
-  .ov-card .ov-num { font-size: 28px; font-weight: 800; color: var(--primary); }
-  .ov-card .ov-label { font-size: 12px; color: var(--text2); margin-top: 2px; }
-
-  /* SCROLLBAR */
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: var(--bg2); }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-  /* MOBILE */
-  @media (max-width: 768px) {
-    #sidebar { display: none; }
-    .overview-cards { grid-template-columns: 1fr 1fr; }
-    .role-cards { grid-template-columns: 1fr; }
-    .content { padding: 20px; }
-  }
+/* ─── TOAST ─── */
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--green);color:#000;padding:9px 20px;border-radius:8px;font-weight:700;font-size:12px;display:none;z-index:999}
 </style>
 </head>
 <body>
 
-<!-- SIDEBAR -->
-<nav id="sidebar">
-  <div class="sidebar-header">
-    <div class="sidebar-logo">
+<!-- ══ LOGIN ══ -->
+<div id="login-screen">
+  <div class="lbox">
+    <div class="llogo">
       <div class="star">★</div>
-      <span>신사업팩토리<br>어드민</span>
+      <div><div class="n1">신사업팩토리</div><div class="n2">Admin Console</div></div>
     </div>
-    <div class="sidebar-sub">Admin Console</div>
-    <div class="sidebar-version">v2.0</div>
+    <div class="fg"><label>이메일</label><input type="email" id="em" value="master@factory.com"></div>
+    <div class="fg"><label>비밀번호</label><input type="password" id="pw" value="password"></div>
+    <button class="btn-login" onclick="doLogin()">로그인</button>
   </div>
+</div>
 
-  <div class="nav-section">
-    <div class="nav-label">Overview</div>
-    <div class="nav-item active" onclick="show('overview')">
-      <span>📋</span> 프로젝트 개요
-    </div>
-    <div class="nav-item" onclick="show('ia')">
-      <span>🗂</span> IA / 메뉴 구조
-    </div>
-    <div class="nav-item" onclick="show('urlmap')">
-      <span>🔗</span> URL 맵 & 현황
-    </div>
-    <div class="nav-item" onclick="show('design')">
-      <span>🎨</span> 디자인 시스템
-    </div>
-    <div class="nav-item" onclick="show('glossary')">
-      <span>📖</span> 용어 정리
-    </div>
-  </div>
+<!-- ══ APP ══ -->
+<div id="app">
 
-  <div class="nav-section">
-    <div class="nav-label">공통</div>
-    <div class="nav-item" onclick="show('login')">
-      <span class="nav-id">LOGIN</span> 로그인
-    </div>
-    <div class="nav-item" onclick="show('home')">
-      <span class="nav-id">HOME</span> 홈 대시보드
-    </div>
-  </div>
-
-  <div class="nav-section">
-    <div class="nav-label">1. 파트너사 관리</div>
-    <div class="nav-item" onclick="show('p1-1')">
-      <span class="nav-id">1-1</span> 파트너사 목록/조회
-    </div>
-    <div class="nav-item" onclick="show('p1-2')">
-      <span class="nav-id">1-2</span> 파트너사 등록/수정
-    </div>
-  </div>
-
-  <div class="nav-section">
-    <div class="nav-label">2. 서비스 관리</div>
-    <div class="nav-item" onclick="show('p2-1')">
-      <span class="nav-id">2-1</span> 서비스 홈
-    </div>
-    <div class="nav-item" onclick="show('p2-2')">
-      <span class="nav-id">2-2</span> 개별 서비스 대시보드
-    </div>
-    <div class="nav-item" onclick="show('p2-2-1')">
-      <span class="nav-id">2-2-1</span> 정보 수정
-      <span class="nav-badge badge-todo">추후</span>
-    </div>
-    <div class="nav-item" onclick="show('p2-2-2')">
-      <span class="nav-id">2-2-2</span> 알림 관리
-    </div>
-    <div class="nav-item" onclick="show('p2-2-3')">
-      <span class="nav-id">2-2-3</span> 리워드 관리
-    </div>
-    <div class="nav-item" onclick="show('p2-2-4')">
-      <span class="nav-id">2-2-4</span> 오퍼 관리
-    </div>
-    <div class="nav-item" onclick="show('p2-2-5')">
-      <span class="nav-id">2-2-5</span> 수동 지급
-    </div>
-  </div>
-
-  <div class="nav-section">
-    <div class="nav-label">3. 관리자 페이지</div>
-    <div class="nav-item" onclick="show('p3-1')">
-      <span class="nav-id">3-1</span> 전체 서비스 관리
-      <span class="nav-badge badge-master">마스터</span>
-    </div>
-    <div class="nav-item" onclick="show('p3-2')">
-      <span class="nav-id">3-2</span> 사용자 관리
-      <span class="nav-badge badge-master">마스터</span>
-    </div>
-    <div class="nav-item" onclick="show('p3-3')">
-      <span class="nav-id">3-3</span> 진입 권한 부여
-      <span class="nav-badge badge-master">마스터</span>
-    </div>
-  </div>
-</nav>
-
-<!-- MAIN -->
-<main id="main">
-  <div class="topbar">
-    <div class="topbar-left">
-      <div class="breadcrumb" id="breadcrumb">신사업팩토리 어드민 <span>/ 프로젝트 개요</span></div>
-    </div>
-    <div class="topbar-right">
-      <span class="chip chip-yellow">v2.0 확정</span>
-      <span class="chip chip-gray">2026-03-25</span>
-    </div>
-  </div>
-
-  <!-- ===== OVERVIEW ===== -->
-  <div id="page-overview" class="content" style="display:block">
-    <div class="page-title">신사업팩토리 통합 어드민</div>
-    <div class="page-desc">전체 화면 기획서 v2.0 — UI/UX 설계 및 프론트엔드/백엔드 개발의 최종 기준 문서</div>
-
-    <div class="overview-cards">
-      <div class="ov-card"><div class="ov-num">14</div><div class="ov-label">전체 화면 수</div></div>
-      <div class="ov-card"><div class="ov-num">13</div><div class="ov-label">설계 완료</div></div>
-      <div class="ov-card"><div class="ov-num">2</div><div class="ov-label">사용자 역할</div></div>
-      <div class="ov-card"><div class="ov-num">5</div><div class="ov-label">파트너사 (샘플)</div></div>
+  <!-- ▌SIDEBAR ▌ -->
+  <nav id="sidebar">
+    <div class="si-user">
+      <div class="si-av">M</div>
+      <div><div class="si-name">마스터 관리자</div><div class="si-email">master@factory.com</div></div>
     </div>
 
-    <div class="section">
-      <div class="section-title">사용자 역할</div>
-      <div class="role-cards">
-        <div class="role-card">
-          <div class="role-name"><span class="badge badge-active">마스터</span> Master</div>
-          <p>최고 관리자. 모든 메뉴에 접근 가능하며 관리자 페이지(사용자 관리, 서비스 등록, 권한 부여)를 포함한 전체 기능을 사용할 수 있습니다.</p>
+    <!-- 홈 -->
+    <div class="ng">
+      <div class="ni" id="n-home" onclick="go('home','홈')">
+        <span class="lbl">홈</span>
+      </div>
+    </div>
+
+    <!-- 파트너사 관리 -->
+    <div class="ng">
+      <div class="nl">파트너사 관리</div>
+      <div class="ni ni-d1" id="n-partners" onclick="go('partners','파트너사 관리')">
+        <span class="lbl">파트너사 조회</span>
+      </div>
+      <div class="ni ni-d1" id="n-partner-form" onclick="openPartnerCreate()">
+        <span class="lbl">등록/수정</span>
+      </div>
+    </div>
+
+    <!-- 서비스 홈 -->
+    <div class="ng">
+      <div class="nl" id="nl-svc">개별 서비스 관리 <span class="nl-svc" id="nl-svc-name" style="display:none"></span></div>
+
+      <!-- 서비스 홈 진입 -->
+      <div class="ni ni-d1" id="n-services" onclick="go('services','서비스 홈')">
+        <span class="lbl">서비스 홈</span>
+      </div>
+
+      <!-- 서비스 선택 후 하위 메뉴 (기본 숨김) -->
+      <div id="svc-submenu" style="display:none">
+        <div class="ni ni-d1" id="n-svc-info" onclick="svcGo('info','정보 수정')">
+          <span class="lbl">정보 수정</span>
         </div>
-        <div class="role-card">
-          <div class="role-name"><span class="badge badge-review">운영자</span> Operator</div>
-          <p>서비스 담당 관리자. 마스터가 부여한 특정 서비스에 대한 관리 권한만 보유합니다. <strong>관리자 페이지(3번 메뉴) 접근 불가.</strong></p>
+
+        <!-- 알림 관리 그룹 -->
+        <div class="ng-header" id="gh-notif" onclick="toggleGroup('gh-notif','gc-notif')">
+          <span style="flex:1;font-size:12px">알림 관리</span><span class="arrow">›</span>
+        </div>
+        <div class="ng-children" id="gc-notif">
+          <div class="ni ni-d2" id="n-notif-list" onclick="svcGo('notifications','알림 관리')"><span class="lbl">서비스 조회</span></div>
+          <div class="ni ni-d2" id="n-notif-form" onclick="openNotifModal()"><span class="lbl">등록/수정</span></div>
+        </div>
+
+        <!-- 리워드 관리 그룹 -->
+        <div class="ng-header" id="gh-reward" onclick="toggleGroup('gh-reward','gc-reward')">
+          <span style="flex:1;font-size:12px">리워드 관리</span><span class="arrow">›</span>
+        </div>
+        <div class="ng-children" id="gc-reward">
+          <div class="ni ni-d2" id="n-reward-list" onclick="svcGo('rewards','리워드 관리')"><span class="lbl">서비스 조회</span></div>
+          <div class="ni ni-d2" id="n-reward-form" onclick="openRewardModal()"><span class="lbl">등록/수정</span></div>
+        </div>
+
+        <!-- 오퍼 관리 그룹 -->
+        <div class="ng-header" id="gh-offer" onclick="toggleGroup('gh-offer','gc-offer')">
+          <span style="flex:1;font-size:12px">오퍼 관리</span><span class="arrow">›</span>
+        </div>
+        <div class="ng-children" id="gc-offer">
+          <div class="ni ni-d2" id="n-offer-list" onclick="svcGo('offers','오퍼 관리')"><span class="lbl">오퍼 조회</span></div>
+          <div class="ni ni-d2" id="n-offer-form" onclick="openOfferModal()"><span class="lbl">등록/수정</span></div>
+        </div>
+
+        <!-- 수동 지급 -->
+        <div class="ni ni-d1" id="n-provisions" onclick="svcGo('provisions','수동 지급')">
+          <span class="lbl">수동 지급</span>
+        </div>
+      </div><!-- /svc-submenu -->
+    </div>
+
+    <div class="si-divider"></div>
+
+    <!-- 관리자 페이지 (마스터) -->
+    <div class="ng" id="master-nav">
+      <div class="nl">관리자 페이지</div>
+      <div class="ni ni-d1" id="n-admin-services" onclick="go('admin-services','전체 서비스 관리')">
+        <span class="lbl">전체 서비스 관리</span><span class="tag">마스터</span>
+      </div>
+      <div class="ni ni-d1" id="n-admin-users" onclick="go('admin-users','사용자 관리')">
+        <span class="lbl">사용자 관리</span><span class="tag">마스터</span>
+      </div>
+    </div>
+
+    <button class="si-logout" onclick="doLogout()">로그아웃</button>
+  </nav>
+
+  <!-- ▌RIGHT PANE ▌ -->
+  <div id="right">
+    <div class="topbar">
+      <div class="bc">
+        <span>신사업팩토리</span><span class="sep">›</span>
+        <span class="cur" id="bc-cur">홈</span>
+      </div>
+      <div class="tb-right">
+        <div class="tb-icon">&#9825;</div>
+        <div class="tb-user">
+          <div class="tb-av">M</div>
+          <span class="tb-name">마스터 관리자</span>
         </div>
       </div>
     </div>
 
-    <div class="section">
-      <div class="section-title">화면 현황</div>
-      <div class="progress-row"><div class="progress-id">LOGIN</div><div class="progress-name">로그인</div><span class="badge badge-done">✅ 설계 완료</span></div>
-      <div class="progress-row"><div class="progress-id">HOME</div><div class="progress-name">홈 대시보드</div><span class="badge badge-done">✅ 설계 완료</span><div class="progress-note">상세 컨텐츠 추후 정의</div></div>
-      <div class="progress-row"><div class="progress-id">1-1</div><div class="progress-name">파트너사 목록/조회</div><span class="badge badge-done">✅ 설계 완료</span></div>
-      <div class="progress-row"><div class="progress-id">1-2</div><div class="progress-name">파트너사 등록/수정</div><span class="badge badge-done">✅ 설계 완료</span></div>
-      <div class="progress-row"><div class="progress-id">2-1</div><div class="progress-name">서비스 홈</div><span class="badge badge-done">✅ 설계 완료</span></div>
-      <div class="progress-row"><div class="progress-id">2-2</div><div class="progress-name">개별 서비스 대시보드 (공통 레이아웃)</div><span class="badge badge-done">✅ 설계 완료</span></div>
-      <div class="progress-row"><div class="progress-id">2-2-1</div><div class="progress-name">정보 수정</div><span class="badge badge-todo2">⬜ 추후 요청 시 진행</span></div>
-      <div class="progress-row"><div class="progress-id">2-2-2</div><div class="progress-name">알림 관리</div><span class="badge badge-done">✅ 설계 완료</span></div>
-      <div class="progress-row"><div class="progress-id">2-2-3</div><div class="progress-name">리워드 관리</div><span class="badge badge-done">✅ 설계 완료</span></div>
-      <div class="progress-row"><div class="progress-id">2-2-4</div><div class="progress-name">오퍼 관리</div><span class="badge badge-done">✅ 설계 완료</span></div>
-      <div class="progress-row"><div class="progress-id">2-2-5</div><div class="progress-name">수동 지급</div><span class="badge badge-done">✅ 설계 완료</span></div>
-      <div class="progress-row"><div class="progress-id">3-1</div><div class="progress-name">전체 서비스 관리</div><span class="badge badge-done">✅ 설계 완료</span></div>
-      <div class="progress-row"><div class="progress-id">3-2</div><div class="progress-name">사용자 관리</div><span class="badge badge-done">✅ 설계 완료</span></div>
-      <div class="progress-row"><div class="progress-id">3-3</div><div class="progress-name">진입 권한 부여</div><span class="badge badge-done">✅ 설계 완료</span><div class="progress-note">3-2 수정 화면 내 포함</div></div>
-    </div>
-  </div>
+    <div id="main">
 
-  <!-- ===== IA ===== -->
-  <div id="page-ia" class="content" style="display:none">
-    <div class="page-title">IA — 메뉴 구조</div>
-    <div class="page-desc">Information Architecture. 전체 어드민의 메뉴 계층 구조입니다.</div>
-    <div class="ia-tree">
-<pre>로그인  (/login)
-│
-홈 대시보드  (/)
-│
-├── 1. 파트너사 관리
-│   ├── 1-1. 파트너사 목록/조회          /partners
-│   └── 1-2. 파트너사 등록/수정          /partners/create  |  /partners/:id/edit
-│
-├── 2. 서비스 관리
-│   ├── 2-1. 서비스 홈                  /services
-│   └── 2-2. 개별 서비스 대시보드        /services/:serviceId/*
-│       ├── 2-2-1. 정보 수정             /services/:serviceId/info
-│       ├── 2-2-2. 알림 관리             /services/:serviceId/notifications
-│       ├── 2-2-3. 리워드 관리           /services/:serviceId/rewards
-│       ├── 2-2-4. 오퍼 관리             /services/:serviceId/offers
-│       └── 2-2-5. 수동 지급             /services/:serviceId/provisions
-│
-└── 3. 관리자 페이지  ★ 마스터 전용
-    ├── 3-1. 전체 서비스 관리            /admin/services
-    ├── 3-2. 사용자 관리                 /admin/users
-    └── 3-3. 진입 권한 부여              /admin/users/:id/edit</pre>
-    </div>
-    <div class="note warn" style="margin-top:16px">서비스 하위 메뉴(2-2-*)는 서비스마다 개별 접근 권한이 필요합니다. 마스터가 3-3에서 운영자별로 담당 서비스를 지정합니다.</div>
-  </div>
+      <!-- ══ HOME ══ -->
+      <div class="page on" id="page-home">
+        <div class="ph">
+          <div class="pt">홈 대시보드</div>
+          <span class="b bg" style="font-size:11px">● 시스템 정상</span>
+        </div>
+        <div class="sc4">
+          <div class="scard"><div class="snum">5</div><div class="slbl">전체 파트너사</div><div class="schg" style="color:var(--green)">▲ 1 이번 달</div></div>
+          <div class="scard"><div class="snum">4</div><div class="slbl">운영 중 서비스</div><div class="schg" style="color:var(--blue)">SVC-004 준비중</div></div>
+          <div class="scard"><div class="snum">4</div><div class="slbl">전체 관리자</div><div class="schg" style="color:var(--text2)">마스터 1 / 운영자 3</div></div>
+          <div class="scard"><div class="snum">156</div><div class="slbl">오늘 오퍼 처리</div><div class="schg" style="color:var(--green)">▲ 12% 어제 대비</div></div>
+        </div>
+        <div class="g2">
+          <div class="card"><div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:12px">최근 알림 발송</div>
+            <div class="act">
+              <div class="ai"><div class="adot b"></div><div class="atxt">스마트픽 — 신규 오퍼 등록 완료 <span style="color:var(--text2)">(알림탭)</span></div><div class="atime">09:42</div></div>
+              <div class="ai"><div class="adot g"></div><div class="atxt">픽플러스 — 리워드 수동 지급 처리</div><div class="atime">09:15</div></div>
+              <div class="ai"><div class="adot y"></div><div class="atxt">달맛 — 알림 스케줄 발송 완료 <span style="color:var(--text2)">(앱푸쉬)</span></div><div class="atime">08:00</div></div>
+              <div class="ai"><div class="adot b"></div><div class="atxt">리워드X — 서비스 등록 검토 요청</div><div class="atime">어제</div></div>
+            </div>
+          </div>
+          <div class="card"><div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:12px">파트너사 현황</div>
+            <div class="act">
+              <div class="ai"><div class="adot g"></div><div class="atxt"><b>스마트픽</b> — 서비스 3개 운영중</div><div class="atime"><span class="b bg">활성</span></div></div>
+              <div class="ai"><div class="adot g"></div><div class="atxt"><b>픽플러스 테크</b> — 서비스 2개</div><div class="atime"><span class="b bg">활성</span></div></div>
+              <div class="ai"><div class="adot g"></div><div class="atxt"><b>달맛 코퍼레이션</b> — 서비스 4개</div><div class="atime"><span class="b bg">활성</span></div></div>
+              <div class="ai"><div class="adot y"></div><div class="atxt"><b>넥스트딜</b> — 검토 진행 중</div><div class="atime"><span class="b bo">검토중</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-  <!-- ===== URL MAP ===== -->
-  <div id="page-urlmap" class="content" style="display:none">
-    <div class="page-title">URL 맵 & 화면 현황</div>
-    <div class="page-desc">전체 화면의 URL, 접근 역할, 설계 상태를 한눈에 확인합니다.</div>
-    <div class="tbl-wrap">
-      <table>
-        <thead><tr><th>ID</th><th>화면명</th><th>URL</th><th>접근 역할</th><th>상태</th></tr></thead>
-        <tbody>
-          <tr><td class="td-id">LOGIN</td><td>로그인</td><td><code>/login</code></td><td>전체</td><td><span class="badge badge-done">✅ 완료</span></td></tr>
-          <tr><td class="td-id">HOME</td><td>홈 대시보드</td><td><code>/</code></td><td>마스터 / 운영자</td><td><span class="badge badge-done">✅ 완료</span></td></tr>
-          <tr><td class="td-id">1-1</td><td>파트너사 목록/조회</td><td><code>/partners</code></td><td>마스터 / 운영자</td><td><span class="badge badge-done">✅ 완료</span></td></tr>
-          <tr><td class="td-id">1-2</td><td>파트너사 등록/수정</td><td><code>/partners/create</code><br><code>/partners/:id/edit</code></td><td>마스터 / 운영자</td><td><span class="badge badge-done">✅ 완료</span></td></tr>
-          <tr><td class="td-id">2-1</td><td>서비스 홈</td><td><code>/services</code></td><td>마스터 / 운영자</td><td><span class="badge badge-done">✅ 완료</span></td></tr>
-          <tr><td class="td-id">2-2</td><td>개별 서비스 대시보드</td><td><code>/services/:serviceId/*</code></td><td>마스터 / 운영자</td><td><span class="badge badge-done">✅ 완료</span></td></tr>
-          <tr><td class="td-id">2-2-1</td><td>정보 수정</td><td><code>/services/:serviceId/info</code></td><td>마스터 / 운영자</td><td><span class="badge badge-todo2">⬜ 추후 진행</span></td></tr>
-          <tr><td class="td-id">2-2-2</td><td>알림 관리</td><td><code>/services/:serviceId/notifications</code></td><td>마스터 / 운영자</td><td><span class="badge badge-done">✅ 완료</span></td></tr>
-          <tr><td class="td-id">2-2-3</td><td>리워드 관리</td><td><code>/services/:serviceId/rewards</code></td><td>마스터 / 운영자</td><td><span class="badge badge-done">✅ 완료</span></td></tr>
-          <tr><td class="td-id">2-2-4</td><td>오퍼 관리</td><td><code>/services/:serviceId/offers</code></td><td>마스터 / 운영자</td><td><span class="badge badge-done">✅ 완료</span></td></tr>
-          <tr><td class="td-id">2-2-5</td><td>수동 지급</td><td><code>/services/:serviceId/provisions</code></td><td>마스터 / 운영자</td><td><span class="badge badge-done">✅ 완료</span></td></tr>
-          <tr><td class="td-id">3-1</td><td>전체 서비스 관리</td><td><code>/admin/services</code></td><td><span class="badge" style="background:rgba(245,197,24,0.15);color:var(--primary)">마스터 전용</span></td><td><span class="badge badge-done">✅ 완료</span></td></tr>
-          <tr><td class="td-id">3-2</td><td>사용자 관리</td><td><code>/admin/users</code></td><td><span class="badge" style="background:rgba(245,197,24,0.15);color:var(--primary)">마스터 전용</span></td><td><span class="badge badge-done">✅ 완료</span></td></tr>
-          <tr><td class="td-id">3-3</td><td>진입 권한 부여</td><td><code>/admin/users/:id/edit</code></td><td><span class="badge" style="background:rgba(245,197,24,0.15);color:var(--primary)">마스터 전용</span></td><td><span class="badge badge-done">✅ 완료</span></td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+      <!-- ══ PARTNERS ══ -->
+      <div class="page" id="page-partners">
+        <div class="ph">
+          <div class="pt">파트너사 관리</div>
+          <button class="btn bp" onclick="openPartnerCreate()">＋ 파트너사 등록</button>
+        </div>
+        <div class="search-wrap">
+          <input class="si" type="text" placeholder="파트너사명 검색" oninput="filterTr('partner-tbody',this.value)">
+        </div>
+        <div class="tw">
+          <table><thead><tr><th>파트너사 ID</th><th>파트너사명</th><th>대표자</th><th>연동 서비스</th><th>상태</th><th>가입일</th><th>액션</th></tr></thead>
+          <tbody id="partner-tbody"></tbody></table>
+        </div>
+      </div>
 
-  <!-- ===== DESIGN ===== -->
-  <div id="page-design" class="content" style="display:none">
-    <div class="page-title">디자인 시스템</div>
-    <div class="page-desc">신사업팩토리 어드민 UI의 컬러, 컴포넌트 스타일 기준입니다.</div>
-    <div class="section">
-      <div class="section-title">컬러 토큰</div>
-      <div class="tokens">
-        <div class="token-card"><div class="t-label">배경 (Background)</div><div class="t-val"><div class="color-dot" style="background:#0D1117;border:1px solid #30363D"></div>#0D1117</div></div>
-        <div class="token-card"><div class="t-label">서브 배경</div><div class="t-val"><div class="color-dot" style="background:#161B22;border:1px solid #30363D"></div>#161B22</div></div>
-        <div class="token-card"><div class="t-label">카드/컴포넌트</div><div class="t-val"><div class="color-dot" style="background:#21262D;border:1px solid #30363D"></div>#21262D</div></div>
-        <div class="token-card"><div class="t-label">Primary (Yellow)</div><div class="t-val"><div class="color-dot" style="background:#F5C518"></div>#F5C518</div></div>
-        <div class="token-card"><div class="t-label">테두리</div><div class="t-val"><div class="color-dot" style="background:#30363D;border:1px solid #30363D"></div>#30363D</div></div>
-        <div class="token-card"><div class="t-label">텍스트 Primary</div><div class="t-val"><div class="color-dot" style="background:#E6EDF3;border:1px solid #30363D"></div>#E6EDF3</div></div>
-        <div class="token-card"><div class="t-label">텍스트 Secondary</div><div class="t-val"><div class="color-dot" style="background:#8B949E;border:1px solid #30363D"></div>#8B949E</div></div>
+      <!-- ══ PARTNER FORM ══ -->
+      <div class="page" id="page-partner-form">
+        <div class="ph">
+          <div class="pt" id="pf-title">파트너사 등록</div>
+          <button class="btn bd" onclick="go('partners','파트너사 관리')">← 목록</button>
+        </div>
+        <div class="fsec">
+          <div class="fst">기본 정보</div>
+          <div class="fr"><div class="fi"><label>파트너사명 <span class="r">*</span></label><input type="text" id="pf-name" placeholder="예: 스마트픽 주식회사"></div><div class="fi"><label>대표자명 <span class="r">*</span></label><input type="text" id="pf-ceo" placeholder="예: 홍길동"></div></div>
+          <div class="fr"><div class="fi"><label>사업자등록번호 <span class="r">*</span></label><input type="text" id="pf-brn" placeholder="000-00-00000"></div><div class="fi"><label>담당자 이메일</label><input type="email" id="pf-email" placeholder="contact@company.com"></div></div>
+          <div class="fr"><div class="fi"><label>연락처</label><input type="text" id="pf-tel" placeholder="02-0000-0000"></div><div class="fi"><label>상태</label><select id="pf-st"><option value="active">활성</option><option value="review">검토중</option><option value="inactive">비활성</option></select></div></div>
+        </div>
+        <div class="fa"><button class="btn bd" onclick="go('partners','파트너사 관리')">취소</button><button class="btn bp" onclick="savePartner()">저장</button></div>
+      </div>
+
+      <!-- ══ SERVICES HOME ══ -->
+      <div class="page" id="page-services">
+        <div class="ph"><div class="pt">서비스 홈</div></div>
+        <div class="notice">담당 서비스를 선택하면 왼쪽 메뉴에 해당 서비스 관리 항목이 펼쳐집니다.</div>
+        <div class="svc-cards" id="svc-cards"></div>
+      </div>
+
+      <!-- ══ SVC: INFO ══ -->
+      <div class="page" id="page-svc-info">
+        <div class="ph"><div class="pt">정보 수정</div><button class="btn bp" onclick="toast('저장되었습니다')">저장</button></div>
+        <div class="tabs">
+          <div class="tab on" onclick="swTab(this,'si-basic')">기본 정보</div>
+          <div class="tab" onclick="swTab(this,'si-oauth')">인증 정책</div>
+          <div class="tab" onclick="swTab(this,'si-policy')">진입 정책</div>
+        </div>
+        <div id="si-basic" class="tp on">
+          <div class="fsec">
+            <div class="fst">서비스 기본 정보</div>
+            <div class="fr"><div class="fi"><label>서비스명</label><input type="text" id="svc-nm-input"></div><div class="fi"><label>파트너사</label><input type="text" id="svc-pt-input" readonly></div></div>
+            <div class="fr"><div class="fi"><label>서비스 유형</label><select><option>쇼핑</option><option>구독</option><option>커머스</option><option>리워드</option></select></div><div class="fi"><label>상태</label><select><option>운영중</option><option>준비중</option><option>중단</option></select></div></div>
+            <div class="fr full"><div class="fi"><label>서비스 설명</label><textarea id="svc-desc-input"></textarea></div></div>
+          </div>
+        </div>
+        <div id="si-oauth" class="tp">
+          <div class="fsec">
+            <div class="fst">인증 정책 (OAuth / OIDC)</div>
+            <div class="fr"><div class="fi"><label>Client ID</label><input type="text" id="svc-cid-input" readonly></div><div class="fi"><label>Client Secret</label><div style="display:flex;gap:6px"><input type="password" value="secret_xxxxxxxx" readonly><button class="btn bd bsm" onclick="toast('재발급 되었습니다')">재발급</button></div></div></div>
+            <div class="fr full"><div class="fi"><label>서비스 진입 URL <span class="r">*</span></label><input type="url" placeholder="https://service.partner.com"></div></div>
+            <div class="fr full"><div class="fi"><label>허용 Redirect URIs <span class="r">*</span></label><input type="text" placeholder="https://service.com/callback"></div></div>
+            <div class="fr"><div class="fi"><label>세션 유효시간 (분)</label><input type="number" value="60"></div></div>
+          </div>
+        </div>
+        <div id="si-policy" class="tp">
+          <div class="fsec">
+            <div class="fst">진입 정책</div>
+            <div class="fi" style="margin-bottom:14px"><label>이용 가능 연령</label>
+              <div style="display:flex;gap:12px;margin-top:6px">
+                <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="radio" name="svc-age" checked style="accent-color:var(--primary)"> 전체</label>
+                <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="radio" name="svc-age" style="accent-color:var(--primary)"> 성인만</label>
+                <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="radio" name="svc-age" style="accent-color:var(--primary)"> 청소년 이하</label>
+              </div>
+            </div>
+            <div class="fr"><div class="fi"><label>앱 최소 버전</label><input type="text" placeholder="예: 3.2.0"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ SVC: NOTIFICATIONS ══ -->
+      <div class="page" id="page-notifications">
+        <div class="ph"><div class="pt">알림 관리</div><button class="btn bp" onclick="openNotifModal()">＋ 알림 등록</button></div>
+        <div class="tw"><table><thead><tr><th>알림 ID</th><th>명칭</th><th>채널</th><th>운영 기간</th><th>발송 시간</th><th>상태</th><th>등록일</th><th>관리</th></tr></thead>
+        <tbody id="notif-tbody"></tbody></table></div>
+      </div>
+
+      <!-- ══ SVC: REWARDS ══ -->
+      <div class="page" id="page-rewards">
+        <div class="ph"><div class="pt">리워드 관리</div><button class="btn bp" onclick="openRewardModal()">＋ 리워드 등록</button></div>
+        <div class="tw"><table><thead><tr><th>리워드 ID</th><th>리워드명</th><th>유형</th><th>지급 조건</th><th>상태</th><th>등록일</th><th>관리</th></tr></thead>
+        <tbody id="reward-tbody"></tbody></table></div>
+      </div>
+
+      <!-- ══ SVC: OFFERS ══ -->
+      <div class="page" id="page-offers">
+        <div class="ph"><div class="pt">오퍼 관리</div><button class="btn bp" onclick="openOfferModal()">＋ 오퍼 등록</button></div>
+        <div class="tw"><table><thead><tr><th>오퍼 ID</th><th>오퍼명</th><th>API 엔드포인트</th><th>매핑 리워드</th><th>상태</th><th>관리</th></tr></thead>
+        <tbody id="offer-tbody"></tbody></table></div>
+      </div>
+
+      <!-- ══ SVC: PROVISIONS ══ -->
+      <div class="page" id="page-provisions">
+        <div class="ph"><div class="pt">수동 지급</div></div>
+        <div class="fsec">
+          <div class="fst">지급 정보 입력</div>
+          <div class="fr">
+            <div class="fi"><label>지급 대상 CI <span class="r">*</span></label><div style="display:flex;gap:7px"><input type="text" id="prov-ci" placeholder="사용자 CI 입력"><button class="btn bd bsm" onclick="toast('사용자를 조회했습니다')">검색</button></div></div>
+            <div class="fi"><label>지급할 리워드 <span class="r">*</span></label><select id="prov-rw"><option>신규가입 웰컴 쿠폰 (1,000원)</option><option>구매완료 현금 (500원)</option><option>이벤트 랜덤 리워드</option></select></div>
+          </div>
+          <div class="fr full"><div class="fi"><label>지급 사유 <span class="r">*</span></label><input type="text" id="prov-reason" placeholder="예: CS 요청에 의한 수동 지급"></div></div>
+          <div class="fa"><button class="btn bp" onclick="doProvision()">지급 실행</button></div>
+        </div>
+        <div style="margin-top:22px"><div style="font-size:13px;font-weight:700;margin-bottom:10px">지급 내역</div>
+          <div class="tw"><table><thead><tr><th>지급 일시</th><th>지급 대상 (CI)</th><th>리워드명</th><th>지급 사유</th><th>처리자</th></tr></thead><tbody id="prov-tbody"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ══ ADMIN SERVICES ══ -->
+      <div class="page" id="page-admin-services">
+        <div class="ph"><div class="pt">전체 서비스 관리 <span class="mbadge">마스터 전용</span></div><button class="btn bp" onclick="openAdminSvcModal()">＋ 신규 서비스 등록</button></div>
+        <div class="tw"><table><thead><tr><th>서비스명</th><th>Client ID</th><th>파트너사</th><th>상태</th><th>출시일</th><th>관리</th></tr></thead><tbody id="admin-svc-tbody"></tbody></table></div>
+      </div>
+
+      <!-- ══ ADMIN USERS ══ -->
+      <div class="page" id="page-admin-users">
+        <div class="ph"><div class="pt">사용자 관리 <span class="mbadge">마스터 전용</span></div><button class="btn bp" onclick="openUserModal(null)">＋ 관리자 등록</button></div>
+        <div class="search-wrap"><input class="si" type="text" placeholder="이름 / 이메일 검색" oninput="filterTr('admin-user-tbody',this.value)"></div>
+        <div class="tw"><table><thead><tr><th>관리자 ID</th><th>이름</th><th>이메일</th><th>역할</th><th>담당 서비스</th><th>상태</th><th>최근 로그인</th><th>관리</th></tr></thead><tbody id="admin-user-tbody"></tbody></table></div>
+      </div>
+
+    </div><!-- /main -->
+  </div><!-- /right -->
+</div><!-- /app -->
+
+<!-- ══ MODALS ══ -->
+
+<!-- 알림 등록 -->
+<div class="mo" id="mo-notif">
+  <div class="mbox" style="width:580px">
+    <div class="mh"><div class="mt">키워드 알람 등록</div><button class="mc" onclick="closeMo('mo-notif')">×</button></div>
+    <div class="mb">
+      <div class="fr"><div class="fi"><label>명칭 <span class="r">*</span></label><input type="text" placeholder="알림 식별 이름"></div><div class="fi"><label>템플릿 ID <span class="r">*</span></label><input type="text" placeholder="TPL-001"></div></div>
+      <div class="fr full"><div class="fi"><label>설명</label><textarea placeholder="알림 내용 설명"></textarea></div></div>
+      <div class="fr">
+        <div class="fi"><label>메시지 채널 <span class="r">*</span></label>
+          <div style="display:flex;gap:8px;margin-top:5px">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:7px 12px"><input type="radio" name="ch" checked style="accent-color:var(--primary)"> 알림탭</label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:7px 12px"><input type="radio" name="ch" style="accent-color:var(--primary)"> 앱푸쉬</label>
+          </div>
+        </div>
+        <div class="fi"><label>활성화</label><div style="margin-top:10px"><label class="tog"><input type="checkbox" checked><span class="sl"></span></label></div></div>
+      </div>
+      <div class="fr"><div class="fi"><label>시작일 <span class="r">*</span></label><input type="date" value="2026-04-01"></div><div class="fi"><label>종료일 <span class="r">*</span></label><input type="date" value="2026-12-31"></div></div>
+      <div class="fr"><div class="fi"><label>매일 발송 시간 <span class="r">*</span></label><input type="time" value="09:00"></div></div>
+    </div>
+    <div class="mf"><button class="btn bd" onclick="closeMo('mo-notif')">취소</button><button class="btn bp" onclick="saveNotif()">알람 등록</button></div>
+  </div>
+</div>
+
+<!-- 리워드 등록 -->
+<div class="mo" id="mo-reward">
+  <div class="mbox">
+    <div class="mh"><div class="mt">리워드 등록</div><button class="mc" onclick="closeMo('mo-reward')">×</button></div>
+    <div class="mb">
+      <div class="fr full"><div class="fi"><label>리워드명 <span class="r">*</span></label><input type="text" placeholder="리워드 식별 이름"></div></div>
+      <div class="fr full"><div class="fi"><label>지급 조건 <span class="r">*</span></label><input type="text" placeholder="예: 신규 가입 완료 시"></div></div>
+      <div class="fi" style="margin-bottom:14px"><label>리워드 유형 <span class="r">*</span></label>
+        <div style="display:flex;gap:8px;margin-top:5px">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:7px 12px"><input type="radio" name="rw" value="coupon" checked style="accent-color:var(--primary)" onchange="rwType('coupon')"> 쿠폰</label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:7px 12px"><input type="radio" name="rw" value="cash" style="accent-color:var(--primary)" onchange="rwType('cash')"> 현금</label>
+          <label style="display:flex;align-items:center;gap=6px;cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:7px 12px"><input type="radio" name="rw" value="random" style="accent-color:var(--primary)" onchange="rwType('random')"> 랜덤</label>
+        </div>
+      </div>
+      <div id="rw-coupon">
+        <div class="fr"><div class="fi"><label>쿠폰 ID <span class="r">*</span></label><input type="text" placeholder="CPN-001"></div><div class="fi"><label>유효 기간 <span class="r">*</span></label><input type="date"></div></div>
+        <div class="fr full"><div class="fi"><label>지급 안내 문구</label><textarea placeholder="사용자에게 표시될 안내 문구"></textarea></div></div>
+      </div>
+      <div id="rw-cash" style="display:none"><div class="fr"><div class="fi"><label>지급 금액 (원) <span class="r">*</span></label><input type="number" placeholder="1000"></div></div></div>
+      <div id="rw-random" style="display:none">
+        <div class="fr"><div class="fi"><label>최소 금액 (원) <span class="r">*</span></label><input type="number" placeholder="100"></div><div class="fi"><label>최대 금액 (원) <span class="r">*</span></label><input type="number" placeholder="10000"></div></div>
+        <div class="fr"><div class="fi"><label>당첨 확률 <span class="r">*</span></label><input type="text" placeholder="예: 10%"></div></div>
       </div>
     </div>
-    <div class="section">
-      <div class="section-title">상태 뱃지</div>
-      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
-        <span class="badge badge-active">활성 / 운영중</span>
-        <span class="badge badge-review">검토중 / 준비중</span>
-        <span class="badge badge-inactive">비활성</span>
-        <span class="badge" style="background:rgba(245,197,24,0.15);color:var(--primary)">마스터 only</span>
-        <span class="badge badge-review">운영자</span>
-        <span class="badge" style="background:rgba(63,185,80,0.12);color:var(--green)">Active</span>
-        <span class="badge badge-inactive">Suspended</span>
-        <span class="badge" style="background:rgba(248,81,73,0.12);color:var(--red)">Terminated</span>
+    <div class="mf"><button class="btn bd" onclick="closeMo('mo-reward')">취소</button><button class="btn bp" onclick="saveReward()">저장</button></div>
+  </div>
+</div>
+
+<!-- 오퍼 등록 -->
+<div class="mo" id="mo-offer">
+  <div class="mbox" style="width:640px">
+    <div class="mh"><div class="mt">오퍼 등록</div><button class="mc" onclick="closeMo('mo-offer')">×</button></div>
+    <div class="mb">
+      <div class="tabs">
+        <div class="tab on" onclick="swTab(this,'ot-api')">API 정보</div>
+        <div class="tab" onclick="swTab(this,'ot-reward')">리워드 매핑</div>
+        <div class="tab" onclick="swTab(this,'ot-test')">테스트</div>
+      </div>
+      <div id="ot-api" class="tp on">
+        <div class="fr full"><div class="fi"><label>오퍼명 <span class="r">*</span></label><input type="text" placeholder="오퍼 식별 이름"></div></div>
+        <div class="fr"><div class="fi"><label>API 엔드포인트 <span class="r">*</span></label><input type="url" placeholder="https://api.partner.com/v1/offer"></div><div class="fi"><label>HTTP Method</label><select><option>GET</option><option>POST</option><option>PUT</option></select></div></div>
+        <div class="fi" style="margin-bottom:10px"><label>Request Spec</label><textarea class="code-mock" placeholder='{"userId":"string","action":"string"}'></textarea></div>
+        <div class="fi"><label>Response Spec</label><textarea class="code-mock" placeholder='{"result":"success","reward":"string"}'></textarea></div>
+      </div>
+      <div id="ot-reward" class="tp">
+        <div class="fi" style="margin-bottom:12px"><label>오퍼 조건 <span class="r">*</span></label><textarea placeholder="예: result == 'success'"></textarea></div>
+        <div class="fr"><div class="fi"><label>매핑 리워드 <span class="r">*</span></label><select><option>신규가입 웰컴 쿠폰</option><option>구매완료 현금 500원</option><option>이벤트 랜덤 리워드</option></select></div></div>
+        <button class="btn bd bsm" style="margin-top:8px">＋ 조건 추가</button>
+      </div>
+      <div id="ot-test" class="tp">
+        <div class="fi" style="margin-bottom:10px"><label>테스트 Request</label><textarea class="code-mock">{"userId":"test-001","action":"purchase"}</textarea></div>
+        <button class="btn bp bsm" onclick="runTest()">▶ 테스트 실행</button>
+        <div style="margin-top:10px"><label style="font-size:11px;color:var(--text2);display:block;margin-bottom:5px">실행 결과</label>
+          <textarea class="code-mock" id="test-result" readonly style="color:var(--text2)">테스트를 실행하면 결과가 표시됩니다.</textarea>
+        </div>
       </div>
     </div>
-    <div class="section">
-      <div class="section-title">레이아웃 규칙</div>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr><th>항목</th><th>규칙</th></tr></thead>
-          <tbody>
-            <tr><td>사이드바 선택 상태</td><td>Yellow 배경 + 검정 텍스트 + 좌측 Yellow 보더</td></tr>
-            <tr><td>테마</td><td>다크 (Dark) 전용</td></tr>
-            <tr><td>버튼 Primary</td><td>Yellow 배경 (#F5C518) + 검정 텍스트</td></tr>
-            <tr><td>버튼 Default</td><td>테두리 버튼 (bg3 배경)</td></tr>
-            <tr><td>페이지 타이틀</td><td>22px, font-weight 700</td></tr>
-          </tbody>
-        </table>
+    <div class="mf"><button class="btn bd" onclick="closeMo('mo-offer')">취소</button><button class="btn bp" onclick="saveOffer()">오퍼 등록</button></div>
+  </div>
+</div>
+
+<!-- 전체 서비스 등록 -->
+<div class="mo" id="mo-admin-svc">
+  <div class="mbox" style="width:640px">
+    <div class="mh"><div class="mt">신규 서비스 등록</div><button class="mc" onclick="closeMo('mo-admin-svc')">×</button></div>
+    <div class="mb">
+      <div class="fr"><div class="fi"><label>서비스명 <span class="r">*</span></label><input type="text" placeholder="서비스명"></div><div class="fi"><label>파트너사</label><select><option>스마트픽 주식회사</option><option>픽플러스 테크</option><option>달맛 코퍼레이션</option><option>넥스트딜 주식회사</option></select></div></div>
+      <div class="fr"><div class="fi"><label>KKB 내부 관리번호</label><input type="text" placeholder="내부 관리번호"></div><div class="fi"><label>상태</label><select><option>Active</option><option>Suspended</option><option>Terminated</option></select></div></div>
+      <div class="notice" style="margin-top:4px">서비스 등록 후 해당 서비스의 <b>정보 수정</b> 페이지에서 인증 정책 및 진입 정책을 설정하세요.</div>
+    </div>
+    <div class="mf"><button class="btn bd" onclick="closeMo('mo-admin-svc')">취소</button><button class="btn bp" onclick="closeMo('mo-admin-svc');toast('서비스가 등록되었습니다')">등록</button></div>
+  </div>
+</div>
+
+<!-- 사용자 등록/수정 -->
+<div class="mo" id="mo-user">
+  <div class="mbox" style="width:560px">
+    <div class="mh"><div class="mt" id="um-title">관리자 등록</div><button class="mc" onclick="closeMo('mo-user')">×</button></div>
+    <div class="mb">
+      <div class="fr"><div class="fi"><label>이름 <span class="r">*</span></label><input type="text" id="um-name" placeholder="관리자 성명"></div><div class="fi"><label>이메일 <span class="r">*</span></label><input type="email" id="um-email" placeholder="admin@factory.com"></div></div>
+      <div class="fr"><div class="fi"><label>역할</label><select id="um-role" onchange="togglePerm()"><option value="master">마스터</option><option value="operator" selected>운영자</option></select></div><div class="fi"><label>상태</label><select id="um-status"><option>활성</option><option>비활성</option></select></div></div>
+      <div id="perm-section">
+        <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">담당 서비스 (진입 권한)</div>
+        <div class="pgrid" id="perm-grid"></div>
       </div>
     </div>
+    <div class="mf"><button class="btn bd" onclick="closeMo('mo-user')">취소</button><button class="btn bp" onclick="saveUser()">저장</button></div>
   </div>
+</div>
 
-  <!-- ===== GLOSSARY ===== -->
-  <div id="page-glossary" class="content" style="display:none">
-    <div class="page-title">용어 정리</div>
-    <div class="page-desc">프로젝트 전반에서 사용하는 핵심 용어 정의입니다.</div>
-    <div class="tbl-wrap">
-      <table>
-        <thead><tr><th>용어</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td><strong>파트너사</strong></td><td>신사업팩토리와 제휴한 외부 회사</td></tr>
-          <tr><td><strong>서비스</strong></td><td>파트너사가 운영하는 개별 앱/서비스</td></tr>
-          <tr><td><strong>오퍼</strong></td><td>외부 API를 등록하고 리워드와 매핑한 단위</td></tr>
-          <tr><td><strong>리워드</strong></td><td>사용자에게 지급하는 보상 (쿠폰 / 현금 / 랜덤)</td></tr>
-          <tr><td><strong>수동 지급</strong></td><td>운영 목적으로 특정 사용자에게 직접 리워드를 지급하는 기능</td></tr>
-          <tr><td><strong>마스터</strong></td><td>전체 권한을 가진 최고 관리자 계정</td></tr>
-          <tr><td><strong>운영자</strong></td><td>특정 서비스에만 접근 가능한 담당 관리자</td></tr>
-          <tr><td><strong>CI</strong></td><td>사용자를 식별하는 고유 식별자 (수동 지급 대상 지정 시 사용)</td></tr>
-          <tr><td><strong>Client ID / Secret</strong></td><td>OAuth 인증을 위한 서비스 식별 키 쌍</td></tr>
-          <tr><td><strong>진입 권한</strong></td><td>운영자가 특정 서비스의 관리 메뉴에 접근할 수 있도록 마스터가 부여하는 권한</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- ===== LOGIN ===== -->
-  <div id="page-login" class="content" style="display:none">
-    <div class="page-title">LOGIN — 로그인</div>
-    <div class="info-box"><div class="meta">
-      <div class="meta-item"><span class="label">URL</span><span class="val">/login</span></div>
-      <div class="meta-item"><span class="label">접근</span><span class="val">전체 (비인증)</span></div>
-    </div></div>
-    <div class="goal-box"><div class="goal-label">화면 목표</div><p>사용자가 이메일과 비밀번호로 시스템에 안전하게 인증하고 로그인합니다.</p></div>
-    <div class="section">
-      <div class="section-title">화면 요소</div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>요소</th><th>컴포넌트</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>로고</td><td>Image</td><td>신사업팩토리 로고</td></tr>
-          <tr><td>이메일</td><td>Input (type=email)</td><td>이메일 형식 유효성 검사</td></tr>
-          <tr><td>비밀번호</td><td>Input (type=password)</td><td>마스킹 처리</td></tr>
-          <tr><td>로그인 버튼</td><td>Button (Primary)</td><td>인증 API 호출 → 성공 시 <code>/</code>로 이동</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-    <div class="section">
-      <div class="section-title">동작 정의</div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>케이스</th><th>동작</th></tr></thead>
-        <tbody>
-          <tr><td>로그인 성공</td><td>홈 대시보드(<code>/</code>)로 이동</td></tr>
-          <tr><td>이메일/비밀번호 불일치</td><td>에러 메시지 표시 "이메일 또는 비밀번호를 확인하세요"</td></tr>
-          <tr><td>필드 미입력</td><td>필드 하단 Validation 메시지 표시</td></tr>
-          <tr><td>이미 로그인 상태</td><td><code>/login</code> 접근 시 <code>/</code>로 리다이렉트</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-  </div>
-
-  <!-- ===== HOME ===== -->
-  <div id="page-home" class="content" style="display:none">
-    <div class="page-title">HOME — 홈 대시보드</div>
-    <div class="info-box"><div class="meta">
-      <div class="meta-item"><span class="label">URL</span><span class="val">/</span></div>
-      <div class="meta-item"><span class="label">접근</span><span class="val">마스터 / 운영자</span></div>
-    </div></div>
-    <div class="goal-box"><div class="goal-label">화면 목표</div><p>로그인 후 가장 먼저 보게 되는 페이지로, 주요 현황을 요약하여 보여줍니다.</p></div>
-    <div class="note">상세 컨텐츠 및 데이터 항목은 추후 정의 예정입니다.</div>
-    <div class="section">
-      <div class="section-title">화면 요소 (추후 상세 정의)</div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>요소</th><th>컴포넌트</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>요약 카드</td><td>Card</td><td>전체 파트너사 수, 총 서비스 수 등 주요 수치</td></tr>
-          <tr><td>최근 알림 내역</td><td>List / Table</td><td>최근 발송된 알림 요약</td></tr>
-          <tr><td>주요 공지사항</td><td>Notice / Banner</td><td>시스템 공지 등</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-  </div>
-
-  <!-- ===== 1-1 ===== -->
-  <div id="page-p1-1" class="content" style="display:none">
-    <div class="page-title">1-1 — 파트너사 목록/조회</div>
-    <div class="info-box"><div class="meta">
-      <div class="meta-item"><span class="label">URL</span><span class="val">/partners</span></div>
-      <div class="meta-item"><span class="label">접근</span><span class="val">마스터 / 운영자</span></div>
-    </div></div>
-    <div class="goal-box"><div class="goal-label">화면 목표</div><p>등록된 모든 파트너사를 목록 형태로 조회하고, 검색 및 관리 기능(수정)을 제공합니다.</p></div>
-
-    <div class="section">
-      <div class="section-title">화면 요소</div>
-      <h3>헤더 영역</h3>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>요소</th><th>컴포넌트</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>페이지 제목</td><td>Text</td><td>"파트너사 관리"</td></tr>
-          <tr><td>+ 파트너사 등록</td><td>Button (Primary)</td><td><code>/partners/create</code>로 이동</td></tr>
-        </tbody>
-      </table></div>
-      <h3>검색 영역</h3>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>요소</th><th>컴포넌트</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>파트너사명 검색</td><td>Input</td><td>파트너사명 키워드 검색</td></tr>
-          <tr><td>검색 버튼</td><td>Button</td><td>검색 실행</td></tr>
-        </tbody>
-      </table></div>
-      <h3>목록 테이블</h3>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>컬럼명</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>파트너사 ID</td><td>시스템 자동 생성 고유 ID (예: PRT-001)</td></tr>
-          <tr><td>파트너사</td><td>파트너사 이름</td></tr>
-          <tr><td>대표자</td><td>파트너사 대표자명</td></tr>
-          <tr><td>연동 서비스</td><td>해당 파트너사와 연동된 서비스 개수</td></tr>
-          <tr><td>가입일</td><td>파트너사 등록일 (YYYY.MM.DD)</td></tr>
-          <tr><td>관리</td><td>수정 버튼 → <code>/partners/:id/edit</code></td></tr>
-        </tbody>
-      </table></div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">동작 정의</div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>케이스</th><th>동작</th></tr></thead>
-        <tbody>
-          <tr><td>검색어 입력 후 검색</td><td>파트너사명 포함 검색 결과 필터링</td></tr>
-          <tr><td>검색 결과 없음</td><td>"검색 결과가 없습니다" 빈 상태 표시</td></tr>
-          <tr><td>수정 버튼 클릭</td><td><code>/partners/:id/edit</code>으로 이동</td></tr>
-          <tr><td>+ 파트너사 등록 클릭</td><td><code>/partners/create</code>으로 이동</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">샘플 데이터</div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>파트너사 ID</th><th>파트너사명</th><th>대표자</th><th>연동 서비스</th><th>가입일</th></tr></thead>
-        <tbody>
-          <tr><td class="td-id">PRT-001</td><td>스마트픽 주식회사</td><td>홍길동</td><td>3개</td><td>2025.01.15</td></tr>
-          <tr><td class="td-id">PRT-002</td><td>픽플러스 테크</td><td>이영희</td><td>2개</td><td>2025.03.22</td></tr>
-          <tr><td class="td-id">PRT-003</td><td>달맛 코퍼레이션</td><td>박철수</td><td>4개</td><td>2025.06.08</td></tr>
-          <tr><td class="td-id">PRT-004</td><td>넥스트딜 주식회사</td><td>김영수</td><td>1개</td><td>2026.02.14</td></tr>
-          <tr><td class="td-id">PRT-005</td><td>리워드팩토리</td><td>최미래</td><td>0개</td><td>2025.11.30</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-  </div>
-
-  <!-- ===== 1-2 ===== -->
-  <div id="page-p1-2" class="content" style="display:none">
-    <div class="page-title">1-2 — 파트너사 등록/수정</div>
-    <div class="info-box"><div class="meta">
-      <div class="meta-item"><span class="label">URL (등록)</span><span class="val">/partners/create</span></div>
-      <div class="meta-item"><span class="label">URL (수정)</span><span class="val">/partners/:id/edit</span></div>
-      <div class="meta-item"><span class="label">접근</span><span class="val">마스터 / 운영자</span></div>
-    </div></div>
-    <div class="goal-box"><div class="goal-label">화면 목표</div><p>새로운 파트너사를 시스템에 등록하거나 기존 파트너사의 정보를 수정합니다.</p></div>
-    <div class="section">
-      <div class="section-title">입력 폼</div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>필드명</th><th>컴포넌트</th><th>필수</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>파트너사명</td><td>Input</td><td><span class="req req-y">필수</span></td><td>파트너사 공식 명칭</td></tr>
-          <tr><td>대표자명</td><td>Input</td><td><span class="req req-y">필수</span></td><td>파트너사 대표자 성명</td></tr>
-          <tr><td>사업자등록번호</td><td>Input</td><td><span class="req req-y">필수</span></td><td><code>000-00-00000</code> 형식 유효성 검사</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-    <div class="section">
-      <div class="section-title">동작 정의</div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>케이스</th><th>동작</th></tr></thead>
-        <tbody>
-          <tr><td>필수 필드 미입력 후 저장</td><td>필드 하단 Validation 메시지 표시</td></tr>
-          <tr><td>사업자등록번호 형식 오류</td><td>형식 유효성 에러 메시지 표시</td></tr>
-          <tr><td>저장 성공</td><td><code>/partners</code> 목록으로 이동, 성공 Toast 표시</td></tr>
-          <tr><td>수정 페이지 진입</td><td>기존 파트너사 정보 폼에 pre-fill</td></tr>
-          <tr><td>취소 버튼 클릭</td><td><code>/partners</code>로 이동 (변경 사항 미저장)</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-  </div>
-
-  <!-- ===== 2-1 ===== -->
-  <div id="page-p2-1" class="content" style="display:none">
-    <div class="page-title">2-1 — 서비스 홈</div>
-    <div class="info-box"><div class="meta">
-      <div class="meta-item"><span class="label">URL</span><span class="val">/services</span></div>
-      <div class="meta-item"><span class="label">접근</span><span class="val">마스터 / 운영자</span></div>
-    </div></div>
-    <div class="goal-box"><div class="goal-label">화면 목표</div><p>운영자가 자신이 담당하는 서비스 목록을 확인하고, 관리할 서비스를 선택하여 진입합니다.</p></div>
-    <div class="section">
-      <div class="section-title">콘텐츠 영역</div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>요소</th><th>컴포넌트</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>담당 서비스 목록</td><td>Card Grid 또는 List</td><td>담당 서비스를 카드/리스트 형태로 나열</td></tr>
-          <tr><td>서비스명</td><td>Text</td><td>서비스 이름</td></tr>
-          <tr><td>서비스 로고/아이콘</td><td>Image</td><td>서비스 대표 이미지</td></tr>
-          <tr><td>상태 뱃지</td><td>Badge</td><td>운영중 / 준비중 / 비활성</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-    <div class="section">
-      <div class="section-title">역할별 노출 차이</div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>역할</th><th>노출 범위</th></tr></thead>
-        <tbody>
-          <tr><td><span class="badge" style="background:rgba(245,197,24,0.15);color:var(--primary)">마스터</span></td><td>전체 서비스 목록</td></tr>
-          <tr><td><span class="badge badge-review">운영자</span></td><td>3-3에서 진입 권한이 부여된 서비스만</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-  </div>
-
-  <!-- ===== 2-2 ===== -->
-  <div id="page-p2-2" class="content" style="display:none">
-    <div class="page-title">2-2 — 개별 서비스 대시보드 (공통 레이아웃)</div>
-    <div class="info-box"><div class="meta">
-      <div class="meta-item"><span class="label">URL</span><span class="val">/services/:serviceId/*</span></div>
-      <div class="meta-item"><span class="label">접근</span><span class="val">마스터 / 운영자 (해당 서비스 권한 보유자)</span></div>
-    </div></div>
-    <div class="goal-box"><div class="goal-label">화면 목표</div><p>선택된 특정 서비스에 대한 모든 관리 기능을 수행하는 메인 페이지. 사이드 서브 메뉴로 각 기능 전환.</p></div>
-    <div class="section">
-      <div class="section-title">사이드 서브 메뉴</div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>메뉴</th><th>URL</th><th>화면 ID</th></tr></thead>
-        <tbody>
-          <tr><td>정보 수정</td><td><code>/services/:serviceId/info</code></td><td>2-2-1</td></tr>
-          <tr><td>알림 관리</td><td><code>/services/:serviceId/notifications</code></td><td>2-2-2</td></tr>
-          <tr><td>리워드 관리</td><td><code>/services/:serviceId/rewards</code></td><td>2-2-3</td></tr>
-          <tr><td>오퍼 관리</td><td><code>/services/:serviceId/offers</code></td><td>2-2-4</td></tr>
-          <tr><td>수동 지급</td><td><code>/services/:serviceId/provisions</code></td><td>2-2-5</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-    <div class="section">
-      <div class="section-title">동작 정의</div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>케이스</th><th>동작</th></tr></thead>
-        <tbody>
-          <tr><td>진입 권한 없는 URL 직접 접근</td><td>403 접근 거부 또는 <code>/services</code>로 리다이렉트</td></tr>
-          <tr><td>serviceId 미존재</td><td>404 페이지 표시</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-  </div>
-
-  <!-- ===== 2-2-1 ===== -->
-  <div id="page-p2-2-1" class="content" style="display:none">
-    <div class="page-title">2-2-1 — 정보 수정</div>
-    <div class="info-box"><div class="meta">
-      <div class="meta-item"><span class="label">URL</span><span class="val">/services/:serviceId/info</span></div>
-    </div></div>
-    <div class="note warn">이 화면의 상세 기획은 추후 별도 요청 시 진행됩니다.</div>
-  </div>
-
-  <!-- ===== 2-2-2 ===== -->
-  <div id="page-p2-2-2" class="content" style="display:none">
-    <div class="page-title">2-2-2 — 알림 관리</div>
-    <div class="info-box"><div class="meta">
-      <div class="meta-item"><span class="label">URL</span><span class="val">/services/:serviceId/notifications</span></div>
-      <div class="meta-item"><span class="label">접근</span><span class="val">마스터 / 운영자</span></div>
-    </div></div>
-    <div class="goal-box"><div class="goal-label">화면 목표</div><p>특정 서비스의 사용자에게 보낼 알림(앱 푸시, 인앱 메시지 등)을 생성하고, 발송 스케줄을 관리합니다.</p></div>
-
-    <div class="tabs">
-      <div class="tab active" onclick="switchTab(this,'notif-list')">A. 목록 화면</div>
-      <div class="tab" onclick="switchTab(this,'notif-form')">B. 등록/수정 화면</div>
-    </div>
-
-    <div id="notif-list" class="tab-content active">
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>컬럼명</th><th>컴포넌트</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>알림 ID</td><td>Text</td><td>시스템 자동 생성 고유 ID</td></tr>
-          <tr><td>명칭</td><td>Text</td><td>알림 명칭</td></tr>
-          <tr><td>채널</td><td>Badge</td><td>알림탭 / 앱푸쉬</td></tr>
-          <tr><td>운영 기간</td><td>Text</td><td>시작일 ~ 종료일</td></tr>
-          <tr><td>발송 시간</td><td>Text</td><td>매일 발송 시간 (HH:MM)</td></tr>
-          <tr><td>상태</td><td>Toggle</td><td>활성/비활성 즉시 전환</td></tr>
-          <tr><td>등록일</td><td>Text</td><td>YYYY.MM.DD</td></tr>
-          <tr><td>관리</td><td>Button</td><td>수정 버튼 → 등록/수정 화면으로 이동</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-
-    <div id="notif-form" class="tab-content">
-      <div class="info-box"><div class="meta">
-        <div class="meta-item"><span class="label">URL (등록)</span><span class="val">/services/:serviceId/notifications/create</span></div>
-        <div class="meta-item"><span class="label">URL (수정)</span><span class="val">/services/:serviceId/notifications/:id/edit</span></div>
-      </div></div>
-      <h3>기본 정보</h3>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>필드명</th><th>컴포넌트</th><th>필수</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>명칭</td><td>Input</td><td><span class="req req-y">필수</span></td><td>알림 식별 이름</td></tr>
-          <tr><td>설명</td><td>TextArea</td><td><span class="req req-n">선택</span></td><td>알림 내용 설명</td></tr>
-          <tr><td>활성화 여부</td><td>Toggle</td><td><span class="req req-y">필수</span></td><td>기본값: 활성</td></tr>
-          <tr><td>템플릿 ID</td><td>Input</td><td><span class="req req-y">필수</span></td><td>발송 템플릿 식별자</td></tr>
-          <tr><td>메시지 채널</td><td>Segmented (알림탭 / 앱푸쉬)</td><td><span class="req req-y">필수</span></td><td>발송 채널 선택</td></tr>
-          <tr><td>서비스</td><td>Select (readonly)</td><td>-</td><td>현재 서비스 자동 설정</td></tr>
-        </tbody>
-      </table></div>
-      <h3>운영 기간</h3>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>필드명</th><th>컴포넌트</th><th>필수</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>시작 시간</td><td>DatePicker</td><td><span class="req req-y">필수</span></td><td>운영 시작일</td></tr>
-          <tr><td>종료 시간</td><td>DatePicker</td><td><span class="req req-y">필수</span></td><td>운영 종료일</td></tr>
-        </tbody>
-      </table></div>
-      <h3>스케줄 설정</h3>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>필드명</th><th>컴포넌트</th><th>필수</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>기준 시간</td><td>TimePicker</td><td><span class="req req-y">필수</span></td><td>매일 발송할 시간 (HH:MM)</td></tr>
-        </tbody>
-      </table></div>
-      <h3>하단 버튼</h3>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>요소</th><th>동작</th></tr></thead>
-        <tbody>
-          <tr><td>초기화</td><td>폼 전체 초기화</td></tr>
-          <tr><td>알람 등록 / 수정</td><td>저장 API 호출 후 목록으로 이동</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-  </div>
-
-  <!-- ===== 2-2-3 ===== -->
-  <div id="page-p2-2-3" class="content" style="display:none">
-    <div class="page-title">2-2-3 — 리워드 관리</div>
-    <div class="info-box"><div class="meta">
-      <div class="meta-item"><span class="label">URL</span><span class="val">/services/:serviceId/rewards</span></div>
-      <div class="meta-item"><span class="label">접근</span><span class="val">마스터 / 운영자</span></div>
-    </div></div>
-    <div class="goal-box"><div class="goal-label">화면 목표</div><p>사용자에게 지급할 보상(리워드)의 종류와 내용을 정의하고 관리합니다.</p></div>
-
-    <div class="tabs">
-      <div class="tab active" onclick="switchTab(this,'rw-list')">A. 목록 화면</div>
-      <div class="tab" onclick="switchTab(this,'rw-modal')">B. 등록/수정 모달</div>
-    </div>
-
-    <div id="rw-list" class="tab-content active">
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>컬럼명</th><th>컴포넌트</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>리워드 ID</td><td>Text</td><td>시스템 자동 생성 고유 ID</td></tr>
-          <tr><td>리워드명</td><td>Text</td><td>리워드 이름</td></tr>
-          <tr><td>유형</td><td>Badge</td><td>쿠폰 / 현금 / 랜덤</td></tr>
-          <tr><td>지급 조건</td><td>Text</td><td>지급 트리거 조건 설명</td></tr>
-          <tr><td>상태</td><td>Toggle</td><td>활성/비활성 즉시 전환</td></tr>
-          <tr><td>등록일</td><td>Text</td><td>YYYY.MM.DD</td></tr>
-          <tr><td>관리</td><td>Button</td><td>수정 버튼 → 수정 모달 열림</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-
-    <div id="rw-modal" class="tab-content">
-      <div class="note">+ 리워드 등록 버튼 클릭 시 Modal로 열립니다. 3단계 구조로 진행됩니다.</div>
-      <h3>1단계 — 공통 정보</h3>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>필드명</th><th>컴포넌트</th><th>필수</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>리워드명</td><td>Input</td><td><span class="req req-y">필수</span></td><td>리워드 식별 이름</td></tr>
-          <tr><td>지급 조건</td><td>Input</td><td><span class="req req-y">필수</span></td><td>리워드가 지급되는 조건 설명</td></tr>
-          <tr><td>리워드 유형</td><td>Radio Group</td><td><span class="req req-y">필수</span></td><td>쿠폰 / 현금 / 랜덤</td></tr>
-        </tbody>
-      </table></div>
-      <h3>2단계 — 유형별 상세</h3>
-      <h4>쿠폰 선택 시</h4>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>필드명</th><th>컴포넌트</th><th>필수</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>쿠폰 ID</td><td>Input</td><td><span class="req req-y">필수</span></td><td>쿠폰 식별자</td></tr>
-          <tr><td>쿠폰번호 업로드</td><td>Upload</td><td><span class="req req-n">선택</span></td><td>CSV 파일 업로드</td></tr>
-          <tr><td>지급 안내 문구</td><td>TextArea</td><td><span class="req req-n">선택</span></td><td>사용자에게 표시될 안내 문구</td></tr>
-          <tr><td>유효 기간</td><td>RangePicker</td><td><span class="req req-y">필수</span></td><td>쿠폰 유효 시작일 ~ 종료일</td></tr>
-        </tbody>
-      </table></div>
-      <h4>현금 선택 시</h4>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>필드명</th><th>컴포넌트</th><th>필수</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>지급 금액</td><td>InputNumber</td><td><span class="req req-y">필수</span></td><td>지급할 현금 금액 (원 단위)</td></tr>
-        </tbody>
-      </table></div>
-      <h4>랜덤 선택 시</h4>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>필드명</th><th>컴포넌트</th><th>필수</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>최소 지급 금액</td><td>InputNumber</td><td><span class="req req-y">필수</span></td><td>랜덤 지급 최솟값</td></tr>
-          <tr><td>최대 지급 금액</td><td>InputNumber</td><td><span class="req req-y">필수</span></td><td>랜덤 지급 최댓값</td></tr>
-          <tr><td>당첨 확률</td><td>Input</td><td><span class="req req-y">필수</span></td><td>예: 10%</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-  </div>
-
-  <!-- ===== 2-2-4 ===== -->
-  <div id="page-p2-2-4" class="content" style="display:none">
-    <div class="page-title">2-2-4 — 오퍼 관리</div>
-    <div class="info-box"><div class="meta">
-      <div class="meta-item"><span class="label">URL</span><span class="val">/services/:serviceId/offers</span></div>
-      <div class="meta-item"><span class="label">접근</span><span class="val">마스터 / 운영자</span></div>
-    </div></div>
-    <div class="goal-box"><div class="goal-label">화면 목표</div><p>외부 API를 '오퍼'로 등록하고, API 결과에 따라 지급할 '리워드'를 매핑(연결)합니다.</p></div>
-
-    <div class="tabs">
-      <div class="tab active" onclick="switchTab(this,'of-list')">A. 목록 화면</div>
-      <div class="tab" onclick="switchTab(this,'of-tab1')">B-1. API 정보</div>
-      <div class="tab" onclick="switchTab(this,'of-tab2')">B-2. 리워드 매핑</div>
-      <div class="tab" onclick="switchTab(this,'of-tab3')">B-3. 테스트</div>
-    </div>
-
-    <div id="of-list" class="tab-content active">
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>컬럼명</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>오퍼 ID</td><td>시스템 자동 생성 고유 ID</td></tr>
-          <tr><td>오퍼명</td><td>오퍼 이름</td></tr>
-          <tr><td>API 엔드포인트</td><td>연동된 API URL (truncate 처리)</td></tr>
-          <tr><td>매핑된 리워드</td><td>연결된 리워드명 목록 (요약)</td></tr>
-          <tr><td>상태</td><td>Toggle (활성/비활성 즉시 전환)</td></tr>
-          <tr><td>관리</td><td>수정 버튼 / 테스트 버튼</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-    <div id="of-tab1" class="tab-content">
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>필드명</th><th>컴포넌트</th><th>필수</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>오퍼명</td><td>Input</td><td><span class="req req-y">필수</span></td><td>오퍼 식별 이름</td></tr>
-          <tr><td>API 엔드포인트</td><td>Input (URL)</td><td><span class="req req-y">필수</span></td><td>호출할 외부 API URL</td></tr>
-          <tr><td>HTTP Method</td><td>Select</td><td><span class="req req-y">필수</span></td><td>GET / POST / PUT 등</td></tr>
-          <tr><td>Request Spec</td><td>Code Editor</td><td><span class="req req-n">선택</span></td><td>API Request 스펙 (JSON)</td></tr>
-          <tr><td>Response Spec</td><td>Code Editor</td><td><span class="req req-n">선택</span></td><td>API Response 스펙 (JSON)</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-    <div id="of-tab2" class="tab-content">
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>필드명</th><th>컴포넌트</th><th>필수</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>오퍼 조건</td><td>TextArea</td><td><span class="req req-y">필수</span></td><td>리워드 지급 트리거 조건 설명</td></tr>
-          <tr><td>매핑된 리워드 선택</td><td>Select (검색 가능)</td><td><span class="req req-y">필수</span></td><td>해당 서비스의 리워드 목록에서 선택</td></tr>
-          <tr><td>+ 조건 추가</td><td>Button</td><td>-</td><td>조건-리워드 매핑 행 추가 (복수 가능)</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-    <div id="of-tab3" class="tab-content">
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>요소</th><th>컴포넌트</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>테스트용 Request</td><td>Code Editor</td><td>테스트 요청 데이터 직접 입력</td></tr>
-          <tr><td>테스트 실행</td><td>Button (Primary)</td><td>Tab 1의 엔드포인트+Method 기반 API 호출</td></tr>
-          <tr><td>실행 결과</td><td>Code Editor (Read-only)</td><td>응답 결과 표시</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-  </div>
-
-  <!-- ===== 2-2-5 ===== -->
-  <div id="page-p2-2-5" class="content" style="display:none">
-    <div class="page-title">2-2-5 — 수동 지급</div>
-    <div class="info-box"><div class="meta">
-      <div class="meta-item"><span class="label">URL</span><span class="val">/services/:serviceId/provisions</span></div>
-      <div class="meta-item"><span class="label">접근</span><span class="val">마스터 / 운영자</span></div>
-    </div></div>
-    <div class="goal-box"><div class="goal-label">화면 목표</div><p>CS, 이벤트 등 운영상의 이유로 특정 사용자에게 리워드를 직접 지급하고 내역을 관리합니다.</p></div>
-    <div class="section">
-      <div class="section-title">지급 정보 입력 폼</div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>필드명</th><th>컴포넌트</th><th>필수</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>지급 대상 CI</td><td>Input + [검색] Button</td><td><span class="req req-y">필수</span></td><td>사용자 CI 입력 또는 검색 버튼으로 조회</td></tr>
-          <tr><td>지급할 리워드</td><td>Select</td><td><span class="req req-y">필수</span></td><td>해당 서비스 등록 리워드 목록에서 선택</td></tr>
-          <tr><td>지급 사유</td><td>Input</td><td><span class="req req-y">필수</span></td><td>CS 처리, 이벤트 보상 등 사유</td></tr>
-          <tr><td>지급 실행</td><td>Button (Primary)</td><td>-</td><td>확인 모달 → 지급 API 호출</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-    <div class="section">
-      <div class="section-title">지급 내역 테이블</div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>컬럼명</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>지급 일시</td><td>YYYY.MM.DD HH:MM:SS</td></tr>
-          <tr><td>지급 대상 (CI)</td><td>마스킹 처리 고려</td></tr>
-          <tr><td>리워드명</td><td>지급된 리워드 이름</td></tr>
-          <tr><td>지급 사유</td><td>입력된 지급 사유 텍스트</td></tr>
-          <tr><td>처리자</td><td>지급을 실행한 관리자명</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-  </div>
-
-  <!-- ===== 3-1 ===== -->
-  <div id="page-p3-1" class="content" style="display:none">
-    <div class="page-title">3-1 — 전체 서비스 관리</div>
-    <div class="info-box"><div class="meta">
-      <div class="meta-item"><span class="label">URL</span><span class="val">/admin/services</span></div>
-      <div class="meta-item"><span class="label">접근</span><span class="val" style="color:var(--primary)">마스터 전용</span></div>
-    </div></div>
-    <div class="goal-box"><div class="goal-label">화면 목표</div><p>마스터 관리자가 OAuth 인증 플랫폼에 연동될 모든 제휴 서비스를 등록하고, 각 서비스의 인증/진입 정책을 상세히 설정합니다.</p></div>
-
-    <div class="tabs">
-      <div class="tab active" onclick="switchTab(this,'svc-list')">A. 목록 화면</div>
-      <div class="tab" onclick="switchTab(this,'svc-tab1')">B-1. 기본 정보</div>
-      <div class="tab" onclick="switchTab(this,'svc-tab2')">B-2. 인증 정책</div>
-      <div class="tab" onclick="switchTab(this,'svc-tab3')">B-3. 진입 정책</div>
-    </div>
-
-    <div id="svc-list" class="tab-content active">
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>컬럼명</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>서비스명</td><td>서비스 이름</td></tr>
-          <tr><td>Client ID</td><td>OAuth Client ID</td></tr>
-          <tr><td>파트너사</td><td>연결된 파트너사명</td></tr>
-          <tr><td>상태</td><td>Active / Suspended / Terminated</td></tr>
-          <tr><td>등록일</td><td>YYYY.MM.DD</td></tr>
-          <tr><td>관리</td><td>수정 버튼</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-    <div id="svc-tab1" class="tab-content">
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>필드명</th><th>컴포넌트</th><th>필수</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>서비스명</td><td>Input</td><td><span class="req req-y">필수</span></td><td>서비스 공식 명칭</td></tr>
-          <tr><td>파트너사명</td><td>Input 또는 Select</td><td><span class="req req-y">필수</span></td><td>연결할 파트너사</td></tr>
-          <tr><td>KKB 내부 관리번호</td><td>Input</td><td><span class="req req-n">선택</span></td><td>내부 관리용 식별번호</td></tr>
-          <tr><td>상태</td><td>Select</td><td><span class="req req-y">필수</span></td><td>Active / Suspended / Terminated</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-    <div id="svc-tab2" class="tab-content">
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>필드명</th><th>컴포넌트</th><th>필수</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>Client ID</td><td>Input (Readonly)</td><td>-</td><td>시스템 자동 발급, 복사 버튼 제공</td></tr>
-          <tr><td>Client Secret</td><td>Input (Readonly, 마스킹)</td><td>-</td><td>[재발급] 버튼으로 갱신 가능</td></tr>
-          <tr><td>서비스 진입 URL</td><td>Input (URL)</td><td><span class="req req-y">필수</span></td><td>서비스 메인 진입 URL</td></tr>
-          <tr><td>허용 Redirect URIs</td><td>Tag Input</td><td><span class="req req-y">필수</span></td><td>복수 입력 가능 (Enter로 태그 추가)</td></tr>
-          <tr><td>허용 Scopes</td><td>Checkbox Group</td><td><span class="req req-y">필수</span></td><td>Scope 목록에서 선택</td></tr>
-          <tr><td>허용 IPs</td><td>Tag Input</td><td><span class="req req-n">선택</span></td><td>IP Whitelist (빈 경우 전체 허용)</td></tr>
-          <tr><td>세션 유효시간</td><td>InputNumber</td><td><span class="req req-y">필수</span></td><td>단위: 분 (예: 60)</td></tr>
-        </tbody>
-      </table></div>
-      <div class="note warn">[재발급] 클릭 시 경고 확인 모달 → API 호출로 Secret 재발급. 신규 값은 1회성 노출 고려 필요.</div>
-    </div>
-    <div id="svc-tab3" class="tab-content">
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>필드명</th><th>컴포넌트</th><th>필수</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>이용 가능 연령</td><td>Radio Group</td><td><span class="req req-y">필수</span></td><td>전체 / 성인만 / 청소년 이하 등</td></tr>
-          <tr><td>이용 가능 고객</td><td>Checkbox Group</td><td><span class="req req-y">필수</span></td><td>고객 유형 다중 선택</td></tr>
-          <tr><td>앱 최소 버전</td><td>Input</td><td><span class="req req-n">선택</span></td><td>예: 3.2.0</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-  </div>
-
-  <!-- ===== 3-2 ===== -->
-  <div id="page-p3-2" class="content" style="display:none">
-    <div class="page-title">3-2 — 사용자 관리</div>
-    <div class="info-box"><div class="meta">
-      <div class="meta-item"><span class="label">URL</span><span class="val">/admin/users</span></div>
-      <div class="meta-item"><span class="label">접근</span><span class="val" style="color:var(--primary)">마스터 전용</span></div>
-    </div></div>
-    <div class="goal-box"><div class="goal-label">화면 목표</div><p>마스터 관리자가 이 어드민 시스템을 사용하는 모든 사용자(마스터/운영자) 계정을 관리합니다.</p></div>
-    <div class="section">
-      <div class="section-title">목록 테이블</div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>컬럼명</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>관리자 ID</td><td>시스템 자동 생성 고유 ID (예: ADM-001)</td></tr>
-          <tr><td>이름</td><td>관리자 성명</td></tr>
-          <tr><td>이메일</td><td>로그인 이메일</td></tr>
-          <tr><td>담당 서비스</td><td>권한 부여된 서비스명 목록 (요약)</td></tr>
-          <tr><td>최근 로그인</td><td>YYYY.MM.DD HH:MM</td></tr>
-          <tr><td>관리</td><td>수정 버튼 → <code>/admin/users/:id/edit</code> (3-3 기능 포함)</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-    <div class="section">
-      <div class="section-title">샘플 데이터</div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>관리자 ID</th><th>이름</th><th>이메일</th><th>역할</th><th>담당 서비스</th><th>최근 로그인</th></tr></thead>
-        <tbody>
-          <tr><td class="td-id">ADM-001</td><td>홍길동</td><td>hong@factory.com</td><td><span class="badge" style="background:rgba(245,197,24,0.15);color:var(--primary)">마스터</span></td><td>전체</td><td>2026.03.24 09:00</td></tr>
-          <tr><td class="td-id">ADM-002</td><td>이관리</td><td>lee.admin@factory.com</td><td><span class="badge badge-review">운영자</span></td><td>스마트픽, 픽플러스</td><td>2026.03.24 11:30</td></tr>
-          <tr><td class="td-id">ADM-003</td><td>박운영</td><td>park.op@factory.com</td><td><span class="badge badge-review">운영자</span></td><td>달맛</td><td>2026.03.23 15:45</td></tr>
-          <tr><td class="td-id">ADM-004</td><td>최담당</td><td>choi@factory.com</td><td><span class="badge badge-review">운영자</span></td><td>스마트픽</td><td><span class="badge badge-inactive">비활성</span></td></tr>
-        </tbody>
-      </table></div>
-    </div>
-  </div>
-
-  <!-- ===== 3-3 ===== -->
-  <div id="page-p3-3" class="content" style="display:none">
-    <div class="page-title">3-3 — 진입 권한 부여</div>
-    <div class="info-box"><div class="meta">
-      <div class="meta-item"><span class="label">URL</span><span class="val">/admin/users/:id/edit</span></div>
-      <div class="meta-item"><span class="label">접근</span><span class="val" style="color:var(--primary)">마스터 전용</span></div>
-      <div class="meta-item"><span class="label">위치</span><span class="val">3-2 사용자 수정 화면 내 포함</span></div>
-    </div></div>
-    <div class="goal-box"><div class="goal-label">화면 목표</div><p>마스터 관리자가 '운영자'에게 특정 서비스를 관리할 수 있는 권한을 부여하거나 회수합니다.</p></div>
-    <div class="section">
-      <div class="section-title">계정 기본 정보</div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>필드명</th><th>컴포넌트</th><th>필수</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>이름</td><td>Input</td><td><span class="req req-y">필수</span></td><td>관리자 성명</td></tr>
-          <tr><td>이메일</td><td>Input (Readonly)</td><td>-</td><td>수정 불가</td></tr>
-          <tr><td>역할</td><td>Select 또는 Badge</td><td>-</td><td>마스터 / 운영자 표시</td></tr>
-          <tr><td>상태</td><td>Toggle</td><td>-</td><td>계정 활성/비활성</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-    <div class="section">
-      <div class="section-title">권한 설정 영역</div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>요소</th><th>컴포넌트</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>담당 서비스 레이블</td><td>Text</td><td>"담당 서비스"</td></tr>
-          <tr><td>서비스 목록</td><td>Checkbox.Group</td><td>전체 서비스 목록을 체크박스로 나열</td></tr>
-          <tr><td>체크 상태</td><td>pre-fill</td><td>현재 운영자에게 부여된 서비스 체크 표시</td></tr>
-        </tbody>
-      </table></div>
-      <div class="note">마스터 역할인 경우 체크박스 비활성화 처리 ("전체 접근" 표시로 대체). 운영자 역할인 경우에만 개별 서비스 체크박스 활성화.</div>
-    </div>
-    <div class="section">
-      <div class="section-title">동작 정의</div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>케이스</th><th>동작</th></tr></thead>
-        <tbody>
-          <tr><td>체크박스 체크</td><td>해당 서비스 진입 권한 부여 (저장 시 반영)</td></tr>
-          <tr><td>체크박스 해제</td><td>해당 서비스 진입 권한 회수 (저장 시 반영)</td></tr>
-          <tr><td>저장 성공</td><td><code>/admin/users</code>로 이동, 성공 Toast 표시</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-  </div>
-
-</main>
+<div id="toast"></div>
 
 <script>
-const pages = {
-  'overview': '프로젝트 개요',
-  'ia': 'IA / 메뉴 구조',
-  'urlmap': 'URL 맵 & 현황',
-  'design': '디자인 시스템',
-  'glossary': '용어 정리',
-  'login': 'LOGIN — 로그인',
-  'home': 'HOME — 홈 대시보드',
-  'p1-1': '1-1 파트너사 목록/조회',
-  'p1-2': '1-2 파트너사 등록/수정',
-  'p2-1': '2-1 서비스 홈',
-  'p2-2': '2-2 개별 서비스 대시보드',
-  'p2-2-1': '2-2-1 정보 수정',
-  'p2-2-2': '2-2-2 알림 관리',
-  'p2-2-3': '2-2-3 리워드 관리',
-  'p2-2-4': '2-2-4 오퍼 관리',
-  'p2-2-5': '2-2-5 수동 지급',
-  'p3-1': '3-1 전체 서비스 관리',
-  'p3-2': '3-2 사용자 관리',
-  'p3-3': '3-3 진입 권한 부여',
-};
+// ══ DATA ══
+const PARTNERS=[
+  {id:'PRT-001',name:'스마트픽 주식회사',ceo:'홍길동',svcs:3,status:'active',date:'2025.01.15'},
+  {id:'PRT-002',name:'픽플러스 테크',ceo:'이영희',svcs:2,status:'active',date:'2025.03.22'},
+  {id:'PRT-003',name:'달맛 코퍼레이션',ceo:'박철수',svcs:4,status:'active',date:'2025.06.08'},
+  {id:'PRT-004',name:'넥스트딜 주식회사',ceo:'김영수',svcs:1,status:'review',date:'2026.02.14'},
+  {id:'PRT-005',name:'리워드팩토리',ceo:'최미래',svcs:0,status:'inactive',date:'2025.11.30'},
+];
+const SERVICES=[
+  {id:'SVC-001',name:'스마트픽',icon:'S',partner:'스마트픽 주식회사',type:'쇼핑',offers:12,status:'active',launch:'2025.02.01'},
+  {id:'SVC-002',name:'픽플러스',icon:'P',partner:'픽플러스 테크',type:'구독',offers:8,status:'active',launch:'2025.04.15'},
+  {id:'SVC-003',name:'달맛',icon:'D',partner:'달맛 코퍼레이션',type:'커머스',offers:15,status:'active',launch:'2025.07.20'},
+  {id:'SVC-004',name:'리워드X',icon:'R',partner:'넥스트딜 주식회사',type:'리워드',offers:0,status:'review',launch:'-'},
+];
+let NOTIFS=[
+  {id:'NTF-001',name:'신규가입 웰컴 알림',ch:'알림탭',period:'2026.01.01~2026.12.31',time:'09:00',on:true,date:'2026.01.01'},
+  {id:'NTF-002',name:'구매완료 리워드 안내',ch:'앱푸쉬',period:'2026.02.01~2026.06.30',time:'18:00',on:true,date:'2026.02.01'},
+  {id:'NTF-003',name:'이벤트 종료 D-3 알림',ch:'앱푸쉬',period:'2026.03.01~2026.03.31',time:'12:00',on:false,date:'2026.03.01'},
+  {id:'NTF-004',name:'주간 혜택 리마인드',ch:'앱푸쉬',period:'2026.01.01~2026.12.31',time:'10:00',on:true,date:'2026.01.05'},
+  {id:'NTF-005',name:'장바구니 이탈 알림',ch:'알림탭',period:'2026.03.15~2026.06.30',time:'20:00',on:true,date:'2026.03.15'},
+];
+let REWARDS=[
+  {id:'RWD-001',name:'신규가입 웰컴 쿠폰',type:'쿠폰',cond:'신규 가입 완료 시',on:true,date:'2026.01.01'},
+  {id:'RWD-002',name:'구매완료 현금 리워드',type:'현금',cond:'구매 완료 후 24시간 내',on:true,date:'2026.02.01'},
+  {id:'RWD-003',name:'이벤트 랜덤 리워드',type:'랜덤',cond:'이벤트 페이지 방문 시',on:false,date:'2026.03.01'},
+  {id:'RWD-004',name:'친구초대 보너스 쿠폰',type:'쿠폰',cond:'피초대자 가입 완료 시',on:true,date:'2026.02.15'},
+  {id:'RWD-005',name:'첫구매 캐시백',type:'현금',cond:'첫 번째 구매 완료 시',on:true,date:'2026.03.10'},
+];
+let OFFERS=[
+  {id:'OFR-001',name:'구매완료 오퍼',api:'POST /api/v1/purchase/complete',reward:'구매완료 현금 리워드',on:true},
+  {id:'OFR-002',name:'로그인 보상 오퍼',api:'GET /api/v1/login/reward',reward:'신규가입 웰컴 쿠폰',on:true},
+  {id:'OFR-003',name:'이벤트 참여 오퍼',api:'POST /api/v1/event/join',reward:'이벤트 랜덤 리워드',on:false},
+  {id:'OFR-004',name:'친구초대 완료 오퍼',api:'POST /api/v1/invite/complete',reward:'친구초대 보너스 쿠폰',on:true},
+  {id:'OFR-005',name:'첫구매 완료 오퍼',api:'POST /api/v1/purchase/first',reward:'첫구매 캐시백',on:true},
+  {id:'OFR-006',name:'리뷰 작성 오퍼',api:'POST /api/v1/review/submit',reward:'구매완료 현금 리워드',on:false},
+];
+let PROVISIONS=[
+  {dt:'2026.03.24 09:42',ci:'CI_***abc123',reward:'신규가입 웰컴 쿠폰',reason:'CS 요청 처리',by:'홍길동'},
+  {dt:'2026.03.23 14:15',ci:'CI_***def456',reward:'구매완료 현금 리워드',reason:'이벤트 보상 누락 보정',by:'이관리'},
+  {dt:'2026.03.22 11:30',ci:'CI_***ghi789',reward:'친구초대 보너스 쿠폰',reason:'시스템 오류로 인한 미지급',by:'홍길동'},
+  {dt:'2026.03.20 16:05',ci:'CI_***jkl012',reward:'첫구매 캐시백',reason:'결제 취소 후 재지급',by:'박운영'},
+  {dt:'2026.03.18 10:00',ci:'CI_***mno345',reward:'신규가입 웰컴 쿠폰',reason:'VIP 고객 특별 지급',by:'이관리'},
+];
+const ADMIN_SVCS=[
+  {name:'스마트픽',cid:'client_sm_001',partner:'스마트픽 주식회사',status:'Active',date:'2025.02.01'},
+  {name:'픽플러스',cid:'client_pp_002',partner:'픽플러스 테크',status:'Active',date:'2025.04.15'},
+  {name:'달맛',cid:'client_dm_003',partner:'달맛 코퍼레이션',status:'Active',date:'2025.07.20'},
+  {name:'리워드X',cid:'client_rx_004',partner:'넥스트딜 주식회사',status:'Suspended',date:'-'},
+  {name:'픽플러스 프리미엄',cid:'client_ppp_005',partner:'픽플러스 테크',status:'Active',date:'2026.01.10'},
+  {name:'달맛 파트너스',cid:'client_dmp_006',partner:'달맛 코퍼레이션',status:'Active',date:'2026.02.20'},
+];
+let USERS=[
+  {id:'ADM-001',name:'홍길동',email:'hong@factory.com',role:'master',svcs:'전체',status:'active',login:'2026.03.24 09:00'},
+  {id:'ADM-002',name:'이관리',email:'lee.admin@factory.com',role:'operator',svcs:'스마트픽, 픽플러스',status:'active',login:'2026.03.24 11:30'},
+  {id:'ADM-003',name:'박운영',email:'park.op@factory.com',role:'operator',svcs:'달맛',status:'active',login:'2026.03.23 15:45'},
+  {id:'ADM-004',name:'최담당',email:'choi@factory.com',role:'operator',svcs:'스마트픽',status:'inactive',login:'2026.02.10 10:00'},
+  {id:'ADM-005',name:'김서비스',email:'kim.svc@factory.com',role:'operator',svcs:'리워드X',status:'active',login:'2026.03.24 13:20'},
+  {id:'ADM-006',name:'정매니저',email:'jung@factory.com',role:'operator',svcs:'달맛, 픽플러스',status:'active',login:'2026.03.22 09:55'},
+];
+let currentSvc=SERVICES[0];
 
-function show(id) {
-  // hide all pages
-  document.querySelectorAll('.content').forEach(el => el.style.display = 'none');
-  // show target
-  const target = document.getElementById('page-' + id);
-  if (target) target.style.display = 'block';
-  // update nav
-  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  const clicked = event.currentTarget;
-  if (clicked) clicked.classList.add('active');
-  // update breadcrumb
-  const bc = document.getElementById('breadcrumb');
-  bc.innerHTML = '신사업팩토리 어드민 <span>/ ' + (pages[id] || id) + '</span>';
-  // scroll to top
-  document.getElementById('main').scrollTo(0, 0);
+// ══ HELPERS ══
+const SM={active:'<span class="b bg">활성</span>',review:'<span class="b bo">검토중</span>',inactive:'<span class="b bgr">비활성</span>',Active:'<span class="b bg">Active</span>',Suspended:'<span class="b bgr">Suspended</span>',Terminated:'<span class="b br">Terminated</span>'};
+const CM={'알림탭':'<span class="b bb">알림탭</span>','앱푸쉬':'<span class="b bo">앱푸쉬</span>'};
+const TM={'쿠폰':'<span class="b by">쿠폰</span>','현금':'<span class="b bg">현금</span>','랜덤':'<span class="b bb">랜덤</span>'};
+
+function toast(msg,c){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.background=c||'var(--green)';t.style.color=c?'#fff':'#000';
+  t.style.display='block';setTimeout(()=>t.style.display='none',2500);
+}
+function openMo(id){document.getElementById(id).classList.add('open')}
+function closeMo(id){document.getElementById(id).classList.remove('open')}
+
+// ══ AUTH ══
+function doLogin(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  renderAll();
+}
+function doLogout(){
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
 }
 
-function switchTab(el, contentId) {
-  const parent = el.closest('.content') || el.parentElement.parentElement;
-  parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  parent.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  const tc = document.getElementById(contentId);
-  if (tc) tc.classList.add('active');
+// ══ NAV ══
+let currentNav='home';
+function go(page,label){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  document.getElementById('page-'+page).classList.add('on');
+  const n=document.getElementById('n-'+page);
+  if(n)n.classList.add('on');
+  document.getElementById('bc-cur').textContent=label;
+  document.getElementById('main').scrollTo(0,0);
+  currentNav=page;
 }
+
+// ══ SVC NAV ══
+function enterService(svc){
+  currentSvc=svc;
+  // sidebar 서비스 하위 메뉴 펼치기
+  document.getElementById('svc-submenu').style.display='block';
+  document.getElementById('nl-svc-name').textContent=svc.name;
+  document.getElementById('nl-svc-name').style.display='inline';
+  // 기본: 정보 수정 진입
+  svcGo('info','정보 수정');
+  // 서비스 홈 nav 활성
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  document.getElementById('n-services').classList.add('on');
+  // 폼 채우기
+  document.getElementById('svc-nm-input').value=svc.name;
+  document.getElementById('svc-pt-input').value=svc.partner;
+  document.getElementById('svc-desc-input').value=svc.name+'은 고객에게 최고의 혜택을 제공하는 서비스입니다.';
+  const cid=ADMIN_SVCS.find(s=>s.name===svc.name);
+  const cidInput=document.getElementById('svc-cid-input');
+  if(cidInput)cidInput.value=cid?cid.cid:'(미할당)';
+}
+
+function svcGo(sub, label){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  document.querySelectorAll('.ng-header').forEach(h=>h.classList.remove('on'));
+  // 페이지 맵핑
+  const pageMap={
+    'info':'svc-info',
+    'notifications':'notifications','rewards':'rewards','offers':'offers','provisions':'provisions'
+  };
+  const pid='page-'+(pageMap[sub]||sub);
+  const el=document.getElementById(pid);
+  if(el)el.classList.add('on');
+  // nav 활성
+  const navMap={
+    'info':'n-svc-info',
+    'notifications':'n-notif-list','rewards':'n-reward-list','offers':'n-offer-list','provisions':'n-provisions'
+  };
+  const nid=navMap[sub];
+  if(nid){const n=document.getElementById(nid);if(n)n.classList.add('on');}
+  // 관련 그룹 열기
+  const groupMap={'notifications':'gc-notif','rewards':'gc-reward','offers':'gc-offer'};
+  if(groupMap[sub]){document.getElementById(groupMap[sub]).classList.add('open');const gh=document.getElementById(groupMap[sub].replace('gc-','gh-'));if(gh)gh.classList.add('open');}
+  document.getElementById('bc-cur').textContent=currentSvc.name+' — '+label;
+  document.getElementById('main').scrollTo(0,0);
+  document.getElementById('n-services').classList.add('on');
+}
+
+function toggleGroup(headId,childId){
+  const h=document.getElementById(headId);
+  const c=document.getElementById(childId);
+  h.classList.toggle('open');
+  c.classList.toggle('open');
+}
+
+// ══ PARTNER ══
+function openPartnerCreate(){
+  document.getElementById('pf-title').textContent='파트너사 등록';
+  ['pf-name','pf-ceo','pf-brn','pf-email','pf-tel'].forEach(id=>document.getElementById(id).value='');
+  go('partner-form','파트너사 등록');
+}
+function savePartner(){
+  const name=document.getElementById('pf-name').value;
+  if(!name){toast('파트너사명을 입력하세요','var(--red)');return;}
+  PARTNERS.push({id:'PRT-00'+(PARTNERS.length+1),name,ceo:document.getElementById('pf-ceo').value||'-',svcs:0,status:document.getElementById('pf-st').value,date:'2026.03.25'});
+  renderPartners(); go('partners','파트너사 관리'); toast('파트너사가 등록되었습니다');
+}
+function filterTr(tbId,v){
+  document.querySelectorAll('#'+tbId+' tr').forEach(tr=>{
+    tr.style.display=tr.textContent.toLowerCase().includes(v.toLowerCase())?'':'none';
+  });
+}
+
+// ══ PROVISION ══
+function doProvision(){
+  const ci=document.getElementById('prov-ci').value;
+  const reason=document.getElementById('prov-reason').value;
+  if(!ci||!reason){toast('필수 항목을 입력하세요','var(--red)');return;}
+  PROVISIONS.unshift({dt:new Date().toLocaleString('ko-KR'),ci:'CI_***'+ci.slice(-4),reward:document.getElementById('prov-rw').value,reason,by:'홍길동'});
+  renderProvisions();
+  document.getElementById('prov-ci').value='';
+  document.getElementById('prov-reason').value='';
+  toast('리워드가 지급되었습니다');
+}
+
+// ══ MODALS ══
+function openNotifModal(){openMo('mo-notif')}
+function saveNotif(){NOTIFS.push({id:'NTF-0'+(NOTIFS.length+1),name:'신규 알림',ch:'알림탭',period:'2026.04.01~2026.12.31',time:'09:00',on:true,date:'2026.04.01'});renderNotifs();closeMo('mo-notif');toast('알림이 등록되었습니다');}
+function openRewardModal(){openMo('mo-reward');rwType('coupon')}
+function saveReward(){REWARDS.push({id:'RWD-0'+(REWARDS.length+1),name:'신규 리워드',type:'쿠폰',cond:'조건 미설정',on:true,date:'2026.04.01'});renderRewards();closeMo('mo-reward');toast('리워드가 등록되었습니다');}
+function openOfferModal(){openMo('mo-offer')}
+function saveOffer(){OFFERS.push({id:'OFR-0'+(OFFERS.length+1),name:'신규 오퍼',api:'POST /api/v1/new',reward:'신규가입 웰컴 쿠폰',on:true});renderOffers();closeMo('mo-offer');toast('오퍼가 등록되었습니다');}
+function openAdminSvcModal(){openMo('mo-admin-svc')}
+function rwType(t){['coupon','cash','random'].forEach(k=>document.getElementById('rw-'+k).style.display=k===t?'block':'none');}
+function runTest(){document.getElementById('test-result').value='실행 중...';setTimeout(()=>{document.getElementById('test-result').value='{\n  "status": 200,\n  "result": "success",\n  "reward": "신규가입 웰컴 쿠폰",\n  "userId": "test-001"\n}';},800);}
+function openUserModal(idx){
+  document.getElementById('um-title').textContent=idx===null?'관리자 등록':'사용자 수정';
+  const u=idx!==null?USERS[idx]:null;
+  document.getElementById('um-name').value=u?u.name:'';
+  document.getElementById('um-email').value=u?u.email:'';
+  document.getElementById('um-role').value=u?u.role:'operator';
+  togglePerm();
+  renderPermGrid(u?u.svcs:'');
+  openMo('mo-user');
+}
+function togglePerm(){const r=document.getElementById('um-role').value;document.getElementById('perm-section').style.display=r==='master'?'none':'block';}
+function renderPermGrid(assigned){
+  document.getElementById('perm-grid').innerHTML=SERVICES.map(s=>`<label class="pitem"><input type="checkbox" ${assigned&&assigned.includes(s.name)?'checked':''} style="accent-color:var(--primary)"><div><div class="pnm">${s.name}</div><div class="pid">${s.id}</div></div></label>`).join('');
+}
+function saveUser(){const n=document.getElementById('um-name').value;if(!n){toast('이름을 입력하세요','var(--red)');return;}closeMo('mo-user');renderAdminUsers();toast('저장되었습니다');}
+
+// ══ TABS ══
+function swTab(el,paneId){
+  const root=el.closest('.mbox')||el.closest('.page')||document;
+  root.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  root.querySelectorAll('.tp').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById(paneId).classList.add('on');
+}
+
+// ══ RENDER ══
+function renderAll(){renderPartners();renderSvcCards();renderNotifs();renderRewards();renderOffers();renderProvisions();renderAdminSvcs();renderAdminUsers();}
+
+function renderPartners(){
+  document.getElementById('partner-tbody').innerHTML=PARTNERS.map(p=>`<tr>
+    <td class="tid">${p.id}</td><td><b>${p.name}</b></td><td>${p.ceo}</td>
+    <td>${p.svcs}개</td><td>${SM[p.status]}</td><td>${p.date}</td>
+    <td><button class="btn bd bxs" onclick="editPartner('${p.id}')">수정</button></td>
+  </tr>`).join('');
+}
+function editPartner(id){
+  const p=PARTNERS.find(x=>x.id===id);
+  document.getElementById('pf-title').textContent='파트너사 정보 수정';
+  document.getElementById('pf-name').value=p.name;
+  document.getElementById('pf-ceo').value=p.ceo;
+  go('partner-form','파트너사 정보 수정');
+}
+
+function renderSvcCards(){
+  document.getElementById('svc-cards').innerHTML=SERVICES.map(s=>`<div class="svc-card" onclick='enterService(${JSON.stringify(s).replace(/'/g,"\\'")})'>
+    <div class="svc-icon">${s.icon}</div>
+    <div class="svc-nm">${s.name}</div>
+    <div class="svc-pt">${s.partner}</div>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <span class="b ${s.status==='active'?'bg':'bo'}">${s.status==='active'?'운영중':'준비중'}</span>
+      <span style="font-size:11px;color:var(--text2)">오퍼 ${s.offers}개</span>
+    </div>
+  </div>`).join('');
+}
+
+function renderSvcList(){
+  document.getElementById('svclist-tbody').innerHTML=SERVICES.map(s=>`<tr>
+    <td class="tid">${s.id}</td><td><b>${s.name}</b></td><td>${s.partner}</td>
+    <td>${s.type}</td><td>${s.offers}개</td>
+    <td><span class="b ${s.status==='active'?'bg':'bo'}">${s.status==='active'?'운영중':'준비중'}</span></td>
+    <td>${s.launch}</td>
+    <td><button class="btn bd bxs">수정</button></td>
+  </tr>`).join('');
+}
+
+function renderNotifs(){
+  document.getElementById('notif-tbody').innerHTML=NOTIFS.map(n=>`<tr>
+    <td class="tid">${n.id}</td><td><b>${n.name}</b></td>
+    <td>${CM[n.ch]}</td><td style="font-size:11px">${n.period}</td><td>${n.time}</td>
+    <td><label class="tog"><input type="checkbox" ${n.on?'checked':''} onchange="n.on=this.checked"><span class="sl"></span></label></td>
+    <td>${n.date}</td><td><button class="btn bd bxs">수정</button></td>
+  </tr>`).join('');
+}
+
+function renderRewards(){
+  document.getElementById('reward-tbody').innerHTML=REWARDS.map(r=>`<tr>
+    <td class="tid">${r.id}</td><td><b>${r.name}</b></td>
+    <td>${TM[r.type]}</td><td style="font-size:11px;color:var(--text2)">${r.cond}</td>
+    <td><label class="tog"><input type="checkbox" ${r.on?'checked':''} onchange="r.on=this.checked"><span class="sl"></span></label></td>
+    <td>${r.date}</td><td><button class="btn bd bxs">수정</button></td>
+  </tr>`).join('');
+}
+
+function renderOffers(){
+  document.getElementById('offer-tbody').innerHTML=OFFERS.map(o=>`<tr>
+    <td class="tid">${o.id}</td><td><b>${o.name}</b></td>
+    <td class="tmono" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.api}</td>
+    <td style="font-size:12px">${o.reward}</td>
+    <td><label class="tog"><input type="checkbox" ${o.on?'checked':''} onchange="o.on=this.checked"><span class="sl"></span></label></td>
+    <td style="display:flex;gap:4px;padding-top:8px"><button class="btn bd bxs">수정</button><button class="btn bd bxs" onclick="toast('테스트 완료')">테스트</button></td>
+  </tr>`).join('');
+}
+
+function renderProvisions(){
+  document.getElementById('prov-tbody').innerHTML=PROVISIONS.map(p=>`<tr>
+    <td style="font-size:11px">${p.dt}</td><td class="tmono">${p.ci}</td>
+    <td>${p.reward}</td><td style="font-size:12px;color:var(--text2)">${p.reason}</td><td>${p.by}</td>
+  </tr>`).join('');
+}
+
+function renderAdminSvcs(){
+  document.getElementById('admin-svc-tbody').innerHTML=ADMIN_SVCS.map(s=>`<tr>
+    <td><b>${s.name}</b></td><td class="tmono">${s.cid}</td>
+    <td>${s.partner}</td><td>${SM[s.status]}</td><td>${s.date}</td>
+    <td><button class="btn bd bxs">수정</button></td>
+  </tr>`).join('');
+}
+
+function renderAdminUsers(){
+  document.getElementById('admin-user-tbody').innerHTML=USERS.map((u,i)=>`<tr>
+    <td class="tid">${u.id}</td><td><b>${u.name}</b></td>
+    <td style="font-size:11px;color:var(--text2)">${u.email}</td>
+    <td>${u.role==='master'?'<span class="b by">마스터</span>':'<span class="b bb">운영자</span>'}</td>
+    <td style="font-size:12px">${u.svcs}</td><td>${SM[u.status]}</td>
+    <td style="font-size:11px;color:var(--text2)">${u.login}</td>
+    <td><button class="btn bd bxs" onclick="openUserModal(${i})">수정</button></td>
+  </tr>`).join('');
+}
+
+// 모달 외부 클릭
+document.querySelectorAll('.mo').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open')}));
 </script>
 </body>
 </html>
