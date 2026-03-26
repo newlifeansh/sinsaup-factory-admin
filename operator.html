@@ -496,6 +496,80 @@ input:checked+.sl:before{transform:translateX(16px)}
         <tbody id="reward-tbody"></tbody></table></div>
       </div>
 
+      <!-- ══ SVC: REWARD DETAIL ══ -->
+      <div class="page" id="page-reward-detail">
+        <div class="ph">
+          <div class="pt" id="rdetail-title">리워드 상세</div>
+          <button class="btn bp" onclick="editRewardFromDetail()">수정</button>
+        </div>
+        <div class="fsec" style="margin-bottom:16px">
+          <div class="fst">기본 정보</div>
+          <div style="display:flex;flex-wrap:wrap;gap:20px;margin-top:14px">
+            <div style="min-width:140px"><div style="font-size:11px;color:var(--text2);margin-bottom:5px">리워드명</div><div id="rd-name" style="font-size:14px;font-weight:700"></div></div>
+            <div style="min-width:80px"><div style="font-size:11px;color:var(--text2);margin-bottom:5px">유형</div><div id="rd-type"></div></div>
+            <div style="min-width:110px"><div style="font-size:11px;color:var(--text2);margin-bottom:5px">오퍼번호</div><div id="rd-offerno" class="tmono" style="font-size:12px"></div></div>
+            <div style="min-width:180px"><div style="font-size:11px;color:var(--text2);margin-bottom:5px">지급 조건</div><div id="rd-cond" style="font-size:12px"></div></div>
+            <div style="min-width:160px"><div style="font-size:11px;color:var(--text2);margin-bottom:5px">유효 기간</div><div id="rd-period" style="font-size:12px"></div></div>
+            <div style="min-width:80px"><div style="font-size:11px;color:var(--text2);margin-bottom:5px">등록일</div><div id="rd-date" style="font-size:12px"></div></div>
+            <div style="min-width:60px"><div style="font-size:11px;color:var(--text2);margin-bottom:5px">상태</div><div id="rd-status"></div></div>
+          </div>
+        </div>
+        <div id="rdetail-coupon-section" style="display:none;margin-bottom:16px">
+          <div class="fsec">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div class="fst" style="margin-bottom:0">쿠폰 현황</div>
+              <div style="display:flex;gap:8px">
+                <button class="btn bd bsm" onclick="toggleCouponStatus()">현황 보기</button>
+                <button class="btn bd bsm" onclick="toast('쿠폰 사용 내역을 엑셀로 다운로드합니다')">사용된 쿠폰 다운받기</button>
+              </div>
+            </div>
+            <div id="coupon-status-panel" style="display:none;margin-top:16px">
+              <div style="display:flex;gap:12px;flex-wrap:wrap">
+                <div style="text-align:center;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:18px 28px">
+                  <div id="cs-total" style="font-size:26px;font-weight:700"></div>
+                  <div style="font-size:11px;color:var(--text2);margin-top:5px">총 등록 수량</div>
+                </div>
+                <div style="text-align:center;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:18px 28px">
+                  <div id="cs-used" style="font-size:26px;font-weight:700;color:var(--green)"></div>
+                  <div style="font-size:11px;color:var(--text2);margin-top:5px">지급 완료</div>
+                </div>
+                <div style="text-align:center;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:18px 28px">
+                  <div id="cs-remain" style="font-size:26px;font-weight:700;color:var(--primary)"></div>
+                  <div style="font-size:11px;color:var(--text2);margin-top:5px">잔여 수량</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="rdetail-cash-section" style="display:none">
+          <div class="fsec">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div class="fst" style="margin-bottom:0">예산 현황</div>
+              <button class="btn bd bsm" onclick="toggleBudgetStatus()">예산 확인하기</button>
+            </div>
+            <div id="budget-status-panel" style="display:none;margin-top:16px">
+              <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px">
+                <div style="text-align:center;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:18px 28px">
+                  <div id="bs-total" style="font-size:22px;font-weight:700"></div>
+                  <div style="font-size:11px;color:var(--text2);margin-top:5px">총 예산</div>
+                </div>
+                <div style="text-align:center;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:18px 28px">
+                  <div id="bs-paid" style="font-size:22px;font-weight:700;color:var(--green)"></div>
+                  <div style="font-size:11px;color:var(--text2);margin-top:5px">누적 지급액</div>
+                </div>
+                <div style="text-align:center;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:18px 28px">
+                  <div id="bs-rate" style="font-size:22px;font-weight:700;color:var(--primary)"></div>
+                  <div style="font-size:11px;color:var(--text2);margin-top:5px">소진률</div>
+                </div>
+              </div>
+              <div style="background:var(--bg3);border-radius:4px;height:10px;overflow:hidden">
+                <div id="bs-bar" style="height:100%;background:var(--primary);border-radius:4px;transition:width .4s;width:0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- ══ SVC: REWARD FORM ══ -->
       <div class="page" id="page-reward-form">
         <div class="ph">
@@ -593,6 +667,7 @@ input:checked+.sl:before{transform:translateX(16px)}
             </div>
           </div>
           <div id="rform-cash" style="display:none">
+            <div class="fr full"><div class="fi"><label>통장 적요 <span class="r">*</span></label><input type="text" id="rform-memo" placeholder="예: 매일 걷고 현금받기 참여" maxlength="20"><div style="font-size:11px;color:var(--text3);margin-top:4px">실제 수령자 통장에 표기되는 입금 내역 (최대 20자)</div></div></div>
             <div class="fi" style="margin-bottom:14px">
               <label>지급 방식 <span class="r">*</span></label>
               <div style="display:flex;gap:8px;margin-top:6px">
@@ -853,11 +928,11 @@ let NOTIFS=[
   {id:'NTF-005',name:'장바구니 이탈 알림',tplId:'KWD0200002',ch:'알림탭',period:'2026.03.15~2026.06.30',time:'20:00',on:true,date:'2026.03.15'},
 ];
 let REWARDS=[
-  {id:'RWD-001',name:'신규가입 웰컴 쿠폰',type:'coupon',offerNo:'2025000001',cond:'신규 가입 완료 시',method:'fixed',amount:0,couponTotal:500,on:true,date:'2026.01.01'},
-  {id:'RWD-002',name:'구매완료 현금 리워드',type:'cash',offerNo:'2025000002',cond:'구매 완료 후 24시간 내',method:'fixed',amount:500,on:true,date:'2026.02.01'},
-  {id:'RWD-003',name:'친구초대 보너스 쿠폰',type:'coupon',offerNo:'2025000003',cond:'피초대자 가입 완료 시',method:'fixed',amount:0,couponTotal:300,on:true,date:'2026.02.15'},
-  {id:'RWD-004',name:'첫구매 캐시백',type:'cash',offerNo:'2025000004',cond:'첫 번째 구매 완료 시',method:'random',amount:0,on:true,date:'2026.03.10'},
-  {id:'RWD-005',name:'VIP 멤버십 쿠폰',type:'coupon',offerNo:'2025000005',cond:'VIP 등급 달성 시',method:'fixed',amount:0,couponTotal:200,on:false,date:'2026.03.20'},
+  {id:'RWD-001',name:'신규가입 웰컴 쿠폰',type:'coupon',offerNo:'2025000001',cond:'신규 가입 완료 시',method:'fixed',amount:0,couponTotal:500,couponUsed:312,on:true,date:'2026.01.01'},
+  {id:'RWD-002',name:'구매완료 현금 리워드',type:'cash',offerNo:'2025000002',cond:'구매 완료 후 24시간 내',method:'fixed',amount:500,budgetTotal:2000000,paidTotal:860000,on:true,date:'2026.02.01'},
+  {id:'RWD-003',name:'친구초대 보너스 쿠폰',type:'coupon',offerNo:'2025000003',cond:'피초대자 가입 완료 시',method:'fixed',amount:0,couponTotal:300,couponUsed:87,on:true,date:'2026.02.15'},
+  {id:'RWD-004',name:'첫구매 캐시백',type:'cash',offerNo:'2025000004',cond:'첫 번째 구매 완료 시',method:'random',amount:0,budgetTotal:5000000,paidTotal:2150000,on:true,date:'2026.03.10'},
+  {id:'RWD-005',name:'VIP 멤버십 쿠폰',type:'coupon',offerNo:'2025000005',cond:'VIP 등급 달성 시',method:'fixed',amount:0,couponTotal:200,couponUsed:0,on:false,date:'2026.03.20'},
 ];
 let REWARD_LOGS=[
   {id:'LOG-001',dt:'2026.03.24',reward:'신규가입 웰컴 쿠폰',count:142,status:'approved',approvalNo:'ITSVC-2026-0341'},
@@ -975,7 +1050,7 @@ function svcGo(sub, label){
   // 페이지 맵핑
   const pageMap={
     'info':'svc-info',
-    'notifications':'notifications','rewards':'rewards','reward-form':'reward-form','reward-log':'reward-log','offers':'offers','provisions':'provisions'
+    'notifications':'notifications','rewards':'rewards','reward-detail':'reward-detail','reward-form':'reward-form','reward-log':'reward-log','offers':'offers','provisions':'provisions'
   };
   const pid='page-'+(pageMap[sub]||sub);
   const el=document.getElementById(pid);
@@ -983,12 +1058,12 @@ function svcGo(sub, label){
   // nav 활성
   const navMap={
     'info':'n-svc-info',
-    'notifications':'n-notif-list','rewards':'n-reward-list','reward-form':'n-reward-form','reward-log':'n-reward-log','offers':'n-offer-list','provisions':'n-provisions'
+    'notifications':'n-notif-list','rewards':'n-reward-list','reward-detail':'n-reward-list','reward-form':'n-reward-form','reward-log':'n-reward-log','offers':'n-offer-list','provisions':'n-provisions'
   };
   const nid=navMap[sub];
   if(nid){const n=document.getElementById(nid);if(n)n.classList.add('on');}
   // 관련 그룹 열기
-  const groupMap={'notifications':'gc-notif','rewards':'gc-reward','reward-form':'gc-reward','reward-log':'gc-reward','offers':'gc-offer'};
+  const groupMap={'notifications':'gc-notif','rewards':'gc-reward','reward-detail':'gc-reward','reward-form':'gc-reward','reward-log':'gc-reward','offers':'gc-offer'};
   if(groupMap[sub]){document.getElementById(groupMap[sub]).classList.add('open');const gh=document.getElementById(groupMap[sub].replace('gc-','gh-'));if(gh)gh.classList.add('open');}
   document.getElementById('bc-cur').textContent=currentSvc.name+' — '+label;
   document.getElementById('main').scrollTo(0,0);
@@ -1100,6 +1175,56 @@ function updateCycleUI(){
 function updateSchedUI(){
   const type=document.querySelector('input[name="sched-type"]:checked').value;
   ['daily','weekly','monthly'].forEach(t=>document.getElementById('sched-'+t).style.display=t===type?'block':'none');
+}
+let currentViewingRewardId=null;
+function viewReward(id){
+  const r=REWARDS.find(x=>x.id===id);
+  if(!r)return;
+  currentViewingRewardId=id;
+  document.getElementById('rdetail-title').textContent=r.name;
+  document.getElementById('rd-name').textContent=r.name;
+  document.getElementById('rd-type').innerHTML=TM[r.type]||r.type;
+  document.getElementById('rd-offerno').textContent=r.offerNo||'-';
+  document.getElementById('rd-cond').textContent=r.cond;
+  document.getElementById('rd-period').textContent=(r.startDate&&r.endDate)?r.startDate+'~'+r.endDate:'(유효기간 미설정)';
+  document.getElementById('rd-date').textContent=r.date;
+  document.getElementById('rd-status').innerHTML=r.on?'<span class="b bg">활성</span>':'<span class="b bgr">비활성</span>';
+  document.getElementById('rdetail-coupon-section').style.display=r.type==='coupon'?'block':'none';
+  document.getElementById('rdetail-cash-section').style.display=r.type==='cash'?'block':'none';
+  document.getElementById('coupon-status-panel').style.display='none';
+  document.getElementById('budget-status-panel').style.display='none';
+  svcGo('reward-detail',r.name+' 상세');
+}
+function editRewardFromDetail(){
+  if(currentViewingRewardId)editReward(currentViewingRewardId);
+}
+function toggleCouponStatus(){
+  const panel=document.getElementById('coupon-status-panel');
+  if(panel.style.display==='block'){panel.style.display='none';return;}
+  const r=REWARDS.find(x=>x.id===currentViewingRewardId);
+  if(!r)return;
+  const total=r.couponTotal||0;
+  const used=r.couponUsed||0;
+  document.getElementById('cs-total').textContent=total.toLocaleString()+'개';
+  document.getElementById('cs-used').textContent=used.toLocaleString()+'개';
+  document.getElementById('cs-remain').textContent=(total-used).toLocaleString()+'개';
+  panel.style.display='block';
+}
+function toggleBudgetStatus(){
+  const panel=document.getElementById('budget-status-panel');
+  if(panel.style.display==='block'){panel.style.display='none';return;}
+  const r=REWARDS.find(x=>x.id===currentViewingRewardId);
+  if(!r)return;
+  const total=r.budgetTotal||0;
+  const paid=r.paidTotal||0;
+  const rate=total>0?Math.round(paid/total*100):0;
+  document.getElementById('bs-total').textContent=total.toLocaleString()+'원';
+  document.getElementById('bs-paid').textContent=paid.toLocaleString()+'원';
+  document.getElementById('bs-rate').textContent=rate+'%';
+  const bar=document.getElementById('bs-bar');
+  bar.style.width=rate+'%';
+  bar.style.background=rate>=90?'var(--red)':rate>=70?'var(--orange)':'var(--primary)';
+  panel.style.display='block';
 }
 let currentEditingRewardId=null;
 function openRewardForm(){
@@ -1294,7 +1419,8 @@ function renderNotifs(){
 
 function renderRewards(){
   document.getElementById('reward-tbody').innerHTML=REWARDS.map(r=>`<tr>
-    <td class="tid">${r.id}</td><td><b>${r.name}</b></td>
+    <td class="tid"><span style="color:var(--blue);cursor:pointer;text-decoration:underline" onclick="viewReward('${r.id}')">${r.id}</span></td>
+    <td><b>${r.name}</b></td>
     <td>${TM[r.type]||r.type}</td>
     <td class="tmono" style="font-size:11px">${r.offerNo||'-'}</td>
     <td style="font-size:11px;color:var(--text2)">${r.cond}</td>
