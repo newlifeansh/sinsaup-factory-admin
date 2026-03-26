@@ -221,8 +221,8 @@ input:checked+.sl:before{transform:translateX(16px)}
   <!-- ▌SIDEBAR ▌ -->
   <nav id="sidebar">
     <div class="si-user">
-      <div class="si-av">M</div>
-      <div><div class="si-name">마스터 관리자</div><div class="si-email">master@factory.com</div></div>
+      <div class="si-av" style="background:var(--blue)">O</div>
+      <div><div class="si-name">이관리</div><div class="si-email">lee.admin@factory.com</div></div>
     </div>
 
     <!-- 홈 -->
@@ -296,7 +296,7 @@ input:checked+.sl:before{transform:translateX(16px)}
     <div class="si-divider"></div>
 
     <!-- 관리자 페이지 (마스터) -->
-    <div class="ng" id="master-nav">
+    <div class="ng" id="master-nav" style="display:none">
       <div class="nl">관리자 페이지</div>
       <div class="ni ni-d1" id="n-admin-services" onclick="go('admin-services','전체 서비스 관리')">
         <span class="lbl">전체 서비스 관리</span><span class="tag">마스터</span>
@@ -318,7 +318,7 @@ input:checked+.sl:before{transform:translateX(16px)}
       </div>
       <div class="tb-right">
         <div class="tb-user">
-          <div class="tb-av">M</div>
+          <div class="tb-av" style="background:var(--blue)">O</div>
           <span class="tb-name">신사업팩토리 어드민</span>
         </div>
       </div>
@@ -396,7 +396,7 @@ input:checked+.sl:before{transform:translateX(16px)}
           <div class="fr"><div class="fi"><label>파트너사 ID <span class="r">*</span></label><input type="text" id="pf-pid" placeholder="예: SSAM-001" maxlength="8"></div><div class="fi"><label>파트너사명 <span class="r">*</span></label><input type="text" id="pf-name" placeholder="예: 스마트픽 주식회사"></div></div>
           <div class="fr"><div class="fi"><label>대표자명 <span class="r">*</span></label><input type="text" id="pf-ceo" placeholder="예: 홍길동"></div><div class="fi" id="pf-registrar-fi" style="display:none"><label>등록자 (ID)</label><input type="text" id="pf-registrar" disabled></div></div>
           <div class="fr"><div class="fi"><label>사업자등록번호 <span class="r">*</span></label><input type="text" id="pf-brn" placeholder="000-00-00000"></div><div class="fi"><label>담당자 이메일</label><input type="email" id="pf-email" placeholder="contact@company.com"></div></div>
-          <div class="fr"><div class="fi"><label>연락처</label><input type="text" id="pf-tel" placeholder="02-0000-0000"></div><div class="fi"><label>상태</label><select id="pf-st"><option value="review">검토중</option><option value="active">활성</option><option value="inactive">비활성</option></select></div></div>
+          <div class="fr"><div class="fi"><label>연락처</label><input type="text" id="pf-tel" placeholder="02-0000-0000"></div><div class="fi"><label>상태 <span style="font-size:10px;color:var(--text3)">(마스터 전용)</span></label><select id="pf-st" disabled><option value="review">검토중</option><option value="active">활성</option><option value="inactive">비활성</option></select></div></div>
         </div>
         <div class="fa"><button class="btn bd" onclick="go('partners','파트너사 관리')">취소</button><button class="btn bd" onclick="savePartner('draft')">임시저장</button><button class="btn bp" onclick="savePartner('save')">저장</button></div>
       </div>
@@ -436,11 +436,11 @@ input:checked+.sl:before{transform:translateX(16px)}
           </div>
           <div class="fsec">
             <div class="fst">제공 정보 <span class="mbadge">마스터 전용</span></div>
-            <div style="font-size:12px;color:var(--text2);margin-bottom:12px">제휴사에 제공하는 사용자 정보 항목을 선택합니다.</div>
+            <div style="font-size:12px;color:var(--text2);margin-bottom:12px">제휴사에 제공하는 사용자 정보 항목입니다. 마스터만 수정 가능합니다.</div>
             <div style="display:flex;gap:8px;flex-wrap:wrap">
-              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:9px 14px"><input type="checkbox" checked class="info-perm-chk" style="accent-color:var(--primary)"> <span>CI</span></label>
-              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:9px 14px"><input type="checkbox" checked class="info-perm-chk" style="accent-color:var(--primary)"> <span>UUID</span></label>
-              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:9px 14px"><input type="checkbox" class="info-perm-chk" style="accent-color:var(--primary)"> <span>이름</span></label>
+              <label style="display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:9px 14px;opacity:.6"><input type="checkbox" checked class="info-perm-chk" disabled style="accent-color:var(--primary)"> <span>CI</span></label>
+              <label style="display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:9px 14px;opacity:.6"><input type="checkbox" checked class="info-perm-chk" disabled style="accent-color:var(--primary)"> <span>UUID</span></label>
+              <label style="display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:9px 14px;opacity:.6"><input type="checkbox" class="info-perm-chk" disabled style="accent-color:var(--primary)"> <span>이름</span></label>
             </div>
           </div>
         </div>
@@ -505,7 +505,6 @@ input:checked+.sl:before{transform:translateX(16px)}
             <button class="btn bp" onclick="saveRewardForm()">저장</button>
           </div>
         </div>
-        <!-- 기본 정보 -->
         <div class="fsec" style="margin-bottom:20px">
           <div class="fst">기본 정보</div>
           <div class="fr">
@@ -523,7 +522,6 @@ input:checked+.sl:before{transform:translateX(16px)}
             <div class="fi"><label>유효 기간 종료 <span class="r">*</span></label><input type="date" id="rform-end" value="2026-12-31"></div>
           </div>
         </div>
-        <!-- 리워드 유형 -->
         <div class="fsec" style="margin-bottom:20px">
           <div class="fst">리워드 유형 <span class="r">*</span></div>
           <div style="display:flex;gap:8px;margin-top:10px;margin-bottom:16px">
@@ -534,7 +532,6 @@ input:checked+.sl:before{transform:translateX(16px)}
               <input type="radio" name="rform-type" value="cash" style="accent-color:var(--primary)" onchange="rwFormType('cash')"> 현금
             </label>
           </div>
-          <!-- 쿠폰 상세 -->
           <div id="rform-coupon">
             <div class="fr full">
               <div class="fi">
@@ -567,7 +564,7 @@ input:checked+.sl:before{transform:translateX(16px)}
               <div class="fi">
                 <label>쿠폰 이미지 첨부</label>
                 <div style="display:flex;gap:10px;align-items:flex-start;margin-top:6px">
-                  <div id="coupon-img-preview" style="width:80px;height:80px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text3);cursor:pointer;text-align:center;line-height:1.4" onclick="toast('이미지 업로드 기능은 실제 서버 연동 시 구현됩니다')">이미지<br>없음</div>
+                  <div style="width:80px;height:80px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text3);cursor:pointer;text-align:center;line-height:1.4" onclick="toast('이미지 업로드 기능은 실제 서버 연동 시 구현됩니다')">이미지<br>없음</div>
                   <div style="display:flex;flex-direction:column;gap:6px;padding-top:4px">
                     <button class="btn bd bsm" onclick="toast('이미지 업로드 기능은 실제 서버 연동 시 구현됩니다')">이미지 업로드</button>
                     <span style="font-size:11px;color:var(--text3)">권장: 200×200px, JPG/PNG</span>
@@ -595,7 +592,6 @@ input:checked+.sl:before{transform:translateX(16px)}
               <div class="fi"><label>URL</label><input type="text" id="rform-url" placeholder="예: /coupon/use"></div>
             </div>
           </div>
-          <!-- 현금 상세 -->
           <div id="rform-cash" style="display:none">
             <div class="fi" style="margin-bottom:14px">
               <label>지급 방식 <span class="r">*</span></label>
@@ -637,7 +633,7 @@ input:checked+.sl:before{transform:translateX(16px)}
                       <input type="checkbox" id="cash-notify-chk" style="accent-color:var(--primary)"> <span style="font-size:12px">소진 알림</span>
                     </label>
                     <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
-                      <input type="number" id="cash-notify-pct" placeholder="예: 80" min="1" max="100" style="width:70px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);outline:none">
+                      <input type="number" id="cash-notify-pct" placeholder="예: 80" min="1" max="100" style="width:70px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);outline:none;font-family:inherit;font-size:13px">
                       <span style="font-size:12px;color:var(--text2)">% 소진 시 알림</span>
                     </div>
                   </div>
@@ -716,7 +712,6 @@ input:checked+.sl:before{transform:translateX(16px)}
         <div class="fi"><label>활성화</label><div style="margin-top:10px"><label class="tog"><input type="checkbox" checked><span class="sl"></span></label></div></div>
       </div>
       <div class="fr"><div class="fi"><label>시작일 <span class="r">*</span></label><input type="date" value="2026-04-01"></div><div class="fi"><label>종료일 <span class="r">*</span></label><input type="date" value="2026-12-31"></div></div>
-      <!-- 알림 주기 -->
       <div class="fi" style="margin-bottom:10px">
         <label>알림 주기 <span class="r">*</span></label>
         <div style="display:flex;gap:8px;margin-top:6px">
@@ -724,11 +719,9 @@ input:checked+.sl:before{transform:translateX(16px)}
           <label style="display:flex;align-items:center;gap:6px;cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:7px 14px;white-space:nowrap"><input type="radio" name="notif-cycle" value="schedule" style="accent-color:var(--primary)" onchange="updateCycleUI()"> 스케줄</label>
         </div>
       </div>
-      <!-- 단발성: 발송 시간 -->
       <div id="cycle-once">
         <div class="fr"><div class="fi"><label>발송 시간 <span class="r">*</span></label><input type="time" value="09:00"></div></div>
       </div>
-      <!-- 스케줄: 주기 선택 -->
       <div id="cycle-schedule" style="display:none">
         <div class="fi" style="margin-bottom:10px">
           <label>반복 주기 <span class="r">*</span></label>
@@ -738,9 +731,7 @@ input:checked+.sl:before{transform:translateX(16px)}
             <label style="display:flex;align-items:center;gap:5px;cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:12px;white-space:nowrap"><input type="radio" name="sched-type" value="monthly" style="accent-color:var(--primary)" onchange="updateSchedUI()"> 매달</label>
           </div>
         </div>
-        <div id="sched-daily">
-          <div class="fr"><div class="fi"><label>발송 시간 <span class="r">*</span></label><input type="time" value="09:00"></div></div>
-        </div>
+        <div id="sched-daily"><div class="fr"><div class="fi"><label>발송 시간 <span class="r">*</span></label><input type="time" value="09:00"></div></div></div>
         <div id="sched-weekly" style="display:none">
           <div class="fi" style="margin-bottom:10px"><label>요일 선택 <span class="r">*</span></label>
             <div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap">
@@ -852,6 +843,8 @@ const SERVICES=[
   {id:'SVC-003',name:'달맛',icon:'D',partner:'달맛 코퍼레이션',type:'커머스',offers:15,status:'active',opStatus:'운영중',period:'2025.07.20~2026.12.31',notifEnabled:false,rewardEnabled:false,launch:'2025.07.20'},
   {id:'SVC-004',name:'리워드X',icon:'R',partner:'넥스트딜 주식회사',type:'리워드',offers:0,status:'review',opStatus:'준비중',period:'2026.01.01~2026.12.31',notifEnabled:true,rewardEnabled:true,launch:'-'},
 ];
+// 이관리(ADM-002)의 담당 서비스: 스마트픽, 픽플러스
+const OPERATOR_SVC_IDS=['SVC-001','SVC-002'];
 let NOTIFS=[
   {id:'NTF-001',name:'신규가입 웰컴 알림',tplId:'KWD0100001',ch:'알림탭',period:'2026.01.01~2026.12.31',time:'09:00',on:true,date:'2026.01.01'},
   {id:'NTF-002',name:'구매완료 리워드 안내',tplId:'KWD0200001',ch:'앱푸쉬',period:'2026.02.01~2026.06.30',time:'18:00',on:true,date:'2026.02.01'},
@@ -949,18 +942,15 @@ function enterService(svc){
   document.getElementById('svc-submenu').style.display='block';
   document.getElementById('nl-svc-name').textContent=svc.name;
   document.getElementById('nl-svc-name').style.display='inline';
-  // 알림 메뉴 허용 여부
   const notifEnabled=svc.notifEnabled!==false;
   document.getElementById('gh-notif').style.display=notifEnabled?'flex':'none';
   document.getElementById('gc-notif').style.display=notifEnabled?'block':'none';
-  // 리워드 메뉴 허용 여부
   const rewardEnabled=svc.rewardEnabled!==false;
   document.getElementById('gh-reward').style.display=rewardEnabled?'flex':'none';
   document.getElementById('gc-reward').style.display=rewardEnabled?'block':'none';
   svcGo('info','정보 수정');
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
   document.getElementById('n-services').classList.add('on');
-  // 기본 정보 채우기
   document.getElementById('svc-nm-input').value=svc.name;
   document.getElementById('svc-pt-input').value=svc.partner;
   document.getElementById('svc-desc-input').value=svc.name+'은 고객에게 최고의 혜택을 제공하는 서비스입니다.';
@@ -971,7 +961,6 @@ function enterService(svc){
     if(s&&p[0])s.value=p[0].replace(/\./g,'-');
     if(e&&p[1])e.value=p[1].replace(/\./g,'-');
   }
-  // 인증 정보 채우기
   const cid=ADMIN_SVCS.find(s=>s.name===svc.name);
   const cidInput=document.getElementById('svc-cid-input');
   if(cidInput)cidInput.value=cid?cid.cid:'(미할당)';
@@ -1021,7 +1010,7 @@ function openPartnerCreate(){
   ['pf-pid','pf-name','pf-ceo','pf-brn','pf-email','pf-tel'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('pf-pid').readOnly=false;
   document.getElementById('pf-registrar-fi').style.display='none';
-  document.getElementById('pf-st').value='review';
+  // 운영자: 상태 고정(검토중), disabled이므로 value 설정만
   go('partner-form','파트너사 등록');
 }
 function savePartner(mode){
@@ -1033,25 +1022,19 @@ function savePartner(mode){
     if(!/^[A-Z]{4}-\d{3}$/.test(pid)){toast('파트너사 ID 형식이 올바르지 않습니다\n(예: SSAM-001 — 영문 4자리 + 숫자 3자리)','var(--red)');return;}
     if(PARTNERS.find(x=>x.pid===pid)){toast('이미 동일한 파트너사 ID가 존재합니다','var(--red)');return;}
   }
-  const status=mode==='draft'?'draft':document.getElementById('pf-st').value;
+  // 운영자는 상태 변경 불가, 신규 등록 시 검토중 고정
+  const status=mode==='draft'?'draft':(currentEditingPartnerId?PARTNERS.find(x=>x.id===currentEditingPartnerId).status:'review');
   if(currentEditingPartnerId){
     const p=PARTNERS.find(x=>x.id===currentEditingPartnerId);
-    if(p){p.name=name;p.ceo=document.getElementById('pf-ceo').value||p.ceo;p.status=status;}
+    if(p){p.name=name;p.ceo=document.getElementById('pf-ceo').value||p.ceo;}
     toast(mode==='draft'?'임시저장되었습니다':'수정되었습니다');
   } else {
     const newId='PRT-00'+(PARTNERS.length+1);
-    PARTNERS.push({id:newId,pid,name,ceo:document.getElementById('pf-ceo').value||'-',kkbSvc:'-',registrar:'robert.kim',status,date:'2026.03.26'});
+    PARTNERS.push({id:newId,pid,name,ceo:document.getElementById('pf-ceo').value||'-',kkbSvc:'-',registrar:'venti.ice',status,date:'2026.03.26'});
     toast(mode==='draft'?'임시저장되었습니다':'파트너사가 등록되었습니다');
   }
   renderPartners('all');renderPartners('draft');
   go('partners','파트너사 관리');
-}
-function deletePartner(id){
-  if(!confirm('파트너사를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.'))return;
-  const idx=PARTNERS.findIndex(x=>x.id===id);
-  if(idx>-1)PARTNERS.splice(idx,1);
-  renderPartners('all');renderPartners('draft');
-  toast('파트너사가 삭제되었습니다');
 }
 function filterTr(tbId,v){
   document.querySelectorAll('#'+tbId+' tr').forEach(tr=>{
@@ -1220,26 +1203,6 @@ function loadOfferNo(){
   toast('오퍼번호를 불러왔습니다');
 }
 function showCouponSample(){toast('샘플: CPNX-0001, CPNX-0002, CPNX-0003 ...');}
-function retryReward(id){
-  const l=REWARD_LOGS.find(x=>x.id===id);
-  if(!l)return;
-  if(l.status==='recalled'){
-    l.status='pending';
-    l.approvalNo='ITSVC-2026-0'+(Math.floor(Math.random()*900)+100);
-    toast('재지급 결재가 요청되었습니다');
-  } else if(l.status==='pending'){
-    toast('다시보내기 완료 — 담당자에게 알림을 전송했습니다');
-  } else if(l.status==='approved'){
-    if(!confirm('회수 처리하시겠습니까?'))return;
-    l.status='recalled';
-    toast('회수 처리되었습니다','var(--red)');
-  }
-  renderRewardLog();
-}
-function cancelApproval(id){
-  const l=REWARD_LOGS.find(x=>x.id===id);
-  if(l&&l.status==='pending'){l.status='recalled';toast('결재가 취소되었습니다','var(--red)');renderRewardLog();}
-}
 function openOfferModal(){openMo('mo-offer')}
 function saveOffer(){OFFERS.push({id:'OFR-0'+(OFFERS.length+1),name:'신규 오퍼',api:'POST /api/v1/new',reward:'신규가입 웰컴 쿠폰',on:true});renderOffers();closeMo('mo-offer');toast('오퍼가 등록되었습니다');}
 function openAdminSvcModal(){openMo('mo-admin-svc')}
@@ -1273,11 +1236,12 @@ function swTab(el,paneId){
 function renderAll(){renderPartners('all');renderPartners('draft');renderSvcCards();renderNotifs();renderRewards();renderRewardLog();renderOffers();renderProvisions();renderAdminSvcs();renderAdminUsers();}
 
 function renderPartners(tab){
+  // 운영자: 삭제 버튼 없음
   const rows=t=>t.map(p=>`<tr>
     <td class="tid">${p.pid||p.id}</td><td><b>${p.name}</b></td><td>${p.ceo}</td>
     <td style="font-size:12px">${p.kkbSvc||'-'}</td><td style="font-size:12px;color:var(--text2)">${p.registrar||'-'}</td>
     <td>${SM[p.status]||SM['inactive']}</td><td>${p.date}</td>
-    <td style="display:flex;gap:4px;padding-top:8px"><button class="btn bd bxs" onclick="editPartner('${p.id}')">수정</button><button class="btn bd bxs" style="color:var(--red)" onclick="deletePartner('${p.id}')">삭제</button></td>
+    <td><button class="btn bd bxs" onclick="editPartner('${p.id}')">수정</button></td>
   </tr>`).join('');
   if(!tab||tab==='all') document.getElementById('partner-tbody').innerHTML=rows(PARTNERS);
   if(!tab||tab==='draft') document.getElementById('partner-draft-tbody').innerHTML=rows(PARTNERS.filter(p=>p.status==='draft'));
@@ -1292,12 +1256,14 @@ function editPartner(id){
   document.getElementById('pf-ceo').value=p.ceo;
   document.getElementById('pf-registrar-fi').style.display='block';
   document.getElementById('pf-registrar').value=p.registrar||'-';
-  document.getElementById('pf-st').value=p.status==='draft'?'review':p.status;
+  // 운영자: pf-st는 disabled이므로 DOM value만 설정
   go('partner-form','파트너사 정보 수정');
 }
 
 function renderSvcCards(){
-  document.getElementById('svc-cards').innerHTML=SERVICES.map(s=>`<div class="svc-card" onclick='enterService(${JSON.stringify(s).replace(/'/g,"\\'")})'>
+  // 운영자: 담당 서비스만 노출
+  const visible=SERVICES.filter(s=>OPERATOR_SVC_IDS.includes(s.id));
+  document.getElementById('svc-cards').innerHTML=visible.map(s=>`<div class="svc-card" onclick='enterService(${JSON.stringify(s).replace(/'/g,"\\'")})'>
     <div class="svc-icon">${s.icon}</div>
     <div class="svc-nm">${s.name}</div>
     <div class="svc-pt" style="margin-bottom:6px">${s.partner}</div>
@@ -1332,7 +1298,7 @@ function renderRewards(){
     <td>${TM[r.type]||r.type}</td>
     <td class="tmono" style="font-size:11px">${r.offerNo||'-'}</td>
     <td style="font-size:11px;color:var(--text2)">${r.cond}</td>
-    <td><label class="tog"><input type="checkbox" ${r.on?'checked':''} onchange="this.checked;REWARDS.find(x=>x.id==='${r.id}').on=this.checked"><span class="sl"></span></label></td>
+    <td><label class="tog"><input type="checkbox" ${r.on?'checked':''} onchange="REWARDS.find(x=>x.id==='${r.id}').on=this.checked"><span class="sl"></span></label></td>
     <td>${r.date}</td><td><button class="btn bd bxs" onclick="editReward('${r.id}')">수정</button></td>
   </tr>`).join('');
 }
@@ -1351,9 +1317,9 @@ function renderRewardLog(){
     <td>${statMap[l.status]||l.status}</td>
     <td class="tmono" style="font-size:11px">${l.approvalNo}</td>
     <td style="display:flex;gap:4px;padding-top:8px">
-      ${l.status==='approved'?`<button class="btn bd bxs" onclick="toast('파일을 다운로드합니다')">다운받기</button><button class="btn bd bxs" style="color:var(--red)" onclick="retryReward('${l.id}')">회수하기</button>`:''}
-      ${l.status==='pending'?`<button class="btn bd bxs" onclick="retryReward('${l.id}')">다시보내기</button><button class="btn bd bxs" style="color:var(--red)" onclick="cancelApproval('${l.id}')">결재 취소</button>`:''}
-      ${l.status==='recalled'?`<button class="btn bd bxs" onclick="retryReward('${l.id}')">재지급</button>`:''}
+      ${l.status==='approved'?`<button class="btn bd bxs" onclick="toast('파일을 다운로드합니다')">다운받기</button>`:''}
+      ${l.status==='pending'?`<button class="btn bd bxs" onclick="toast('다시보내기 완료')">다시보내기</button>`:''}
+      ${l.status==='recalled'?`<button class="btn bd bxs" onclick="toast('재지급 요청이 전달되었습니다')">재지급 요청</button>`:''}
     </td>
   </tr>`).join('');
 }
