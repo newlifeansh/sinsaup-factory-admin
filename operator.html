@@ -730,7 +730,7 @@ input:checked+.sl:before{transform:translateX(16px)}
       <!-- ══ SVC: OFFERS ══ -->
       <div class="page" id="page-offers">
         <div class="ph"><div class="pt">오퍼 관리</div><button class="btn bp" onclick="openOfferModal()">＋ 오퍼 등록</button></div>
-        <div class="tw"><table><thead><tr><th>오퍼 ID</th><th>오퍼명</th><th>API 엔드포인트</th><th>매핑 리워드</th><th>상태</th><th>관리</th></tr></thead>
+        <div class="tw"><table><thead><tr><th>오퍼 ID</th><th>오퍼명</th><th>오퍼번호</th><th>오퍼상세일련번호</th><th>거래부점코드</th><th>텔러번호</th><th>등록자</th><th>상태</th><th>등록일</th><th>관리</th></tr></thead>
         <tbody id="offer-tbody"></tbody></table></div>
       </div>
 
@@ -740,14 +740,17 @@ input:checked+.sl:before{transform:translateX(16px)}
         <div class="fsec">
           <div class="fst">지급 정보 입력</div>
           <div class="fr">
-            <div class="fi"><label>지급 대상 CI <span class="r">*</span></label><div style="display:flex;gap:7px"><input type="text" id="prov-ci" placeholder="사용자 CI 입력"><button class="btn bd bsm" onclick="toast('사용자를 조회했습니다')">검색</button></div></div>
-            <div class="fi"><label>지급할 리워드 <span class="r">*</span></label><select id="prov-rw"><option>신규가입 웰컴 쿠폰 (1,000원)</option><option>구매완료 현금 (500원)</option><option>이벤트 랜덤 리워드</option></select></div>
+            <div class="fi"><label>지급 대상 고객번호 <span class="r">*</span></label><input type="text" id="prov-custno" placeholder="예: 1145-1234242" maxlength="12"></div>
+            <div class="fi"><label>지급할 리워드 <span class="r">*</span></label><select id="prov-rw" onchange="onProvRewardChange()"><option value="">리워드 선택</option></select></div>
+          </div>
+          <div class="fr" id="prov-cash-row" style="display:none">
+            <div class="fi"><label>지급 금액 (원) <span class="r">*</span></label><input type="number" id="prov-cash-amt" placeholder="예: 1000" min="0"><div style="font-size:11px;color:var(--text3);margin-top:4px">랜덤 설정이어도 수동 지급 시 지정 금액으로 지급됩니다</div></div>
           </div>
           <div class="fr full"><div class="fi"><label>지급 사유 <span class="r">*</span></label><input type="text" id="prov-reason" placeholder="예: CS 요청에 의한 수동 지급"></div></div>
           <div class="fa"><button class="btn bp" onclick="doProvision()">지급 실행</button></div>
         </div>
         <div style="margin-top:22px"><div style="font-size:13px;font-weight:700;margin-bottom:10px">지급 내역</div>
-          <div class="tw"><table><thead><tr><th>지급 일시</th><th>지급 대상 (CI)</th><th>리워드명</th><th>지급 사유</th><th>처리자</th></tr></thead><tbody id="prov-tbody"></tbody></table></div>
+          <div class="tw"><table><thead><tr><th>지급 일시</th><th>지급 대상 (고객번호)</th><th>리워드명</th><th>지급 금액</th><th>지급 사유</th><th>처리자</th></tr></thead><tbody id="prov-tbody"></tbody></table></div>
         </div>
       </div>
 
@@ -755,6 +758,27 @@ input:checked+.sl:before{transform:translateX(16px)}
       <div class="page" id="page-admin-services">
         <div class="ph"><div class="pt">전체 서비스 관리 <span class="mbadge">마스터 전용</span></div><button class="btn bp" onclick="openAdminSvcModal()">＋ 신규 서비스 등록</button></div>
         <div class="tw"><table><thead><tr><th>서비스명</th><th>Client ID</th><th>파트너사</th><th>상태</th><th>출시일</th><th>관리</th></tr></thead><tbody id="admin-svc-tbody"></tbody></table></div>
+      </div>
+
+      <!-- ══ ADMIN SVC DETAIL ══ -->
+      <div class="page" id="page-admin-svc-detail">
+        <div class="ph">
+          <div class="pt" id="asvc-detail-title">서비스 상세</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn bd" onclick="go('admin-services','전체 서비스 관리')">← 목록</button>
+            <button class="btn bp" id="asvc-detail-edit-btn" onclick="openAdminSvcModal()">수정하기</button>
+          </div>
+        </div>
+        <div class="fsec" style="margin-bottom:20px">
+          <div class="fst">기본 정보</div>
+          <div style="display:flex;flex-wrap:wrap;gap:28px;margin-top:14px">
+            <div style="min-width:160px"><div style="font-size:11px;color:var(--text2);margin-bottom:5px">서비스명</div><div id="asd-name" style="font-size:16px;font-weight:700"></div></div>
+            <div style="min-width:200px"><div style="font-size:11px;color:var(--text2);margin-bottom:5px">Client ID</div><div id="asd-cid" class="tmono" style="font-size:12px"></div></div>
+            <div style="min-width:160px"><div style="font-size:11px;color:var(--text2);margin-bottom:5px">파트너사</div><div id="asd-partner" style="font-size:13px"></div></div>
+            <div style="min-width:80px"><div style="font-size:11px;color:var(--text2);margin-bottom:5px">상태</div><div id="asd-status"></div></div>
+            <div style="min-width:100px"><div style="font-size:11px;color:var(--text2);margin-bottom:5px">출시일</div><div id="asd-date" style="font-size:12px;color:var(--text2)"></div></div>
+          </div>
+        </div>
       </div>
 
       <!-- ══ ADMIN USERS ══ -->
@@ -913,10 +937,10 @@ const PARTNERS=[
   {id:'PRT-006',pid:'DRFT-006',name:'신규 파트너사 (임시)',ceo:'김신규',kkbSvc:'-',registrar:'venti.ice',status:'draft',date:'2026.03.25'},
 ];
 const SERVICES=[
-  {id:'SVC-001',name:'스마트픽',icon:'S',partner:'스마트픽 주식회사',type:'쇼핑',offers:12,status:'active',opStatus:'운영중',period:'2025.02.01~2026.12.31',notifEnabled:true,rewardEnabled:true,launch:'2025.02.01'},
-  {id:'SVC-002',name:'픽플러스',icon:'P',partner:'픽플러스 테크',type:'구독',offers:8,status:'active',opStatus:'운영중',period:'2025.04.15~2026.12.31',notifEnabled:true,rewardEnabled:true,launch:'2025.04.15'},
-  {id:'SVC-003',name:'달맛',icon:'D',partner:'달맛 코퍼레이션',type:'커머스',offers:15,status:'active',opStatus:'운영중',period:'2025.07.20~2026.12.31',notifEnabled:false,rewardEnabled:false,launch:'2025.07.20'},
-  {id:'SVC-004',name:'리워드X',icon:'R',partner:'넥스트딜 주식회사',type:'리워드',offers:0,status:'review',opStatus:'준비중',period:'2026.01.01~2026.12.31',notifEnabled:true,rewardEnabled:true,launch:'-'},
+  {id:'SVC-001',name:'스마트픽',icon:'S',partner:'스마트픽 주식회사',type:'쇼핑',offers:12,status:'active',opStatus:'운영중',period:'2025.02.01~2026.12.31',notifEnabled:true,rewardEnabled:true,offerEnabled:true,provisionEnabled:true,launch:'2025.02.01'},
+  {id:'SVC-002',name:'픽플러스',icon:'P',partner:'픽플러스 테크',type:'구독',offers:8,status:'active',opStatus:'운영중',period:'2025.04.15~2026.12.31',notifEnabled:true,rewardEnabled:true,offerEnabled:true,provisionEnabled:true,launch:'2025.04.15'},
+  {id:'SVC-003',name:'달맛',icon:'D',partner:'달맛 코퍼레이션',type:'커머스',offers:15,status:'active',opStatus:'운영중',period:'2025.07.20~2026.12.31',notifEnabled:false,rewardEnabled:false,offerEnabled:true,provisionEnabled:false,launch:'2025.07.20'},
+  {id:'SVC-004',name:'리워드X',icon:'R',partner:'넥스트딜 주식회사',type:'리워드',offers:0,status:'review',opStatus:'준비중',period:'2026.01.01~2026.12.31',notifEnabled:true,rewardEnabled:true,offerEnabled:false,provisionEnabled:true,launch:'-'},
 ];
 // 이관리(ADM-002)의 담당 서비스: 스마트픽, 픽플러스
 const OPERATOR_SVC_IDS=['SVC-001','SVC-002'];
@@ -942,19 +966,19 @@ let REWARD_LOGS=[
   {id:'LOG-005',dt:'2026.03.20',reward:'신규가입 웰컴 쿠폰',count:198,status:'approved',approvalNo:'ITSVC-2026-0298'},
 ];
 let OFFERS=[
-  {id:'OFR-001',name:'구매완료 오퍼',api:'POST /api/v1/purchase/complete',reward:'구매완료 현금 리워드',on:true},
-  {id:'OFR-002',name:'로그인 보상 오퍼',api:'GET /api/v1/login/reward',reward:'신규가입 웰컴 쿠폰',on:true},
-  {id:'OFR-003',name:'이벤트 참여 오퍼',api:'POST /api/v1/event/join',reward:'이벤트 랜덤 리워드',on:false},
-  {id:'OFR-004',name:'친구초대 완료 오퍼',api:'POST /api/v1/invite/complete',reward:'친구초대 보너스 쿠폰',on:true},
-  {id:'OFR-005',name:'첫구매 완료 오퍼',api:'POST /api/v1/purchase/first',reward:'첫구매 캐시백',on:true},
-  {id:'OFR-006',name:'리뷰 작성 오퍼',api:'POST /api/v1/review/submit',reward:'구매완료 현금 리워드',on:false},
+  {id:'OFR-001',name:'구매완료 오퍼',offerNo:'202512000006',detailSeq:'001',branchCode:'0032',tellerNo:'720050',registrar:'robert.kim',on:true,regDate:'2025.12.01',modDate:'2026.01.15'},
+  {id:'OFR-002',name:'로그인 보상 오퍼',offerNo:'202601000012',detailSeq:'001',branchCode:'0045',tellerNo:'830112',registrar:'venti.ice',on:true,regDate:'2026.01.05',modDate:'2026.01.05'},
+  {id:'OFR-003',name:'이벤트 참여 오퍼',offerNo:'202602000018',detailSeq:'002',branchCode:'0032',tellerNo:'720050',registrar:'robert.kim',on:false,regDate:'2026.02.10',modDate:'2026.02.20'},
+  {id:'OFR-004',name:'친구초대 완료 오퍼',offerNo:'202603000021',detailSeq:'001',branchCode:'0078',tellerNo:'910234',registrar:'roger.f',on:true,regDate:'2026.03.01',modDate:'2026.03.01'},
+  {id:'OFR-005',name:'첫구매 완료 오퍼',offerNo:'202603000025',detailSeq:'001',branchCode:'0045',tellerNo:'830112',registrar:'venti.ice',on:true,regDate:'2026.03.10',modDate:'2026.03.15'},
+  {id:'OFR-006',name:'리뷰 작성 오퍼',offerNo:'202603000030',detailSeq:'003',branchCode:'0032',tellerNo:'720050',registrar:'robert.kim',on:false,regDate:'2026.03.20',modDate:'2026.03.20'},
 ];
 let PROVISIONS=[
-  {dt:'2026.03.24 09:42',ci:'CI_***abc123',reward:'신규가입 웰컴 쿠폰',reason:'CS 요청 처리',by:'홍길동'},
-  {dt:'2026.03.23 14:15',ci:'CI_***def456',reward:'구매완료 현금 리워드',reason:'이벤트 보상 누락 보정',by:'이관리'},
-  {dt:'2026.03.22 11:30',ci:'CI_***ghi789',reward:'친구초대 보너스 쿠폰',reason:'시스템 오류로 인한 미지급',by:'홍길동'},
-  {dt:'2026.03.20 16:05',ci:'CI_***jkl012',reward:'첫구매 캐시백',reason:'결제 취소 후 재지급',by:'박운영'},
-  {dt:'2026.03.18 10:00',ci:'CI_***mno345',reward:'신규가입 웰컴 쿠폰',reason:'VIP 고객 특별 지급',by:'이관리'},
+  {dt:'2026.03.24 09:42',custNo:'1145-1234242',reward:'신규가입 웰컴 쿠폰',cashAmt:null,reason:'CS 요청 처리',by:'robert.kim'},
+  {dt:'2026.03.23 14:15',custNo:'2234-5678901',reward:'구매완료 현금 리워드',cashAmt:500,reason:'이벤트 보상 누락 보정',by:'lee.admin'},
+  {dt:'2026.03.22 11:30',custNo:'3312-9988776',reward:'친구초대 보너스 쿠폰',cashAmt:null,reason:'시스템 오류로 인한 미지급',by:'robert.kim'},
+  {dt:'2026.03.20 16:05',custNo:'1099-3344556',reward:'첫구매 캐시백',cashAmt:1500,reason:'결제 취소 후 재지급',by:'park.op'},
+  {dt:'2026.03.18 10:00',custNo:'4421-7788990',reward:'신규가입 웰컴 쿠폰',cashAmt:null,reason:'VIP 고객 특별 지급',by:'lee.admin'},
 ];
 const ADMIN_SVCS=[
   {name:'스마트픽',cid:'client_sm_001',partner:'스마트픽 주식회사',status:'Active',date:'2025.02.01'},
@@ -1023,6 +1047,12 @@ function enterService(svc){
   const rewardEnabled=svc.rewardEnabled!==false;
   document.getElementById('gh-reward').style.display=rewardEnabled?'flex':'none';
   document.getElementById('gc-reward').style.display=rewardEnabled?'block':'none';
+  const offerEnabled=svc.offerEnabled!==false;
+  document.getElementById('gh-offer').style.display=offerEnabled?'flex':'none';
+  document.getElementById('gc-offer').style.display=offerEnabled?'block':'none';
+  const provisionEnabled=svc.provisionEnabled!==false;
+  document.getElementById('n-provisions').style.display=provisionEnabled?'flex':'none';
+  populateProvRewardSelect();
   svcGo('info','정보 수정');
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
   document.getElementById('n-services').classList.add('on');
@@ -1118,13 +1148,47 @@ function filterTr(tbId,v){
 }
 
 // ══ PROVISION ══
+function populateProvRewardSelect(){
+  const sel=document.getElementById('prov-rw');
+  if(!sel)return;
+  sel.innerHTML='<option value="">리워드 선택</option>';
+  REWARDS.filter(r=>r.on).forEach(r=>{
+    const opt=document.createElement('option');
+    opt.value=r.id;
+    opt.textContent=r.name+(r.type==='cash'?' (현금)':' (쿠폰)');
+    opt.dataset.type=r.type;
+    sel.appendChild(opt);
+  });
+  document.getElementById('prov-cash-row').style.display='none';
+}
+function onProvRewardChange(){
+  const sel=document.getElementById('prov-rw');
+  const opt=sel.options[sel.selectedIndex];
+  const isCash=opt&&opt.dataset.type==='cash';
+  document.getElementById('prov-cash-row').style.display=isCash?'grid':'none';
+}
 function doProvision(){
-  const ci=document.getElementById('prov-ci').value;
-  const reason=document.getElementById('prov-reason').value;
-  if(!ci||!reason){toast('필수 항목을 입력하세요','var(--red)');return;}
-  PROVISIONS.unshift({dt:new Date().toLocaleString('ko-KR'),ci:'CI_***'+ci.slice(-4),reward:document.getElementById('prov-rw').value,reason,by:'홍길동'});
+  const custNo=document.getElementById('prov-custno').value.trim();
+  const rwId=document.getElementById('prov-rw').value;
+  const reason=document.getElementById('prov-reason').value.trim();
+  if(!custNo||!rwId||!reason){toast('필수 항목을 입력하세요','var(--red)');return;}
+  if(!/^\d{4}-\d{7}$/.test(custNo)){toast('고객번호 형식이 올바르지 않습니다\n(예: 1145-1234242)','var(--red)');return;}
+  const rw=REWARDS.find(x=>x.id===rwId);
+  const sel=document.getElementById('prov-rw');
+  const opt=sel.options[sel.selectedIndex];
+  const isCash=opt&&opt.dataset.type==='cash';
+  let cashAmt=null;
+  if(isCash){
+    cashAmt=parseInt(document.getElementById('prov-cash-amt').value)||0;
+    if(!cashAmt){toast('지급 금액을 입력하세요','var(--red)');return;}
+  }
+  const now=new Date();
+  const dt=now.getFullYear()+'.'+(String(now.getMonth()+1).padStart(2,'0'))+'.'+String(now.getDate()).padStart(2,'0')+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  PROVISIONS.unshift({dt,custNo,reward:rw?rw.name:rwId,cashAmt,reason,by:'lee.admin'});
   renderProvisions();
-  document.getElementById('prov-ci').value='';
+  document.getElementById('prov-custno').value='';
+  document.getElementById('prov-rw').value='';
+  document.getElementById('prov-cash-row').style.display='none';
   document.getElementById('prov-reason').value='';
   toast('리워드가 지급되었습니다');
 }
@@ -1329,7 +1393,11 @@ function loadOfferNo(){
 }
 function showCouponSample(){toast('샘플: CPNX-0001, CPNX-0002, CPNX-0003 ...');}
 function openOfferModal(){openMo('mo-offer')}
-function saveOffer(){OFFERS.push({id:'OFR-0'+(OFFERS.length+1),name:'신규 오퍼',api:'POST /api/v1/new',reward:'신규가입 웰컴 쿠폰',on:true});renderOffers();closeMo('mo-offer');toast('오퍼가 등록되었습니다');}
+function saveOffer(){
+  const today=new Date();const d=today.getFullYear()+'.'+(String(today.getMonth()+1).padStart(2,'0'))+'.'+String(today.getDate()).padStart(2,'0');
+  OFFERS.push({id:'OFR-00'+(OFFERS.length+1),name:'신규 오퍼',offerNo:'',detailSeq:'001',branchCode:'',tellerNo:'',registrar:'lee.admin',on:true,regDate:d,modDate:d});
+  renderOffers();closeMo('mo-offer');toast('오퍼가 등록되었습니다');
+}
 function openAdminSvcModal(){openMo('mo-admin-svc')}
 function runTest(){document.getElementById('test-result').value='실행 중...';setTimeout(()=>{document.getElementById('test-result').value='{\n  "status": 200,\n  "result": "success",\n  "reward": "신규가입 웰컴 쿠폰",\n  "userId": "test-001"\n}';},800);}
 function openUserModal(idx){
@@ -1453,26 +1521,50 @@ function renderRewardLog(){
 function renderOffers(){
   document.getElementById('offer-tbody').innerHTML=OFFERS.map(o=>`<tr>
     <td class="tid">${o.id}</td><td><b>${o.name}</b></td>
-    <td class="tmono" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.api}</td>
-    <td style="font-size:12px">${o.reward}</td>
-    <td><label class="tog"><input type="checkbox" ${o.on?'checked':''} onchange="o.on=this.checked"><span class="sl"></span></label></td>
-    <td style="display:flex;gap:4px;padding-top:8px"><button class="btn bd bxs">수정</button><button class="btn bd bxs" onclick="toast('테스트 완료')">테스트</button></td>
+    <td class="tmono" style="font-size:11px">${o.offerNo||'-'}</td>
+    <td class="tmono" style="font-size:11px">${o.detailSeq||'-'}</td>
+    <td class="tmono" style="font-size:11px">${o.branchCode||'-'}</td>
+    <td class="tmono" style="font-size:11px">${o.tellerNo||'-'}</td>
+    <td style="font-size:12px">${o.registrar||'-'}</td>
+    <td><label class="tog"><input type="checkbox" ${o.on?'checked':''} onchange="OFFERS.find(x=>x.id==='${o.id}').on=this.checked"><span class="sl"></span></label></td>
+    <td style="font-size:11px;color:var(--text2)">${o.regDate||'-'}</td>
+    <td><button class="btn bd bxs" onclick="openOfferModal()">수정</button></td>
   </tr>`).join('');
 }
 
 function renderProvisions(){
-  document.getElementById('prov-tbody').innerHTML=PROVISIONS.map(p=>`<tr>
-    <td style="font-size:11px">${p.dt}</td><td class="tmono">${p.ci}</td>
-    <td>${p.reward}</td><td style="font-size:12px;color:var(--text2)">${p.reason}</td><td>${p.by}</td>
-  </tr>`).join('');
+  document.getElementById('prov-tbody').innerHTML=PROVISIONS.map(p=>{
+    const masked=p.custNo.replace(/^(\d{4})-(\d{3})(\d{4})$/,'****-***$3');
+    return `<tr>
+      <td style="font-size:11px">${p.dt}</td>
+      <td class="tmono">${masked}</td>
+      <td>${p.reward}</td>
+      <td style="font-size:12px">${p.cashAmt!=null?p.cashAmt.toLocaleString()+'원':'-'}</td>
+      <td style="font-size:12px;color:var(--text2)">${p.reason}</td>
+      <td style="font-size:12px">${p.by}</td>
+    </tr>`;
+  }).join('');
 }
 
 function renderAdminSvcs(){
   document.getElementById('admin-svc-tbody').innerHTML=ADMIN_SVCS.map(s=>`<tr>
-    <td><b>${s.name}</b></td><td class="tmono">${s.cid}</td>
+    <td><b style="color:var(--blue);cursor:pointer;text-decoration:underline" onclick="viewAdminSvc('${s.name}')">${s.name}</b></td>
+    <td class="tmono">${s.cid}</td>
     <td>${s.partner}</td><td>${SM[s.status]}</td><td>${s.date}</td>
-    <td><button class="btn bd bxs">수정</button></td>
+    <td><button class="btn bd bxs" onclick="openAdminSvcModal()">수정</button></td>
   </tr>`).join('');
+}
+
+function viewAdminSvc(name){
+  const s=ADMIN_SVCS.find(x=>x.name===name);
+  if(!s)return;
+  document.getElementById('asvc-detail-title').textContent=s.name+' 상세';
+  document.getElementById('asd-name').textContent=s.name;
+  document.getElementById('asd-cid').textContent=s.cid;
+  document.getElementById('asd-partner').textContent=s.partner;
+  document.getElementById('asd-status').innerHTML=SM[s.status]||s.status;
+  document.getElementById('asd-date').textContent=s.date;
+  go('admin-svc-detail','전체 서비스 관리');
 }
 
 function renderAdminUsers(){

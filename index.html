@@ -301,6 +301,9 @@ input:checked+.sl:before{transform:translateX(16px)}
       <div class="ni ni-d1" id="n-admin-services" onclick="go('admin-services','전체 서비스 관리')">
         <span class="lbl">전체 서비스 관리</span><span class="tag">마스터</span>
       </div>
+      <div class="ni ni-d1" id="n-admin-approvals" onclick="go('admin-approvals','결재 내역')">
+        <span class="lbl">결재 내역</span><span class="tag">마스터</span>
+      </div>
       <div class="ni ni-d1" id="n-admin-users" onclick="go('admin-users','사용자 관리')">
         <span class="lbl">사용자 관리</span><span class="tag">마스터</span>
       </div>
@@ -737,8 +740,9 @@ input:checked+.sl:before{transform:translateX(16px)}
       <!-- ══ SVC: OFFERS ══ -->
       <div class="page" id="page-offers">
         <div class="ph"><div class="pt">오퍼 관리</div><button class="btn bp" onclick="openOfferModal()">＋ 오퍼 등록</button></div>
-        <div class="tw"><table><thead><tr><th>오퍼 ID</th><th>오퍼명</th><th>API 엔드포인트</th><th>매핑 리워드</th><th>상태</th><th>관리</th></tr></thead>
-        <tbody id="offer-tbody"></tbody></table></div>
+        <div class="tw"><table><thead><tr>
+          <th>오퍼 ID</th><th>오퍼명</th><th>오퍼번호</th><th>오퍼상세일련번호</th><th>거래부점코드</th><th>텔러번호</th><th>등록자</th><th>상태</th><th>등록일</th><th>관리</th>
+        </tr></thead><tbody id="offer-tbody"></tbody></table></div>
       </div>
 
       <!-- ══ SVC: PROVISIONS ══ -->
@@ -747,28 +751,171 @@ input:checked+.sl:before{transform:translateX(16px)}
         <div class="fsec">
           <div class="fst">지급 정보 입력</div>
           <div class="fr">
-            <div class="fi"><label>지급 대상 CI <span class="r">*</span></label><div style="display:flex;gap:7px"><input type="text" id="prov-ci" placeholder="사용자 CI 입력"><button class="btn bd bsm" onclick="toast('사용자를 조회했습니다')">검색</button></div></div>
-            <div class="fi"><label>지급할 리워드 <span class="r">*</span></label><select id="prov-rw"><option>신규가입 웰컴 쿠폰 (1,000원)</option><option>구매완료 현금 (500원)</option><option>이벤트 랜덤 리워드</option></select></div>
+            <div class="fi">
+              <label>고객번호 <span class="r">*</span></label>
+              <div style="display:flex;gap:7px">
+                <input type="text" id="prov-custno" placeholder="예: 1145-1234242">
+                <button class="btn bd bsm" onclick="toast('고객 정보를 조회했습니다')">검색</button>
+              </div>
+              <div style="font-size:11px;color:var(--text3);margin-top:4px">형식: 숫자4자리-숫자7자리</div>
+            </div>
+            <div class="fi">
+              <label>지급할 리워드 <span class="r">*</span></label>
+              <select id="prov-rw" onchange="onProvRewardChange()"><option value="">-- 리워드 선택 --</option></select>
+            </div>
+          </div>
+          <div id="prov-cash-area" style="display:none">
+            <div class="fr"><div class="fi"><label>지급 금액 (원) <span class="r">*</span></label><input type="number" id="prov-cash-amt" placeholder="예: 1000" min="1"><div style="font-size:11px;color:var(--text3);margin-top:4px">현금 리워드: 랜덤 설정이더라도 지정 금액으로 지급됩니다.</div></div></div>
           </div>
           <div class="fr full"><div class="fi"><label>지급 사유 <span class="r">*</span></label><input type="text" id="prov-reason" placeholder="예: CS 요청에 의한 수동 지급"></div></div>
           <div class="fa"><button class="btn bp" onclick="doProvision()">지급 실행</button></div>
         </div>
-        <div style="margin-top:22px"><div style="font-size:13px;font-weight:700;margin-bottom:10px">지급 내역</div>
-          <div class="tw"><table><thead><tr><th>지급 일시</th><th>지급 대상 (CI)</th><th>리워드명</th><th>지급 사유</th><th>처리자</th></tr></thead><tbody id="prov-tbody"></tbody></table></div>
+        <div style="margin-top:22px">
+          <div style="font-size:13px;font-weight:700;margin-bottom:10px">지급 내역</div>
+          <div class="tw"><table><thead><tr><th>지급 일시</th><th>지급 대상 (고객번호)</th><th>리워드명</th><th>지급 금액</th><th>지급 사유</th><th>처리자</th></tr></thead><tbody id="prov-tbody"></tbody></table></div>
         </div>
       </div>
 
       <!-- ══ ADMIN SERVICES ══ -->
       <div class="page" id="page-admin-services">
-        <div class="ph"><div class="pt">전체 서비스 관리 <span class="mbadge">마스터 전용</span></div><button class="btn bp" onclick="openAdminSvcModal()">＋ 신규 서비스 등록</button></div>
-        <div class="tw"><table><thead><tr><th>서비스명</th><th>Client ID</th><th>파트너사</th><th>상태</th><th>출시일</th><th>관리</th></tr></thead><tbody id="admin-svc-tbody"></tbody></table></div>
+        <div class="ph">
+          <div class="pt">전체 서비스 관리 <span class="mbadge">마스터 전용</span></div>
+          <button class="btn bp" onclick="openAdminSvcForm(null)">＋ 신규 서비스 등록</button>
+        </div>
+        <div class="tw"><table><thead><tr>
+          <th>서비스명</th><th>파트너사</th><th>제공 기능</th><th>상태</th><th>등록일</th><th>수정일</th><th>관리</th>
+        </tr></thead><tbody id="admin-svc-tbody"></tbody></table></div>
+      </div>
+
+      <!-- ══ ADMIN SVC DETAIL ══ -->
+      <div class="page" id="page-admin-svc-detail">
+        <div class="ph">
+          <div class="pt" id="asvc-detail-title">서비스 상세</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn bd" onclick="go('admin-services','전체 서비스 관리')">← 목록</button>
+            <button class="btn bp" id="asvc-detail-edit-btn">수정하기</button>
+          </div>
+        </div>
+        <div class="fsec" style="margin-bottom:20px">
+          <div class="fst">기본 정보</div>
+          <div style="display:flex;flex-wrap:wrap;gap:28px;margin-top:14px">
+            <div style="min-width:160px"><div style="font-size:11px;color:var(--text2);margin-bottom:5px">서비스명</div><div id="asd-name" style="font-size:16px;font-weight:700"></div></div>
+            <div style="min-width:160px"><div style="font-size:11px;color:var(--text2);margin-bottom:5px">파트너사</div><div id="asd-partner" style="font-size:13px"></div></div>
+            <div style="min-width:80px"><div style="font-size:11px;color:var(--text2);margin-bottom:5px">상태</div><div id="asd-status"></div></div>
+            <div style="min-width:100px"><div style="font-size:11px;color:var(--text2);margin-bottom:5px">등록일</div><div id="asd-regdate" style="font-size:12px;color:var(--text2)"></div></div>
+            <div style="min-width:100px"><div style="font-size:11px;color:var(--text2);margin-bottom:5px">수정일</div><div id="asd-moddate" style="font-size:12px;color:var(--text2)"></div></div>
+          </div>
+        </div>
+        <div class="fsec" style="margin-bottom:20px">
+          <div class="fst">제공 기능</div>
+          <div id="asd-features" style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap"></div>
+        </div>
+        <div class="fsec" style="margin-bottom:20px">
+          <div class="fst">인증 정책 — 제공 정보</div>
+          <div id="asd-authinfo" style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap"></div>
+        </div>
+        <div class="fsec">
+          <div class="fst">접근 가능한 운영자</div>
+          <div id="asd-operators" style="display:flex;flex-direction:column;gap:6px;margin-top:12px"></div>
+        </div>
+      </div>
+
+      <!-- ══ ADMIN SVC EDIT ══ -->
+      <div class="page" id="page-admin-svc-edit">
+        <div class="ph">
+          <div class="pt" id="asvc-form-title">서비스 등록</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn bd" onclick="go('admin-services','전체 서비스 관리')">취소</button>
+            <button class="btn bp" onclick="saveAdminSvcForm()">결재 요청</button>
+          </div>
+        </div>
+        <!-- 기본 정보 -->
+        <div class="fsec" style="margin-bottom:20px">
+          <div class="fst">기본 정보</div>
+          <div class="fr">
+            <div class="fi"><label>서비스명 <span class="r">*</span></label><input type="text" id="asvc-name" placeholder="서비스명"></div>
+            <div class="fi"><label>파트너사 <span class="r">*</span></label>
+              <select id="asvc-partner">
+                <option value="스마트픽 주식회사">스마트픽 주식회사</option>
+                <option value="픽플러스 테크">픽플러스 테크</option>
+                <option value="달맛 코퍼레이션">달맛 코퍼레이션</option>
+                <option value="넥스트딜 주식회사">넥스트딜 주식회사</option>
+              </select>
+            </div>
+          </div>
+          <div class="fr">
+            <div class="fi"><label>상태</label>
+              <select id="asvc-status">
+                <option value="active">활성</option>
+                <option value="inactive">비활성</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <!-- 제공 기능 -->
+        <div class="fsec" style="margin-bottom:20px">
+          <div class="fst">제공 기능</div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:9px 16px">
+              <input type="checkbox" id="asvc-feat-notif" style="accent-color:var(--primary)"> 알림
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:9px 16px">
+              <input type="checkbox" id="asvc-feat-reward" style="accent-color:var(--primary)"> 리워드
+            </label>
+          </div>
+        </div>
+        <!-- 인증 정책 -->
+        <div class="fsec" style="margin-bottom:20px">
+          <div class="fst">인증 정책 — 제공 정보</div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:9px 16px">
+              <input type="checkbox" id="asvc-auth-ci" style="accent-color:var(--primary)"> CI
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:9px 16px">
+              <input type="checkbox" id="asvc-auth-uuid" style="accent-color:var(--primary)"> UUID
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:9px 16px">
+              <input type="checkbox" id="asvc-auth-name" style="accent-color:var(--primary)"> 이름
+            </label>
+          </div>
+        </div>
+        <!-- 접근 가능한 운영자 -->
+        <div class="fsec">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div class="fst" style="margin-bottom:0">접근 가능한 운영자</div>
+            <button class="btn bd bsm" onclick="openOperatorSearch()">＋ 운영자 추가</button>
+          </div>
+          <div id="asvc-operators-list" style="display:flex;flex-direction:column;gap:6px">
+            <!-- 동적 생성 -->
+          </div>
+          <div id="asvc-operators-empty" style="font-size:12px;color:var(--text3);padding:12px 0">등록된 운영자가 없습니다.</div>
+        </div>
+      </div>
+
+      <!-- ══ ADMIN APPROVALS ══ -->
+      <div class="page" id="page-admin-approvals">
+        <div class="ph"><div class="pt">결재 내역 <span class="mbadge">마스터 전용</span></div></div>
+        <div class="tw"><table><thead><tr>
+          <th>결재 ID</th><th>유형</th><th>대상</th><th>요청자</th><th>요청일</th><th>결재 번호</th><th>상태</th><th>관리</th>
+        </tr></thead><tbody id="admin-approval-tbody"></tbody></table></div>
       </div>
 
       <!-- ══ ADMIN USERS ══ -->
       <div class="page" id="page-admin-users">
-        <div class="ph"><div class="pt">사용자 관리 <span class="mbadge">마스터 전용</span></div><button class="btn bp" onclick="openUserModal(null)">＋ 관리자 등록</button></div>
+        <div class="ph">
+          <div class="pt">사용자 관리 <span class="mbadge">마스터 전용</span></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn bd" onclick="openDeleteUserMode()">삭제</button>
+            <button class="btn bp" onclick="openAddUserModal()">＋ 추가</button>
+          </div>
+        </div>
         <div class="search-wrap"><input class="si" type="text" placeholder="이름 / 이메일 검색" oninput="filterTr('admin-user-tbody',this.value)"></div>
-        <div class="tw"><table><thead><tr><th>관리자 ID</th><th>이름</th><th>이메일</th><th>역할</th><th>담당 서비스</th><th>상태</th><th>최근 로그인</th><th>관리</th></tr></thead><tbody id="admin-user-tbody"></tbody></table></div>
+        <div class="tw"><table><thead><tr><th style="width:32px"><input type="checkbox" id="user-chk-all" style="accent-color:var(--primary)" onchange="toggleAllUserChk(this)"></th><th>관리자 ID</th><th>이름</th><th>이메일</th><th>역할</th><th>담당 서비스</th><th>상태</th><th>최근 로그인</th></tr></thead><tbody id="admin-user-tbody"></tbody></table></div>
+        <div id="user-delete-bar" style="display:none;margin-top:14px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;align-items:center;gap:12px">
+          <span style="font-size:12px;color:var(--text2)">선택된 사용자 <span id="delete-count" style="color:var(--text);font-weight:700">0</span>명을 삭제합니다.</span>
+          <button class="btn bd bsm" onclick="closeDeleteUserMode()">취소</button>
+          <button class="btn bsm" style="background:var(--red);color:#fff;border:none" onclick="submitDeleteUsers()">결재 요청</button>
+        </div>
       </div>
 
     </div><!-- /main -->
@@ -883,32 +1030,47 @@ input:checked+.sl:before{transform:translateX(16px)}
   </div>
 </div>
 
-<!-- 전체 서비스 등록 -->
-<div class="mo" id="mo-admin-svc">
-  <div class="mbox" style="width:640px">
-    <div class="mh"><div class="mt">신규 서비스 등록</div><button class="mc" onclick="closeMo('mo-admin-svc')">×</button></div>
+<!-- 운영자 검색 모달 -->
+<div class="mo" id="mo-operator-search">
+  <div class="mbox" style="width:480px">
+    <div class="mh"><div class="mt">운영자 추가</div><button class="mc" onclick="closeMo('mo-operator-search')">×</button></div>
     <div class="mb">
-      <div class="fr"><div class="fi"><label>서비스명 <span class="r">*</span></label><input type="text" placeholder="서비스명"></div><div class="fi"><label>파트너사</label><select><option>스마트픽 주식회사</option><option>픽플러스 테크</option><option>달맛 코퍼레이션</option><option>넥스트딜 주식회사</option></select></div></div>
-      <div class="fr"><div class="fi"><label>KKB 내부 관리번호</label><input type="text" placeholder="내부 관리번호"></div><div class="fi"><label>상태</label><select><option>Active</option><option>Suspended</option><option>Terminated</option></select></div></div>
-      <div class="notice" style="margin-top:4px">서비스 등록 후 해당 서비스의 <b>정보 수정</b> 페이지에서 인증 정책 및 진입 정책을 설정하세요.</div>
+      <div class="fi" style="margin-bottom:12px">
+        <label>사용자 검색</label>
+        <div style="display:flex;gap:7px">
+          <input type="text" id="op-search-input" placeholder="이름 또는 이메일" style="flex:1">
+          <button class="btn bp bsm" onclick="searchOperator()">검색</button>
+        </div>
+      </div>
+      <div id="op-search-results" style="display:flex;flex-direction:column;gap:6px;max-height:240px;overflow-y:auto"></div>
     </div>
-    <div class="mf"><button class="btn bd" onclick="closeMo('mo-admin-svc')">취소</button><button class="btn bp" onclick="closeMo('mo-admin-svc');toast('서비스가 등록되었습니다')">등록</button></div>
+    <div class="mf"><button class="btn bd" onclick="closeMo('mo-operator-search')">닫기</button></div>
   </div>
 </div>
 
-<!-- 사용자 등록/수정 -->
-<div class="mo" id="mo-user">
-  <div class="mbox" style="width:560px">
-    <div class="mh"><div class="mt" id="um-title">관리자 등록</div><button class="mc" onclick="closeMo('mo-user')">×</button></div>
+<!-- 사용자 추가 모달 -->
+<div class="mo" id="mo-add-user">
+  <div class="mbox" style="width:640px">
+    <div class="mh"><div class="mt">사용자 추가</div><button class="mc" onclick="closeMo('mo-add-user')">×</button></div>
     <div class="mb">
-      <div class="fr"><div class="fi"><label>이름 <span class="r">*</span></label><input type="text" id="um-name" placeholder="관리자 성명"></div><div class="fi"><label>이메일 <span class="r">*</span></label><input type="email" id="um-email" placeholder="admin@factory.com"></div></div>
-      <div class="fr"><div class="fi"><label>역할</label><select id="um-role" onchange="togglePerm()"><option value="master">마스터</option><option value="operator" selected>운영자</option></select></div><div class="fi"><label>상태</label><select id="um-status"><option>활성</option><option>비활성</option></select></div></div>
-      <div id="perm-section">
-        <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">담당 서비스 (진입 권한)</div>
-        <div class="pgrid" id="perm-grid"></div>
+      <div class="fi" style="margin-bottom:14px">
+        <label>사내 시스템 검색</label>
+        <div style="display:flex;gap:7px">
+          <input type="text" id="emp-search-input" placeholder="이름 또는 이메일" style="flex:1">
+          <button class="btn bp bsm" onclick="searchEmployee()">검색</button>
+        </div>
+      </div>
+      <div id="emp-search-results" style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto"></div>
+      <div id="emp-selected-list" style="margin-bottom:4px">
+        <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">추가할 사용자 목록</div>
+        <div id="emp-selected-items" style="display:flex;flex-direction:column;gap:8px"></div>
+        <div id="emp-selected-empty" style="font-size:12px;color:var(--text3);padding:8px 0">검색 후 사용자를 선택하세요.</div>
       </div>
     </div>
-    <div class="mf"><button class="btn bd" onclick="closeMo('mo-user')">취소</button><button class="btn bp" onclick="saveUser()">저장</button></div>
+    <div class="mf">
+      <button class="btn bd" onclick="closeMo('mo-add-user')">취소</button>
+      <button class="btn bp" onclick="submitAddUsers()">결재 요청</button>
+    </div>
   </div>
 </div>
 
@@ -925,10 +1087,10 @@ const PARTNERS=[
   {id:'PRT-006',pid:'DRFT-006',name:'신규 파트너사 (임시)',ceo:'김신규',kkbSvc:'-',registrar:'venti.ice',status:'draft',date:'2026.03.25'},
 ];
 const SERVICES=[
-  {id:'SVC-001',name:'스마트픽',icon:'S',partner:'스마트픽 주식회사',type:'쇼핑',offers:12,status:'active',opStatus:'운영중',period:'2025.02.01~2026.12.31',notifEnabled:true,rewardEnabled:true,launch:'2025.02.01'},
-  {id:'SVC-002',name:'픽플러스',icon:'P',partner:'픽플러스 테크',type:'구독',offers:8,status:'active',opStatus:'운영중',period:'2025.04.15~2026.12.31',notifEnabled:true,rewardEnabled:true,launch:'2025.04.15'},
-  {id:'SVC-003',name:'달맛',icon:'D',partner:'달맛 코퍼레이션',type:'커머스',offers:15,status:'active',opStatus:'운영중',period:'2025.07.20~2026.12.31',notifEnabled:false,rewardEnabled:false,launch:'2025.07.20'},
-  {id:'SVC-004',name:'리워드X',icon:'R',partner:'넥스트딜 주식회사',type:'리워드',offers:0,status:'review',opStatus:'준비중',period:'2026.01.01~2026.12.31',notifEnabled:true,rewardEnabled:true,launch:'-'},
+  {id:'SVC-001',name:'스마트픽',icon:'S',partner:'스마트픽 주식회사',type:'쇼핑',offers:12,status:'active',opStatus:'운영중',period:'2025.02.01~2026.12.31',notifEnabled:true,rewardEnabled:true,offerEnabled:true,provisionEnabled:true,launch:'2025.02.01'},
+  {id:'SVC-002',name:'픽플러스',icon:'P',partner:'픽플러스 테크',type:'구독',offers:8,status:'active',opStatus:'운영중',period:'2025.04.15~2026.12.31',notifEnabled:true,rewardEnabled:true,offerEnabled:true,provisionEnabled:true,launch:'2025.04.15'},
+  {id:'SVC-003',name:'달맛',icon:'D',partner:'달맛 코퍼레이션',type:'커머스',offers:15,status:'active',opStatus:'운영중',period:'2025.07.20~2026.12.31',notifEnabled:false,rewardEnabled:false,offerEnabled:true,provisionEnabled:false,launch:'2025.07.20'},
+  {id:'SVC-004',name:'리워드X',icon:'R',partner:'넥스트딜 주식회사',type:'리워드',offers:0,status:'review',opStatus:'준비중',period:'2026.01.01~2026.12.31',notifEnabled:true,rewardEnabled:true,offerEnabled:false,provisionEnabled:true,launch:'-'},
 ];
 let NOTIFS=[
   {id:'NTF-001',name:'신규가입 웰컴 알림',tplId:'KWD0100001',ch:'알림탭',period:'2026.01.01~2026.12.31',time:'09:00',on:true,date:'2026.01.01'},
@@ -952,27 +1114,42 @@ let REWARD_LOGS=[
   {id:'LOG-005',dt:'2026.03.20',reward:'신규가입 웰컴 쿠폰',count:198,status:'approved',approvalNo:'ITSVC-2026-0298'},
 ];
 let OFFERS=[
-  {id:'OFR-001',name:'구매완료 오퍼',api:'POST /api/v1/purchase/complete',reward:'구매완료 현금 리워드',on:true},
-  {id:'OFR-002',name:'로그인 보상 오퍼',api:'GET /api/v1/login/reward',reward:'신규가입 웰컴 쿠폰',on:true},
-  {id:'OFR-003',name:'이벤트 참여 오퍼',api:'POST /api/v1/event/join',reward:'이벤트 랜덤 리워드',on:false},
-  {id:'OFR-004',name:'친구초대 완료 오퍼',api:'POST /api/v1/invite/complete',reward:'친구초대 보너스 쿠폰',on:true},
-  {id:'OFR-005',name:'첫구매 완료 오퍼',api:'POST /api/v1/purchase/first',reward:'첫구매 캐시백',on:true},
-  {id:'OFR-006',name:'리뷰 작성 오퍼',api:'POST /api/v1/review/submit',reward:'구매완료 현금 리워드',on:false},
+  {id:'OFR-001',name:'구매완료 오퍼',offerNo:'202512000006',detailSeq:'001',branchCode:'0032',tellerNo:'720050',registrar:'robert.kim',on:true,regDate:'2025.12.01',modDate:'2026.01.15'},
+  {id:'OFR-002',name:'로그인 보상 오퍼',offerNo:'202512000007',detailSeq:'001',branchCode:'0032',tellerNo:'720050',registrar:'venti.ice',on:true,regDate:'2025.12.05',modDate:'2026.02.01'},
+  {id:'OFR-003',name:'이벤트 참여 오퍼',offerNo:'202512000008',detailSeq:'001',branchCode:'0045',tellerNo:'730011',registrar:'roger.f',on:false,regDate:'2025.12.10',modDate:'2026.03.01'},
+  {id:'OFR-004',name:'친구초대 완료 오퍼',offerNo:'202512000009',detailSeq:'002',branchCode:'0032',tellerNo:'720050',registrar:'robert.kim',on:true,regDate:'2026.01.05',modDate:'2026.02.20'},
+  {id:'OFR-005',name:'첫구매 완료 오퍼',offerNo:'202512000010',detailSeq:'001',branchCode:'0056',tellerNo:'740022',registrar:'linus.k',on:true,regDate:'2026.01.20',modDate:'2026.03.10'},
+  {id:'OFR-006',name:'리뷰 작성 오퍼',offerNo:'202512000011',detailSeq:'001',branchCode:'0032',tellerNo:'720050',registrar:'venti.ice',on:false,regDate:'2026.02.01',modDate:'2026.03.15'},
 ];
 let PROVISIONS=[
-  {dt:'2026.03.24 09:42',ci:'CI_***abc123',reward:'신규가입 웰컴 쿠폰',reason:'CS 요청 처리',by:'홍길동'},
-  {dt:'2026.03.23 14:15',ci:'CI_***def456',reward:'구매완료 현금 리워드',reason:'이벤트 보상 누락 보정',by:'이관리'},
-  {dt:'2026.03.22 11:30',ci:'CI_***ghi789',reward:'친구초대 보너스 쿠폰',reason:'시스템 오류로 인한 미지급',by:'홍길동'},
-  {dt:'2026.03.20 16:05',ci:'CI_***jkl012',reward:'첫구매 캐시백',reason:'결제 취소 후 재지급',by:'박운영'},
-  {dt:'2026.03.18 10:00',ci:'CI_***mno345',reward:'신규가입 웰컴 쿠폰',reason:'VIP 고객 특별 지급',by:'이관리'},
+  {dt:'2026.03.24 09:42',custNo:'1145-1234242',reward:'신규가입 웰컴 쿠폰',cashAmt:null,reason:'CS 요청 처리',by:'robert.kim'},
+  {dt:'2026.03.23 14:15',custNo:'2234-5678901',reward:'구매완료 현금 리워드',cashAmt:500,reason:'이벤트 보상 누락 보정',by:'venti.ice'},
+  {dt:'2026.03.22 11:30',custNo:'3341-9876543',reward:'친구초대 보너스 쿠폰',cashAmt:null,reason:'시스템 오류로 인한 미지급',by:'robert.kim'},
+  {dt:'2026.03.20 16:05',custNo:'4452-3456789',reward:'첫구매 캐시백',cashAmt:1500,reason:'결제 취소 후 재지급',by:'roger.f'},
+  {dt:'2026.03.18 10:00',custNo:'5563-7890123',reward:'신규가입 웰컴 쿠폰',cashAmt:null,reason:'VIP 고객 특별 지급',by:'venti.ice'},
 ];
 const ADMIN_SVCS=[
-  {name:'스마트픽',cid:'client_sm_001',partner:'스마트픽 주식회사',status:'Active',date:'2025.02.01'},
-  {name:'픽플러스',cid:'client_pp_002',partner:'픽플러스 테크',status:'Active',date:'2025.04.15'},
-  {name:'달맛',cid:'client_dm_003',partner:'달맛 코퍼레이션',status:'Active',date:'2025.07.20'},
-  {name:'리워드X',cid:'client_rx_004',partner:'넥스트딜 주식회사',status:'Suspended',date:'-'},
-  {name:'픽플러스 프리미엄',cid:'client_ppp_005',partner:'픽플러스 테크',status:'Active',date:'2026.01.10'},
-  {name:'달맛 파트너스',cid:'client_dmp_006',partner:'달맛 코퍼레이션',status:'Active',date:'2026.02.20'},
+  {id:'ASVC-001',name:'스마트픽',partner:'스마트픽 주식회사',status:'active',features:['알림','리워드'],authInfo:['CI','UUID'],operators:['이관리','최담당'],regDate:'2025.02.01',modDate:'2026.01.15'},
+  {id:'ASVC-002',name:'픽플러스',partner:'픽플러스 테크',status:'active',features:['알림','리워드'],authInfo:['CI','UUID','이름'],operators:['이관리','정매니저'],regDate:'2025.04.15',modDate:'2026.02.10'},
+  {id:'ASVC-003',name:'달맛',partner:'달맛 코퍼레이션',status:'active',features:['알림'],authInfo:['CI'],operators:['박운영'],regDate:'2025.07.20',modDate:'2025.12.01'},
+  {id:'ASVC-004',name:'리워드X',partner:'넥스트딜 주식회사',status:'inactive',features:['리워드'],authInfo:['CI','UUID'],operators:['김서비스'],regDate:'2026.01.01',modDate:'2026.03.01'},
+  {id:'ASVC-005',name:'픽플러스 프리미엄',partner:'픽플러스 테크',status:'active',features:['알림','리워드'],authInfo:['CI','UUID'],operators:['정매니저'],regDate:'2026.01.10',modDate:'2026.02.20'},
+  {id:'ASVC-006',name:'달맛 파트너스',partner:'달맛 코퍼레이션',status:'active',features:['알림'],authInfo:['CI'],operators:['박운영'],regDate:'2026.02.20',modDate:'2026.03.05'},
+];
+let ADMIN_APPROVALS=[
+  {id:'APV-001',type:'서비스 등록',target:'픽플러스 프리미엄',by:'robert.kim',reqDate:'2026.01.10',status:'applied',approvalNo:'ITSVC-2026-0101'},
+  {id:'APV-002',type:'서비스 수정',target:'스마트픽',by:'robert.kim',reqDate:'2026.01.15',status:'approved',approvalNo:'ITSVC-2026-0102'},
+  {id:'APV-003',type:'서비스 수정',target:'픽플러스',by:'venti.ice',reqDate:'2026.02.10',status:'pending',approvalNo:'ITSVC-2026-0203'},
+  {id:'APV-004',type:'사용자 등록',target:'정매니저 외 1명',by:'robert.kim',reqDate:'2026.01.08',status:'applied',approvalNo:'ITSVC-2026-0098'},
+  {id:'APV-005',type:'사용자 삭제',target:'최담당',by:'robert.kim',reqDate:'2026.03.20',status:'pending',approvalNo:'ITSVC-2026-0340'},
+  {id:'APV-006',type:'서비스 등록',target:'달맛 파트너스',by:'roger.f',reqDate:'2026.02.20',status:'recalled',approvalNo:'ITSVC-2026-0215'},
+];
+const EMPLOYEE_POOL=[
+  {id:'EMP-001',name:'김철수',email:'kim.cs@kakaobank.com',dept:'신사업팀'},
+  {id:'EMP-002',name:'이영희',email:'lee.yh@kakaobank.com',dept:'파트너십팀'},
+  {id:'EMP-003',name:'박지수',email:'park.js@kakaobank.com',dept:'신사업팀'},
+  {id:'EMP-004',name:'최민준',email:'choi.mj@kakaobank.com',dept:'운영팀'},
+  {id:'EMP-005',name:'한소희',email:'han.sh@kakaobank.com',dept:'파트너십팀'},
 ];
 let USERS=[
   {id:'ADM-001',name:'홍길동',email:'hong@factory.com',role:'master',svcs:'전체',status:'active',login:'2026.03.24 09:00'},
@@ -1035,6 +1212,13 @@ function enterService(svc){
   const rewardEnabled=svc.rewardEnabled!==false;
   document.getElementById('gh-reward').style.display=rewardEnabled?'flex':'none';
   document.getElementById('gc-reward').style.display=rewardEnabled?'block':'none';
+  const offerEnabled=svc.offerEnabled!==false;
+  document.getElementById('gh-offer').style.display=offerEnabled?'flex':'none';
+  document.getElementById('gc-offer').style.display=offerEnabled?'block':'none';
+  const provisionEnabled=svc.provisionEnabled!==false;
+  document.getElementById('n-provisions').style.display=provisionEnabled?'flex':'none';
+  // provisions 페이지 진입 시 리워드 드롭다운 갱신
+  populateProvRewardSelect();
   svcGo('info','정보 수정');
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
   document.getElementById('n-services').classList.add('on');
@@ -1050,9 +1234,9 @@ function enterService(svc){
     if(e&&p[1])e.value=p[1].replace(/\./g,'-');
   }
   // 인증 정보 채우기
-  const cid=ADMIN_SVCS.find(s=>s.name===svc.name);
+  const asvc=ADMIN_SVCS.find(s=>s.name===svc.name);
   const cidInput=document.getElementById('svc-cid-input');
-  if(cidInput)cidInput.value=cid?cid.cid:'(미할당)';
+  if(cidInput)cidInput.value=asvc?asvc.id:'(미할당)';
   const schemeInput=document.getElementById('svc-appscheme-input');
   if(schemeInput)schemeInput.value='kkbapp://svc/'+svc.name.toLowerCase().replace(/\s/g,'_');
 }
@@ -1139,14 +1323,36 @@ function filterTr(tbId,v){
 
 // ══ PROVISION ══
 function doProvision(){
-  const ci=document.getElementById('prov-ci').value;
+  const custNo=document.getElementById('prov-custno').value;
   const reason=document.getElementById('prov-reason').value;
-  if(!ci||!reason){toast('필수 항목을 입력하세요','var(--red)');return;}
-  PROVISIONS.unshift({dt:new Date().toLocaleString('ko-KR'),ci:'CI_***'+ci.slice(-4),reward:document.getElementById('prov-rw').value,reason,by:'홍길동'});
+  const rwId=document.getElementById('prov-rw').value;
+  if(!custNo||!reason||!rwId){toast('필수 항목을 입력하세요','var(--red)');return;}
+  if(!/^\d{4}-\d{7}$/.test(custNo)){toast('고객번호 형식이 올바르지 않습니다\n(예: 1145-1234242)','var(--red)');return;}
+  const rw=REWARDS.find(x=>x.id===rwId);
+  const cashAmt=rw&&rw.type==='cash'?parseInt(document.getElementById('prov-cash-amt').value)||0:null;
+  PROVISIONS.unshift({
+    dt:new Date().toLocaleString('ko-KR').replace(/\. /g,'.').replace(/\.$/,''),
+    custNo,reward:rw?rw.name:rwId,cashAmt,reason,by:'robert.kim'
+  });
   renderProvisions();
-  document.getElementById('prov-ci').value='';
+  document.getElementById('prov-custno').value='';
   document.getElementById('prov-reason').value='';
+  document.getElementById('prov-rw').value='';
+  document.getElementById('prov-cash-area').style.display='none';
   toast('리워드가 지급되었습니다');
+}
+
+function onProvRewardChange(){
+  const rwId=document.getElementById('prov-rw').value;
+  const rw=REWARDS.find(x=>x.id===rwId);
+  document.getElementById('prov-cash-area').style.display=(rw&&rw.type==='cash')?'block':'none';
+}
+
+function populateProvRewardSelect(){
+  const sel=document.getElementById('prov-rw');
+  if(!sel)return;
+  sel.innerHTML='<option value="">-- 리워드 선택 --</option>'+
+    REWARDS.filter(r=>r.on).map(r=>`<option value="${r.id}">${r.name}${r.type==='cash'?' (현금)':' (쿠폰)'}</option>`).join('');
 }
 
 // ══ MODALS ══
@@ -1369,24 +1575,258 @@ function cancelApproval(id){
   if(l&&l.status==='pending'){l.status='recalled';toast('결재가 취소되었습니다','var(--red)');renderRewardLog();}
 }
 function openOfferModal(){openMo('mo-offer')}
-function saveOffer(){OFFERS.push({id:'OFR-0'+(OFFERS.length+1),name:'신규 오퍼',api:'POST /api/v1/new',reward:'신규가입 웰컴 쿠폰',on:true});renderOffers();closeMo('mo-offer');toast('오퍼가 등록되었습니다');}
-function openAdminSvcModal(){openMo('mo-admin-svc')}
+function saveOffer(){OFFERS.push({id:'OFR-0'+(OFFERS.length+1),name:'신규 오퍼',offerNo:'',detailSeq:'001',branchCode:'',tellerNo:'',registrar:'robert.kim',on:true,regDate:'2026.03.27',modDate:'2026.03.27'});renderOffers();closeMo('mo-offer');toast('오퍼가 등록되었습니다');}
 function runTest(){document.getElementById('test-result').value='실행 중...';setTimeout(()=>{document.getElementById('test-result').value='{\n  "status": 200,\n  "result": "success",\n  "reward": "신규가입 웰컴 쿠폰",\n  "userId": "test-001"\n}';},800);}
-function openUserModal(idx){
-  document.getElementById('um-title').textContent=idx===null?'관리자 등록':'사용자 수정';
-  const u=idx!==null?USERS[idx]:null;
-  document.getElementById('um-name').value=u?u.name:'';
-  document.getElementById('um-email').value=u?u.email:'';
-  document.getElementById('um-role').value=u?u.role:'operator';
-  togglePerm();
-  renderPermGrid(u?u.svcs:'');
-  openMo('mo-user');
+
+// 어드민 서비스 폼
+let currentEditingAdminSvcId=null;
+let currentAdminSvcOperators=[];
+
+function openAdminSvcForm(id){
+  currentEditingAdminSvcId=id;
+  if(id){
+    const s=ADMIN_SVCS.find(x=>x.id===id);
+    document.getElementById('asvc-form-title').textContent='서비스 수정 — '+s.name;
+    document.getElementById('asvc-name').value=s.name;
+    document.getElementById('asvc-partner').value=s.partner;
+    document.getElementById('asvc-status').value=s.status;
+    document.getElementById('asvc-feat-notif').checked=s.features.includes('알림');
+    document.getElementById('asvc-feat-reward').checked=s.features.includes('리워드');
+    document.getElementById('asvc-auth-ci').checked=s.authInfo.includes('CI');
+    document.getElementById('asvc-auth-uuid').checked=s.authInfo.includes('UUID');
+    document.getElementById('asvc-auth-name').checked=s.authInfo.includes('이름');
+    currentAdminSvcOperators=[...s.operators];
+  } else {
+    document.getElementById('asvc-form-title').textContent='신규 서비스 등록';
+    document.getElementById('asvc-name').value='';
+    document.getElementById('asvc-partner').value='스마트픽 주식회사';
+    document.getElementById('asvc-status').value='active';
+    ['asvc-feat-notif','asvc-feat-reward','asvc-auth-ci','asvc-auth-uuid','asvc-auth-name'].forEach(id=>document.getElementById(id).checked=false);
+    currentAdminSvcOperators=[];
+  }
+  renderAdminSvcOperators();
+  go('admin-svc-edit', id?'서비스 수정':'서비스 등록');
 }
-function togglePerm(){const r=document.getElementById('um-role').value;document.getElementById('perm-section').style.display=r==='master'?'none':'block';}
-function renderPermGrid(assigned){
-  document.getElementById('perm-grid').innerHTML=SERVICES.map(s=>`<label class="pitem"><input type="checkbox" ${assigned&&assigned.includes(s.name)?'checked':''} style="accent-color:var(--primary)"><div><div class="pnm">${s.name}</div><div class="pid">${s.id}</div></div></label>`).join('');
+
+function renderAdminSvcOperators(){
+  const list=document.getElementById('asvc-operators-list');
+  const empty=document.getElementById('asvc-operators-empty');
+  if(currentAdminSvcOperators.length===0){list.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  list.innerHTML=currentAdminSvcOperators.map(name=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px 12px">
+      <span style="font-size:13px">${name}</span>
+      <button class="btn bd bxs" style="color:var(--red)" onclick="removeAdminSvcOperator('${name}')">제거</button>
+    </div>`).join('');
 }
-function saveUser(){const n=document.getElementById('um-name').value;if(!n){toast('이름을 입력하세요','var(--red)');return;}closeMo('mo-user');renderAdminUsers();toast('저장되었습니다');}
+
+function removeAdminSvcOperator(name){
+  currentAdminSvcOperators=currentAdminSvcOperators.filter(x=>x!==name);
+  renderAdminSvcOperators();
+}
+
+function openOperatorSearch(){
+  document.getElementById('op-search-input').value='';
+  document.getElementById('op-search-results').innerHTML='';
+  openMo('mo-operator-search');
+}
+
+function searchOperator(){
+  const q=document.getElementById('op-search-input').value.toLowerCase();
+  const candidates=USERS.filter(u=>u.role==='operator'&&(u.name.includes(q)||u.email.toLowerCase().includes(q))&&!currentAdminSvcOperators.includes(u.name));
+  const el=document.getElementById('op-search-results');
+  if(candidates.length===0){el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px">검색 결과가 없습니다.</div>';return;}
+  el.innerHTML=candidates.map(u=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px 12px">
+      <div><div style="font-size:13px;font-weight:600">${u.name}</div><div style="font-size:11px;color:var(--text2)">${u.email}</div></div>
+      <button class="btn bp bxs" onclick="addOperatorToList('${u.name}')">추가</button>
+    </div>`).join('');
+}
+
+function addOperatorToList(name){
+  if(!currentAdminSvcOperators.includes(name))currentAdminSvcOperators.push(name);
+  renderAdminSvcOperators();
+  closeMo('mo-operator-search');
+  toast(name+'을(를) 운영자로 추가했습니다');
+}
+
+function saveAdminSvcForm(){
+  const name=document.getElementById('asvc-name').value;
+  if(!name){toast('서비스명을 입력하세요','var(--red)');return;}
+  const feats=[
+    document.getElementById('asvc-feat-notif').checked&&'알림',
+    document.getElementById('asvc-feat-reward').checked&&'리워드',
+  ].filter(Boolean);
+  const authInfo=[
+    document.getElementById('asvc-auth-ci').checked&&'CI',
+    document.getElementById('asvc-auth-uuid').checked&&'UUID',
+    document.getElementById('asvc-auth-name').checked&&'이름',
+  ].filter(Boolean);
+  const newApv={
+    id:'APV-00'+(ADMIN_APPROVALS.length+1),
+    type:currentEditingAdminSvcId?'서비스 수정':'서비스 등록',
+    target:name,by:'robert.kim',
+    reqDate:'2026.03.27',status:'pending',
+    approvalNo:'ITSVC-2026-0'+(350+ADMIN_APPROVALS.length)
+  };
+  if(currentEditingAdminSvcId){
+    const s=ADMIN_SVCS.find(x=>x.id===currentEditingAdminSvcId);
+    if(s){s.name=name;s.partner=document.getElementById('asvc-partner').value;s.status=document.getElementById('asvc-status').value;s.features=feats;s.authInfo=authInfo;s.operators=currentAdminSvcOperators;s.modDate='2026.03.27';}
+  } else {
+    ADMIN_SVCS.push({id:'ASVC-00'+(ADMIN_SVCS.length+1),name,partner:document.getElementById('asvc-partner').value,status:'active',features:feats,authInfo,operators:currentAdminSvcOperators,regDate:'2026.03.27',modDate:'2026.03.27'});
+  }
+  ADMIN_APPROVALS.unshift(newApv);
+  renderAdminSvcs();
+  renderAdminApprovals();
+  go('admin-services','전체 서비스 관리');
+  toast('결재 요청이 전송되었습니다 ('+newApv.approvalNo+')');
+}
+
+// 결재 내역
+function renderAdminApprovals(){
+  const el=document.getElementById('admin-approval-tbody');
+  if(!el)return;
+  const statMap={
+    pending:'<span class="b bo">결재 중</span>',
+    approved:'<span class="b bg">결재 완료</span>',
+    recalled:'<span class="b bgr">회수</span>',
+    applied:'<span class="b bb">반영 완료</span>'
+  };
+  el.innerHTML=ADMIN_APPROVALS.map(a=>{
+    const canRecall=a.status==='pending';
+    const canApply=a.status==='approved';
+    const disabled='opacity:.4;pointer-events:none';
+    return `<tr>
+      <td class="tid">${a.id}</td><td>${a.type}</td><td><b>${a.target}</b></td>
+      <td style="font-size:12px">${a.by}</td><td style="font-size:11px">${a.reqDate}</td>
+      <td class="tmono" style="font-size:11px">${a.approvalNo}</td>
+      <td>${statMap[a.status]||a.status}</td>
+      <td style="display:flex;gap:4px;padding-top:8px">
+        <button class="btn bd bxs" style="${canRecall?'':'color:var(--text3);'+disabled}" onclick="${canRecall?`recallApproval('${a.id}')`:''}" ${canRecall?'':'disabled'}>회수</button>
+        <button class="btn bp bxs" style="${canApply?'':''+disabled}" onclick="${canApply?`applyApproval('${a.id}')`:''}" ${canApply?'':'disabled'}>반영</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function recallApproval(id){
+  const a=ADMIN_APPROVALS.find(x=>x.id===id);
+  if(a&&a.status==='pending'){a.status='recalled';renderAdminApprovals();toast('결재가 회수되었습니다','var(--red)');}
+}
+function applyApproval(id){
+  const a=ADMIN_APPROVALS.find(x=>x.id===id);
+  if(a&&a.status==='approved'){a.status='applied';renderAdminApprovals();toast('반영이 완료되었습니다');}
+}
+
+// 사용자 추가
+let selectedEmployees=[];
+function openAddUserModal(){
+  selectedEmployees=[];
+  document.getElementById('emp-search-input').value='';
+  document.getElementById('emp-search-results').innerHTML='';
+  renderSelectedEmployees();
+  openMo('mo-add-user');
+}
+function searchEmployee(){
+  const q=document.getElementById('emp-search-input').value.toLowerCase();
+  const existing=USERS.map(u=>u.email);
+  const pool=EMPLOYEE_POOL.filter(e=>
+    (e.name.includes(q)||e.email.toLowerCase().includes(q))&&
+    !existing.includes(e.email)&&
+    !selectedEmployees.find(s=>s.id===e.id)
+  );
+  const el=document.getElementById('emp-search-results');
+  if(pool.length===0){el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px">검색 결과가 없습니다.</div>';return;}
+  el.innerHTML=pool.map(e=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px 12px">
+      <div>
+        <div style="font-size:13px;font-weight:600">${e.name} <span style="font-size:11px;color:var(--text3)">${e.dept}</span></div>
+        <div style="font-size:11px;color:var(--text2)">${e.email}</div>
+      </div>
+      <button class="btn bp bxs" onclick="selectEmployee('${e.id}')">선택</button>
+    </div>`).join('');
+}
+function selectEmployee(id){
+  const e=EMPLOYEE_POOL.find(x=>x.id===id);
+  if(e&&!selectedEmployees.find(s=>s.id===id)){
+    selectedEmployees.push({...e,svcs:[]});
+    renderSelectedEmployees();
+    document.getElementById('emp-search-results').innerHTML='';
+  }
+}
+function renderSelectedEmployees(){
+  const empty=document.getElementById('emp-selected-empty');
+  const items=document.getElementById('emp-selected-items');
+  if(selectedEmployees.length===0){empty.style.display='block';items.innerHTML='';return;}
+  empty.style.display='none';
+  items.innerHTML=selectedEmployees.map(e=>`
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div><span style="font-weight:600">${e.name}</span> <span style="font-size:11px;color:var(--text2)">${e.email}</span></div>
+        <button class="btn bd bxs" style="color:var(--red)" onclick="removeSelectedEmployee('${e.id}')">제거</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:11px;color:var(--text2)">담당 서비스:</span>
+        <select onchange="setEmpSvc('${e.id}',this.value)" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:4px 8px;color:var(--text);outline:none;font-size:12px">
+          <option value="">-- 서비스 선택 --</option>
+          ${SERVICES.map(s=>`<option value="${s.name}">${s.name}</option>`).join('')}
+        </select>
+      </div>
+    </div>`).join('');
+}
+function removeSelectedEmployee(id){selectedEmployees=selectedEmployees.filter(x=>x.id!==id);renderSelectedEmployees();}
+function setEmpSvc(id,svc){const e=selectedEmployees.find(x=>x.id===id);if(e)e.svcs=[svc];}
+function submitAddUsers(){
+  if(selectedEmployees.length===0){toast('추가할 사용자를 선택하세요','var(--red)');return;}
+  const newApv={
+    id:'APV-00'+(ADMIN_APPROVALS.length+1),
+    type:'사용자 등록',
+    target:selectedEmployees.map(e=>e.name).join(', ')+(selectedEmployees.length>1?' 외 '+(selectedEmployees.length-1)+'명':''),
+    by:'robert.kim',reqDate:'2026.03.27',status:'pending',
+    approvalNo:'ITSVC-2026-0'+(350+ADMIN_APPROVALS.length)
+  };
+  selectedEmployees.forEach(e=>{
+    USERS.push({id:'ADM-00'+(USERS.length+1),name:e.name,email:e.email,role:'operator',svcs:e.svcs.join(', ')||'미배정',status:'active',login:'-'});
+  });
+  ADMIN_APPROVALS.unshift(newApv);
+  renderAdminUsers();
+  renderAdminApprovals();
+  closeMo('mo-add-user');
+  toast('결재 요청이 전송되었습니다 ('+newApv.approvalNo+')');
+}
+
+// 사용자 삭제
+let deleteUserMode=false;
+function openDeleteUserMode(){deleteUserMode=true;renderAdminUsers();document.getElementById('user-delete-bar').style.display='flex';}
+function closeDeleteUserMode(){deleteUserMode=false;renderAdminUsers();document.getElementById('user-delete-bar').style.display='none';}
+function toggleAllUserChk(chk){document.querySelectorAll('.user-row-chk').forEach(c=>c.checked=chk.checked);updateDeleteCount();}
+function updateDeleteCount(){document.getElementById('delete-count').textContent=document.querySelectorAll('.user-row-chk:checked').length;}
+function submitDeleteUsers(){
+  const checked=[...document.querySelectorAll('.user-row-chk:checked')].map(c=>c.dataset.uid);
+  if(checked.length===0){toast('삭제할 사용자를 선택하세요','var(--red)');return;}
+  for(const uid of checked){
+    const u=USERS.find(x=>x.id===uid);
+    if(!u)continue;
+    for(const s of ADMIN_SVCS){
+      if(s.operators.includes(u.name)&&s.operators.length===1){
+        toast(`삭제 불가: ${u.name}은(는) '${s.name}'의 유일한 운영자입니다`,'var(--red)');
+        return;
+      }
+    }
+  }
+  const names=checked.map(uid=>{const u=USERS.find(x=>x.id===uid);return u?u.name:'';}).filter(Boolean);
+  const newApv={
+    id:'APV-00'+(ADMIN_APPROVALS.length+1),
+    type:'사용자 삭제',
+    target:names.join(', '),
+    by:'robert.kim',reqDate:'2026.03.27',status:'pending',
+    approvalNo:'ITSVC-2026-0'+(350+ADMIN_APPROVALS.length)
+  };
+  ADMIN_APPROVALS.unshift(newApv);
+  renderAdminApprovals();
+  closeDeleteUserMode();
+  toast('삭제 결재 요청이 전송되었습니다 ('+newApv.approvalNo+')');
+}
 
 // ══ TABS ══
 function swTab(el,paneId){
@@ -1398,7 +1838,7 @@ function swTab(el,paneId){
 }
 
 // ══ RENDER ══
-function renderAll(){renderPartners('all');renderPartners('draft');renderSvcCards();renderNotifs();renderRewards();renderRewardLog();renderOffers();renderProvisions();renderAdminSvcs();renderAdminUsers();}
+function renderAll(){renderPartners('all');renderPartners('draft');renderSvcCards();renderNotifs();renderRewards();renderRewardLog();renderOffers();renderProvisions();renderAdminSvcs();renderAdminApprovals();renderAdminUsers();}
 
 function renderPartners(tab){
   const rows=t=>t.map(p=>`<tr>
@@ -1490,36 +1930,77 @@ function renderRewardLog(){
 function renderOffers(){
   document.getElementById('offer-tbody').innerHTML=OFFERS.map(o=>`<tr>
     <td class="tid">${o.id}</td><td><b>${o.name}</b></td>
-    <td class="tmono" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.api}</td>
-    <td style="font-size:12px">${o.reward}</td>
-    <td><label class="tog"><input type="checkbox" ${o.on?'checked':''} onchange="o.on=this.checked"><span class="sl"></span></label></td>
-    <td style="display:flex;gap:4px;padding-top:8px"><button class="btn bd bxs">수정</button><button class="btn bd bxs" onclick="toast('테스트 완료')">테스트</button></td>
+    <td class="tmono" style="font-size:11px">${o.offerNo}</td>
+    <td class="tmono" style="font-size:11px">${o.detailSeq}</td>
+    <td class="tmono" style="font-size:11px">${o.branchCode}</td>
+    <td class="tmono" style="font-size:11px">${o.tellerNo}</td>
+    <td style="font-size:12px">${o.registrar}</td>
+    <td><label class="tog"><input type="checkbox" ${o.on?'checked':''} onchange="OFFERS.find(x=>x.id==='${o.id}').on=this.checked"><span class="sl"></span></label></td>
+    <td style="font-size:11px">${o.regDate}</td>
+    <td><button class="btn bd bxs" onclick="toast('오퍼 수정 기능은 모달에서 진행됩니다')">수정</button></td>
   </tr>`).join('');
 }
 
 function renderProvisions(){
-  document.getElementById('prov-tbody').innerHTML=PROVISIONS.map(p=>`<tr>
-    <td style="font-size:11px">${p.dt}</td><td class="tmono">${p.ci}</td>
-    <td>${p.reward}</td><td style="font-size:12px;color:var(--text2)">${p.reason}</td><td>${p.by}</td>
-  </tr>`).join('');
+  document.getElementById('prov-tbody').innerHTML=PROVISIONS.map(p=>{
+    const maskedNo=p.custNo.replace(/^(\d{4})-(\d{3})(\d{4})$/,'****-***$3');
+    return `<tr>
+      <td style="font-size:11px">${p.dt}</td>
+      <td class="tmono">${maskedNo}</td>
+      <td>${p.reward}</td>
+      <td style="font-size:12px">${p.cashAmt!=null?p.cashAmt.toLocaleString()+'원':'-'}</td>
+      <td style="font-size:12px;color:var(--text2)">${p.reason}</td>
+      <td style="font-size:12px">${p.by}</td>
+    </tr>`;
+  }).join('');
 }
 
 function renderAdminSvcs(){
+  const statusMap={active:'<span class="b bg">활성</span>',inactive:'<span class="b bgr">비활성</span>'};
   document.getElementById('admin-svc-tbody').innerHTML=ADMIN_SVCS.map(s=>`<tr>
-    <td><b>${s.name}</b></td><td class="tmono">${s.cid}</td>
-    <td>${s.partner}</td><td>${SM[s.status]}</td><td>${s.date}</td>
-    <td><button class="btn bd bxs">수정</button></td>
+    <td><b style="color:var(--blue);cursor:pointer;text-decoration:underline" onclick="viewAdminSvc('${s.id}')">${s.name}</b></td>
+    <td>${s.partner}</td>
+    <td style="font-size:11px">${s.features.map(f=>`<span class="b bb" style="margin-right:3px">${f}</span>`).join('')}</td>
+    <td>${statusMap[s.status]||s.status}</td>
+    <td style="font-size:11px">${s.regDate}</td>
+    <td style="font-size:11px">${s.modDate}</td>
+    <td><button class="btn bd bxs" onclick="openAdminSvcForm('${s.id}')">수정</button></td>
   </tr>`).join('');
 }
 
+let currentViewingAdminSvcId=null;
+function viewAdminSvc(id){
+  const s=ADMIN_SVCS.find(x=>x.id===id);
+  if(!s)return;
+  currentViewingAdminSvcId=id;
+  document.getElementById('asvc-detail-title').textContent=s.name+' 상세';
+  document.getElementById('asd-name').textContent=s.name;
+  document.getElementById('asd-partner').textContent=s.partner;
+  const statusMap={active:'<span class="b bg">활성</span>',inactive:'<span class="b bgr">비활성</span>'};
+  document.getElementById('asd-status').innerHTML=statusMap[s.status]||s.status;
+  document.getElementById('asd-regdate').textContent=s.regDate;
+  document.getElementById('asd-moddate').textContent=s.modDate;
+  document.getElementById('asd-features').innerHTML=s.features&&s.features.length
+    ?s.features.map(f=>`<span class="b bb">${f}</span>`).join('')
+    :'<span style="font-size:12px;color:var(--text3)">설정된 기능 없음</span>';
+  document.getElementById('asd-authinfo').innerHTML=s.authInfo&&s.authInfo.length
+    ?s.authInfo.map(a=>`<span class="b by">${a}</span>`).join('')
+    :'<span style="font-size:12px;color:var(--text3)">설정된 항목 없음</span>';
+  document.getElementById('asd-operators').innerHTML=s.operators&&s.operators.length
+    ?s.operators.map(op=>`<div style="display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:9px 14px"><span style="font-size:18px">👤</span><span style="font-size:13px;font-weight:600">${op}</span></div>`).join('')
+    :'<div style="font-size:12px;color:var(--text3);padding:8px 0">등록된 운영자가 없습니다.</div>';
+  document.getElementById('asvc-detail-edit-btn').onclick=()=>openAdminSvcForm(id);
+  go('admin-svc-detail','전체 서비스 관리');
+}
+
 function renderAdminUsers(){
-  document.getElementById('admin-user-tbody').innerHTML=USERS.map((u,i)=>`<tr>
+  document.getElementById('admin-user-tbody').innerHTML=USERS.map(u=>`<tr>
+    ${deleteUserMode?`<td><input type="checkbox" class="user-row-chk" data-uid="${u.id}" style="accent-color:var(--primary)" onchange="updateDeleteCount()"></td>`:'<td></td>'}
     <td class="tid">${u.id}</td><td><b>${u.name}</b></td>
     <td style="font-size:11px;color:var(--text2)">${u.email}</td>
     <td>${u.role==='master'?'<span class="b by">마스터</span>':'<span class="b bb">운영자</span>'}</td>
     <td style="font-size:12px">${u.svcs}</td><td>${SM[u.status]}</td>
     <td style="font-size:11px;color:var(--text2)">${u.login}</td>
-    <td><button class="btn bd bxs" onclick="openUserModal(${i})">수정</button></td>
   </tr>`).join('');
 }
 
