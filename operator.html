@@ -729,8 +729,8 @@ input:checked+.sl:before{transform:translateX(16px)}
 
       <!-- ══ SVC: OFFERS ══ -->
       <div class="page" id="page-offers">
-        <div class="ph"><div class="pt">오퍼 관리</div><button class="btn bp" onclick="openOfferModal()">＋ 오퍼 등록</button></div>
-        <div class="tw"><table><thead><tr><th>오퍼 ID</th><th>오퍼명</th><th>오퍼번호</th><th>오퍼상세일련번호</th><th>거래부점코드</th><th>텔러번호</th><th>등록자</th><th>상태</th><th>등록일</th><th>관리</th></tr></thead>
+        <div class="ph"><div class="pt">오퍼 관리</div><button class="btn bp" onclick="openOfferModal(null)">＋ 오퍼 등록</button></div>
+        <div class="tw"><table><thead><tr><th>오퍼 ID</th><th>오퍼명</th><th>오퍼번호</th><th>오퍼상세일련번호</th><th>거래부점코드</th><th>텔러번호</th><th>등록자</th><th>등록일</th><th>관리</th></tr></thead>
         <tbody id="offer-tbody"></tbody></table></div>
       </div>
 
@@ -862,36 +862,25 @@ input:checked+.sl:before{transform:translateX(16px)}
 </div>
 
 
-<!-- 오퍼 등록 -->
+<!-- 오퍼 등록/수정 -->
 <div class="mo" id="mo-offer">
-  <div class="mbox" style="width:640px">
-    <div class="mh"><div class="mt">오퍼 등록</div><button class="mc" onclick="closeMo('mo-offer')">×</button></div>
+  <div class="mbox" style="width:560px">
+    <div class="mh"><div class="mt" id="offer-modal-title">오퍼 등록</div><button class="mc" onclick="closeMo('mo-offer')">×</button></div>
     <div class="mb">
-      <div class="tabs">
-        <div class="tab on" onclick="swTab(this,'ot-api')">API 정보</div>
-        <div class="tab" onclick="swTab(this,'ot-reward')">리워드 매핑</div>
-        <div class="tab" onclick="swTab(this,'ot-test')">테스트</div>
+      <div class="fr">
+        <div class="fi"><label>오퍼 ID <span class="r">*</span></label><input type="text" id="of-id" placeholder="예: OFR-007"></div>
+        <div class="fi"><label>오퍼명 <span class="r">*</span></label><input type="text" id="of-name" placeholder="오퍼 식별 이름"></div>
       </div>
-      <div id="ot-api" class="tp on">
-        <div class="fr full"><div class="fi"><label>오퍼명 <span class="r">*</span></label><input type="text" placeholder="오퍼 식별 이름"></div></div>
-        <div class="fr"><div class="fi"><label>API 엔드포인트 <span class="r">*</span></label><input type="url" placeholder="https://api.partner.com/v1/offer"></div><div class="fi"><label>HTTP Method</label><select><option>GET</option><option>POST</option><option>PUT</option></select></div></div>
-        <div class="fi" style="margin-bottom:10px"><label>Request Spec</label><textarea class="code-mock" placeholder='{"userId":"string","action":"string"}'></textarea></div>
-        <div class="fi"><label>Response Spec</label><textarea class="code-mock" placeholder='{"result":"success","reward":"string"}'></textarea></div>
+      <div class="fr">
+        <div class="fi"><label>오퍼번호 <span class="r">*</span></label><input type="text" id="of-no" placeholder="예: 202512000006" maxlength="12"></div>
+        <div class="fi"><label>오퍼상세일련번호 <span class="r">*</span></label><input type="text" id="of-seq" placeholder="예: 001" maxlength="3"></div>
       </div>
-      <div id="ot-reward" class="tp">
-        <div class="fi" style="margin-bottom:12px"><label>오퍼 조건 <span class="r">*</span></label><textarea placeholder="예: result == 'success'"></textarea></div>
-        <div class="fr"><div class="fi"><label>매핑 리워드 <span class="r">*</span></label><select><option>신규가입 웰컴 쿠폰</option><option>구매완료 현금 500원</option><option>이벤트 랜덤 리워드</option></select></div></div>
-        <button class="btn bd bsm" style="margin-top:8px">＋ 조건 추가</button>
-      </div>
-      <div id="ot-test" class="tp">
-        <div class="fi" style="margin-bottom:10px"><label>테스트 Request</label><textarea class="code-mock">{"userId":"test-001","action":"purchase"}</textarea></div>
-        <button class="btn bp bsm" onclick="runTest()">▶ 테스트 실행</button>
-        <div style="margin-top:10px"><label style="font-size:11px;color:var(--text2);display:block;margin-bottom:5px">실행 결과</label>
-          <textarea class="code-mock" id="test-result" readonly style="color:var(--text2)">테스트를 실행하면 결과가 표시됩니다.</textarea>
-        </div>
+      <div class="fr">
+        <div class="fi"><label>거래부점코드 <span class="r">*</span></label><input type="text" id="of-branch" placeholder="예: 0032" maxlength="4"></div>
+        <div class="fi"><label>텔러번호 <span class="r">*</span></label><input type="text" id="of-teller" placeholder="예: 720050" maxlength="6"></div>
       </div>
     </div>
-    <div class="mf"><button class="btn bd" onclick="closeMo('mo-offer')">취소</button><button class="btn bp" onclick="saveOffer()">오퍼 등록</button></div>
+    <div class="mf"><button class="btn bd" onclick="closeMo('mo-offer')">취소</button><button class="btn bp" onclick="saveOffer()">저장</button></div>
   </div>
 </div>
 
@@ -1392,11 +1381,51 @@ function loadOfferNo(){
   toast('오퍼번호를 불러왔습니다');
 }
 function showCouponSample(){toast('샘플: CPNX-0001, CPNX-0002, CPNX-0003 ...');}
-function openOfferModal(){openMo('mo-offer')}
+let currentEditingOfferId=null;
+function openOfferModal(id){
+  currentEditingOfferId=id;
+  if(id){
+    const o=OFFERS.find(x=>x.id===id);
+    if(!o)return;
+    document.getElementById('offer-modal-title').textContent='오퍼 수정';
+    document.getElementById('of-id').value=o.id;
+    document.getElementById('of-id').disabled=true;
+    document.getElementById('of-name').value=o.name;
+    document.getElementById('of-no').value=o.offerNo;
+    document.getElementById('of-seq').value=o.detailSeq;
+    document.getElementById('of-branch').value=o.branchCode;
+    document.getElementById('of-teller').value=o.tellerNo;
+  } else {
+    document.getElementById('offer-modal-title').textContent='오퍼 등록';
+    document.getElementById('of-id').value='';
+    document.getElementById('of-id').disabled=false;
+    document.getElementById('of-name').value='';
+    document.getElementById('of-no').value='';
+    document.getElementById('of-seq').value='';
+    document.getElementById('of-branch').value='';
+    document.getElementById('of-teller').value='';
+  }
+  openMo('mo-offer');
+}
 function saveOffer(){
+  const id=document.getElementById('of-id').value.trim();
+  const name=document.getElementById('of-name').value.trim();
+  const offerNo=document.getElementById('of-no').value.trim();
+  const detailSeq=document.getElementById('of-seq').value.trim();
+  const branchCode=document.getElementById('of-branch').value.trim();
+  const tellerNo=document.getElementById('of-teller').value.trim();
+  if(!id||!name||!offerNo||!detailSeq||!branchCode||!tellerNo){toast('모든 필드를 입력해주세요','var(--red)');return;}
   const today=new Date();const d=today.getFullYear()+'.'+(String(today.getMonth()+1).padStart(2,'0'))+'.'+String(today.getDate()).padStart(2,'0');
-  OFFERS.push({id:'OFR-00'+(OFFERS.length+1),name:'신규 오퍼',offerNo:'',detailSeq:'001',branchCode:'',tellerNo:'',registrar:'lee.admin',on:true,regDate:d,modDate:d});
-  renderOffers();closeMo('mo-offer');toast('오퍼가 등록되었습니다');
+  if(currentEditingOfferId){
+    const o=OFFERS.find(x=>x.id===currentEditingOfferId);
+    if(o){o.name=name;o.offerNo=offerNo;o.detailSeq=detailSeq;o.branchCode=branchCode;o.tellerNo=tellerNo;o.modDate=d;}
+    toast('오퍼가 수정되었습니다');
+  } else {
+    if(OFFERS.find(x=>x.id===id)){toast('이미 존재하는 오퍼 ID입니다','var(--red)');return;}
+    OFFERS.push({id,name,offerNo,detailSeq,branchCode,tellerNo,registrar:'lee.admin',regDate:d,modDate:d});
+    toast('오퍼가 등록되었습니다');
+  }
+  renderOffers();closeMo('mo-offer');
 }
 function openAdminSvcModal(){openMo('mo-admin-svc')}
 function runTest(){document.getElementById('test-result').value='실행 중...';setTimeout(()=>{document.getElementById('test-result').value='{\n  "status": 200,\n  "result": "success",\n  "reward": "신규가입 웰컴 쿠폰",\n  "userId": "test-001"\n}';},800);}
@@ -1526,9 +1555,8 @@ function renderOffers(){
     <td class="tmono" style="font-size:11px">${o.branchCode||'-'}</td>
     <td class="tmono" style="font-size:11px">${o.tellerNo||'-'}</td>
     <td style="font-size:12px">${o.registrar||'-'}</td>
-    <td><label class="tog"><input type="checkbox" ${o.on?'checked':''} onchange="OFFERS.find(x=>x.id==='${o.id}').on=this.checked"><span class="sl"></span></label></td>
     <td style="font-size:11px;color:var(--text2)">${o.regDate||'-'}</td>
-    <td><button class="btn bd bxs" onclick="openOfferModal()">수정</button></td>
+    <td><button class="btn bd bxs" onclick="openOfferModal('${o.id}')">수정</button></td>
   </tr>`).join('');
 }
 
