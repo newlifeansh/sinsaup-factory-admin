@@ -211,7 +211,7 @@ input:checked+.sl:before{transform:translateX(16px)}
     </div>
     <div class="fg"><label>이메일</label><input type="email" id="em" value="master@factory.com"></div>
     <div class="fg"><label>비밀번호</label><input type="password" id="pw" value="password"></div>
-    <div class="fg"><label>역할</label><select id="role-select"><option value="operator">운영자 (내부팀)</option><option value="affiliate">제휴사</option></select></div>
+    <div class="fg"><label>역할</label><select id="role-select"><option value="master">마스터 (신사업팩토리 TF)</option><option value="operator">외부팀 (내부팀)</option><option value="affiliate">제휴사</option></select></div>
     <button class="btn-login" onclick="doLogin()">로그인</button>
   </div>
 </div>
@@ -244,11 +244,11 @@ input:checked+.sl:before{transform:translateX(16px)}
       </div>
     </div>
 
-    <!-- 결재 관리 (운영자 전용) -->
-    <div class="ng" id="approval-nav" style="display:none">
-      <div class="nl">결재 관리</div>
+    <!-- 결재 관리 -->
+    <div class="ng" id="approval-nav">
+      <div class="nl" id="approval-nav-label">결재 관리</div>
       <div class="ni ni-d1" id="n-approvals" onclick="go('approvals','결재 관리')">
-        <span class="lbl">결재 요청 목록</span>
+        <span class="lbl" id="n-approvals-label">결재 목록</span>
       </div>
     </div>
 
@@ -342,10 +342,10 @@ input:checked+.sl:before{transform:translateX(16px)}
           <span class="b bg" style="font-size:11px">● 시스템 정상</span>
         </div>
         <div class="sc4">
-          <div class="scard"><div class="snum">5</div><div class="slbl">전체 파트너사</div><div class="schg" style="color:var(--green)">▲ 1 이번 달</div></div>
-          <div class="scard"><div class="snum">4</div><div class="slbl">운영 중 서비스</div><div class="schg" style="color:var(--blue)">SVC-004 준비중</div></div>
-          <div class="scard"><div class="snum">4</div><div class="slbl">전체 관리자</div><div class="schg" style="color:var(--text2)">마스터 1 / 운영자 3</div></div>
-          <div class="scard"><div class="snum">156</div><div class="slbl">오늘 오퍼 처리</div><div class="schg" style="color:var(--green)">▲ 12% 어제 대비</div></div>
+          <div class="scard"><div class="snum" id="stat-0">5</div><div class="slbl" id="stat-0-lbl">전체 파트너사</div><div class="schg" style="color:var(--green)">▲ 1 이번 달</div></div>
+          <div class="scard"><div class="snum" id="stat-1">4</div><div class="slbl" id="stat-1-lbl">운영 중 서비스</div><div class="schg" style="color:var(--blue)">SVC-004 준비중</div></div>
+          <div class="scard"><div class="snum" id="stat-2">4</div><div class="slbl" id="stat-2-lbl">전체 관리자</div><div class="schg" style="color:var(--text2)">마스터 1 / 운영자 3</div></div>
+          <div class="scard"><div class="snum" id="stat-3">156</div><div class="slbl" id="stat-3-lbl">오늘 오퍼 처리</div><div class="schg" style="color:var(--green)">▲ 12% 어제 대비</div></div>
         </div>
         <div class="g2">
           <div class="card"><div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:12px">최근 알림 발송</div>
@@ -809,23 +809,46 @@ input:checked+.sl:before{transform:translateX(16px)}
       <!-- ══ APPROVALS ══ -->
       <div class="page" id="page-approvals">
         <div class="ph">
-          <div class="pt">결재 관리</div>
+          <div class="pt" id="approvals-page-title">결재 관리</div>
         </div>
-        <div class="tabs">
-          <div class="tab on" onclick="swTab(this,'ap-mine')">내 결재</div>
-          <div class="tab" onclick="swTab(this,'ap-delegated')">위임됨</div>
-          <div class="tab" onclick="swTab(this,'ap-history')">히스토리</div>
+        <!-- 마스터 탭 -->
+        <div class="tabs" id="ap-tabs-master" style="display:none">
+          <div class="tab on" onclick="swApTab(this,'ap-mine')">내 결재</div>
+          <div class="tab" onclick="swApTab(this,'ap-delegated')">외부팀 위임 현황</div>
+          <div class="tab" onclick="swApTab(this,'ap-history')">전체 내역</div>
         </div>
-        <div id="ap-mine" class="tp on">
-          <div class="notice" style="margin-bottom:16px">직접 처리해야 할 핵심 결재 건들입니다.</div>
+        <!-- 외부팀 탭 -->
+        <div class="tabs" id="ap-tabs-operator" style="display:none">
+          <div class="tab on" onclick="swApTab(this,'ap-mine')">내 결재</div>
+          <div class="tab" onclick="swApTab(this,'ap-history')">전체 내역</div>
+        </div>
+        <!-- 제휴사 탭 -->
+        <div class="tabs" id="ap-tabs-affiliate" style="display:none">
+          <div class="tab on" onclick="swApTab(this,'ap-myreqs')">내 요청 내역</div>
+        </div>
+        <!-- 내 결재 (마스터/외부팀) -->
+        <div id="ap-mine" style="display:block">
+          <div class="notice" style="margin-bottom:16px" id="ap-mine-notice">직접 처리해야 할 핵심 결재 건들입니다.</div>
+          <div id="ap-itsvc-bar" style="display:none;margin-bottom:12px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:12px;color:var(--text2)">승인 처리 후 ITSVC 결재를 상신하세요</span>
+            <button class="btn bp bsm" onclick="toast('ITSVC 결재 상신이 완료되었습니다')">ITSVC 상신</button>
+          </div>
           <div class="tw"><table><thead><tr><th>유형</th><th>대상</th><th>요청자</th><th>파트너사</th><th>요청일</th><th>관리</th></tr></thead><tbody id="ap-mine-tbody"></tbody></table></div>
         </div>
-        <div id="ap-delegated" class="tp">
-          <div class="notice" style="margin-bottom:16px">운영자에게 위임된 결재입니다. 읽기 전용으로 모니터링만 가능합니다.</div>
+        <!-- 외부팀 위임 현황 (마스터 전용) -->
+        <div id="ap-delegated" style="display:none">
+          <div class="notice" style="margin-bottom:16px">외부팀에게 위임된 결재 현황입니다. 읽기 전용 모니터링입니다.</div>
           <div class="tw"><table><thead><tr><th>유형</th><th>대상</th><th>요청자</th><th>파트너사</th><th>담당 운영자</th><th>요청일</th><th>상태</th></tr></thead><tbody id="ap-delegated-tbody"></tbody></table></div>
         </div>
-        <div id="ap-history" class="tp">
+        <!-- 전체 내역 (마스터: 전체 / 외부팀: 관련 건만) -->
+        <div id="ap-history" style="display:none">
+          <div class="notice" style="margin-bottom:16px" id="ap-history-notice">처리 완료된 결재 내역입니다.</div>
           <div class="tw"><table><thead><tr><th>유형</th><th>대상</th><th>요청자</th><th>파트너사</th><th>처리자</th><th>상태</th><th>처리일</th></tr></thead><tbody id="ap-history-tbody"></tbody></table></div>
+        </div>
+        <!-- 내 요청 내역 (제휴사 전용) -->
+        <div id="ap-myreqs" style="display:none">
+          <div class="notice" style="margin-bottom:16px">내가 제출한 결재 요청 내역입니다.</div>
+          <div class="tw"><table><thead><tr><th>유형</th><th>요청 내용</th><th>요청일</th><th>처리자</th><th>상태</th><th>처리일</th></tr></thead><tbody id="ap-myreqs-tbody"></tbody></table></div>
         </div>
       </div>
 
@@ -898,7 +921,7 @@ input:checked+.sl:before{transform:translateX(16px)}
         </div>
       </div>
     </div>
-    <div class="mf"><button class="btn bd" onclick="closeMo('mo-notif')">취소</button><button class="btn bp" onclick="saveNotif()">알림 등록</button></div>
+    <div class="mf"><button class="btn bd" onclick="closeMo('mo-notif')">취소</button><button class="btn bp" id="notif-save-btn" onclick="saveNotif()">알림 등록</button></div>
   </div>
 </div>
 
@@ -921,7 +944,7 @@ input:checked+.sl:before{transform:translateX(16px)}
         <div class="fi"><label>텔러번호 <span class="r">*</span></label><input type="text" id="of-teller" placeholder="예: 720050" maxlength="6"></div>
       </div>
     </div>
-    <div class="mf"><button class="btn bd" onclick="closeMo('mo-offer')">취소</button><button class="btn bp" onclick="saveOffer()">저장</button></div>
+    <div class="mf"><button class="btn bd" onclick="closeMo('mo-offer')">취소</button><button class="btn bp" id="offer-save-btn" onclick="saveOffer()">저장</button></div>
   </div>
 </div>
 
@@ -1051,47 +1074,77 @@ function closeMo(id){document.getElementById(id).classList.remove('open')}
 // ══ AUTH ══
 function doLogin(){
   const roleVal=document.getElementById('role-select').value;
-  currentUser=roleVal==='operator'
-    ?{role:'operator',name:'이관리',company:'스마트픽 주식회사'}
-    :{role:'affiliate',name:'김제휴',company:'스마트픽 주식회사'};
+  if(roleVal==='master')
+    currentUser={role:'master',name:'홍길동',email:'hong@factory.com',company:'신사업팩토리'};
+  else if(roleVal==='operator')
+    currentUser={role:'operator',name:'이관리',email:'lee.admin@factory.com',company:'신사업팩토리'};
+  else
+    currentUser={role:'affiliate',name:'김제휴',email:'kim@smartpick.com',company:'스마트픽 주식회사'};
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='flex';
   applyRoleUI(currentUser.role);
   renderAll();
 }
 function applyRoleUI(role){
+  const isMaster=role==='master';
   const isOp=role==='operator';
+  const isAffiliate=role==='affiliate';
   // 사이드바 사용자 정보
   document.querySelector('.si-name').textContent=currentUser.name;
-  document.querySelector('.si-email').textContent=isOp?'lee.admin@factory.com':currentUser.company;
+  document.querySelector('.si-email').textContent=(isMaster||isOp)?currentUser.email:currentUser.company;
   const siAv=document.querySelector('.si-av');
-  siAv.textContent=isOp?'O':'A';
-  siAv.style.background=isOp?'var(--blue)':'var(--green)';
-  // 상단바 사용자 정보
-  document.querySelector('.tb-name').textContent=isOp?'신사업팩토리 어드민':currentUser.company;
+  siAv.textContent=isMaster?'M':(isOp?'O':'A');
+  siAv.style.background=isMaster?'var(--primary)':(isOp?'var(--blue)':'var(--green)');
+  siAv.style.color=isMaster?'#000':'#fff';
+  // 상단바
+  document.querySelector('.tb-name').textContent=isMaster?'신사업팩토리 TF (마스터)':(isOp?'신사업팩토리 어드민':currentUser.company);
   const tbAv=document.querySelector('.tb-av');
-  tbAv.textContent=isOp?'O':'A';
-  tbAv.style.background=isOp?'var(--blue)':'var(--green)';
+  tbAv.textContent=isMaster?'M':(isOp?'O':'A');
+  tbAv.style.background=isMaster?'var(--primary)':(isOp?'var(--blue)':'var(--green)');
+  tbAv.style.color=isMaster?'#000':'#fff';
   // 사이드바 메뉴
-  document.getElementById('n-partner-form').style.display=isOp?'flex':'none';
-  document.getElementById('approval-nav').style.display=isOp?'block':'none';
+  document.getElementById('n-partner-form').style.display=(isMaster||isOp)?'flex':'none';
+  document.getElementById('approval-nav').style.display='block';
+  document.getElementById('approval-nav-label').textContent=isAffiliate?'내 요청':'결재 관리';
+  document.getElementById('n-approvals-label').textContent=isAffiliate?'내 요청 내역':'결재 목록';
+  // 결재 nav 클릭 시 타이틀도 맞춤
+  document.getElementById('n-approvals').onclick=isAffiliate
+    ?()=>go('approvals','내 요청 내역')
+    :()=>go('approvals','결재 관리');
+  document.getElementById('master-nav').style.display=isMaster?'block':'none';
   // 파트너사 등록 버튼
   const createBtn=document.getElementById('btn-partner-create');
-  if(createBtn)createBtn.style.display=isOp?'inline-flex':'none';
+  if(createBtn)createBtn.style.display=(isMaster||isOp)?'inline-flex':'none';
   // 파트너 폼 버튼
-  ['pf-btn-save','pf-btn-draft'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=isOp?'inline-flex':'none';});
+  ['pf-btn-save','pf-btn-draft'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=(isMaster||isOp)?'inline-flex':'none';});
   const pfAppr=document.getElementById('pf-btn-approval');
-  if(pfAppr)pfAppr.style.display=isOp?'none':'inline-flex';
+  if(pfAppr)pfAppr.style.display=isAffiliate?'inline-flex':'none';
   // 서비스 정보 버튼
   const siSave=document.getElementById('svc-info-save');
   const siAppr=document.getElementById('svc-info-approval');
-  if(siSave)siSave.style.display=isOp?'inline-flex':'none';
-  if(siAppr)siAppr.style.display=isOp?'none':'inline-flex';
+  if(siSave)siSave.style.display=isAffiliate?'none':'inline-flex';
+  if(siAppr)siAppr.style.display=isAffiliate?'inline-flex':'none';
   // 리워드 폼 버튼
   const rfSave=document.getElementById('rform-save-btn');
   const rfAppr=document.getElementById('rform-approval-btn');
-  if(rfSave)rfSave.style.display=isOp?'inline-flex':'none';
-  if(rfAppr)rfAppr.style.display=isOp?'none':'inline-flex';
+  if(rfSave)rfSave.style.display=isAffiliate?'none':'inline-flex';
+  if(rfAppr)rfAppr.style.display=isAffiliate?'inline-flex':'none';
+  // 오퍼 모달 저장 버튼
+  const ofSave=document.getElementById('offer-save-btn');
+  if(ofSave){
+    ofSave.textContent=isAffiliate?'결재 요청':'저장';
+    if(isAffiliate)ofSave.onclick=()=>{closeMo('mo-offer');toast('오퍼 변경 결재 요청이 제출되었습니다');};
+    else ofSave.onclick=saveOffer;
+  }
+  // 알림 모달 저장 버튼
+  const ntSave=document.getElementById('notif-save-btn');
+  if(ntSave){
+    ntSave.textContent=isAffiliate?'결재 요청':'알림 등록';
+    if(isAffiliate)ntSave.onclick=()=>{closeMo('mo-notif');toast('알림 변경 결재 요청이 제출되었습니다');};
+    else ntSave.onclick=saveNotif;
+  }
+  // 결재 관리 탭 초기화 (역할별)
+  initApprovalPage();
 }
 function doLogout(){
   document.getElementById('app').style.display='none';
@@ -1109,6 +1162,50 @@ function go(page,label){
   document.getElementById('bc-cur').textContent=label;
   document.getElementById('main').scrollTo(0,0);
   currentNav=page;
+  if(page==='approvals')initApprovalPage();
+}
+
+function initApprovalPage(){
+  const role=currentUser.role;
+  const isMaster=role==='master';
+  const isOp=role==='operator';
+  const isAffiliate=role==='affiliate';
+  // 탭바 표시
+  ['master','operator','affiliate'].forEach(r=>{
+    const el=document.getElementById('ap-tabs-'+r);
+    if(el)el.style.display=(r===role)?'flex':'none';
+  });
+  // 첫 번째 탭 active 초기화
+  ['master','operator','affiliate'].forEach(r=>{
+    const tabs=document.querySelectorAll('#ap-tabs-'+r+' .tab');
+    tabs.forEach((t,i)=>t.classList.toggle('on',i===0));
+  });
+  // 패널 초기화
+  ['ap-mine','ap-delegated','ap-history','ap-myreqs'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.style.display='none';
+  });
+  if(isAffiliate){document.getElementById('ap-myreqs').style.display='block';}
+  else{document.getElementById('ap-mine').style.display='block';}
+  // ITSVC 상신 바: 마스터/외부팀에게만 표시
+  const bar=document.getElementById('ap-itsvc-bar');
+  if(bar)bar.style.display=(isMaster||isOp)?'flex':'none';
+  // 히스토리 안내 문구
+  const hn=document.getElementById('ap-history-notice');
+  if(hn)hn.textContent=isMaster?'처리 완료된 전체 결재 내역입니다.':'관련 처리 완료 내역입니다.';
+  renderApprovals();
+}
+
+function swApTab(el,paneId){
+  const container=el.parentElement;
+  container.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  ['ap-mine','ap-delegated','ap-history','ap-myreqs'].forEach(id=>{
+    const pane=document.getElementById(id);
+    if(pane)pane.style.display='none';
+  });
+  document.getElementById(paneId).style.display='block';
+  renderApprovals();
 }
 
 // ══ SVC NAV ══
@@ -1542,7 +1639,43 @@ function swTab(el,paneId){
 }
 
 // ══ RENDER ══
-function renderAll(){renderPartners('all');renderPartners('draft');renderSvcCards();renderHomeSvcCards();renderNotifs();renderRewards();renderRewardLog();renderOffers();renderProvisions();renderAdminSvcs();renderAdminUsers();renderApprovals();renderHomeTodo();}
+function renderAll(){renderPartners('all');renderPartners('draft');renderSvcCards();renderHomeSvcCards();renderHomeStats();renderNotifs();renderRewards();renderRewardLog();renderOffers();renderProvisions();renderAdminSvcs();renderAdminUsers();renderApprovals();renderHomeTodo();}
+
+function renderHomeStats(){
+  const role=currentUser.role;
+  if(role==='master'){
+    document.getElementById('stat-0').textContent=PARTNERS.length;
+    document.getElementById('stat-0-lbl').textContent='전체 파트너사';
+    document.getElementById('stat-1').textContent=SERVICES.filter(s=>s.status==='active').length;
+    document.getElementById('stat-1-lbl').textContent='운영 중 서비스';
+    document.getElementById('stat-2').textContent=USERS.length;
+    document.getElementById('stat-2-lbl').textContent='전체 관리자';
+    document.getElementById('stat-3').textContent='156';
+    document.getElementById('stat-3-lbl').textContent='오늘 오퍼 처리';
+  } else if(role==='operator'){
+    const mySvcs=SERVICES.filter(s=>OPERATOR_SVC_IDS.includes(s.id));
+    const pending=APPROVALS.filter(a=>a.status==='pending'&&a.assignee===currentUser.name);
+    document.getElementById('stat-0').textContent=mySvcs.length;
+    document.getElementById('stat-0-lbl').textContent='담당 서비스';
+    document.getElementById('stat-1').textContent=mySvcs.filter(s=>s.status==='active').length;
+    document.getElementById('stat-1-lbl').textContent='운영 중 서비스';
+    document.getElementById('stat-2').textContent=pending.length;
+    document.getElementById('stat-2-lbl').textContent='처리 대기 결재';
+    document.getElementById('stat-3').textContent=OFFERS.filter(o=>o.on).length;
+    document.getElementById('stat-3-lbl').textContent='활성 오퍼';
+  } else {
+    const mySvcs=SERVICES.filter(s=>s.partner===currentUser.company);
+    const myReqs=APPROVALS.filter(a=>a.company===currentUser.company);
+    document.getElementById('stat-0').textContent=mySvcs.length;
+    document.getElementById('stat-0-lbl').textContent='소속 서비스';
+    document.getElementById('stat-1').textContent=mySvcs.filter(s=>s.status==='active').length;
+    document.getElementById('stat-1-lbl').textContent='운영 중 서비스';
+    document.getElementById('stat-2').textContent=myReqs.filter(a=>a.status==='pending').length;
+    document.getElementById('stat-2-lbl').textContent='대기 중 요청';
+    document.getElementById('stat-3').textContent=myReqs.length;
+    document.getElementById('stat-3-lbl').textContent='전체 요청 건수';
+  }
+}
 
 function renderPartners(tab){
   // 운영자: 삭제 버튼 없음
@@ -1573,7 +1706,7 @@ function editPartner(id){
 
 function renderSvcCards(){
   // 역할별 서비스 필터
-  const visible=currentUser.role==='affiliate'?SERVICES.filter(s=>s.partner===currentUser.company):SERVICES.filter(s=>OPERATOR_SVC_IDS.includes(s.id));
+  const visible=currentUser.role==='master'?SERVICES:(currentUser.role==='affiliate'?SERVICES.filter(s=>s.partner===currentUser.company):SERVICES.filter(s=>OPERATOR_SVC_IDS.includes(s.id)));
   document.getElementById('svc-cards').innerHTML=visible.map(s=>`<div class="svc-card" onclick='enterService(${JSON.stringify(s).replace(/'/g,"\\'")})'>
     <div class="svc-icon">${s.icon}</div>
     <div class="svc-nm">${s.name}</div>
@@ -1594,24 +1727,32 @@ function renderSvcList(){
 }
 
 function renderNotifs(){
+  const isAff=currentUser.role==='affiliate';
   document.getElementById('notif-tbody').innerHTML=NOTIFS.map(n=>`<tr>
     <td class="tid">${n.id}</td><td><b>${n.name}</b></td>
     <td class="tmono" style="font-size:11px">${n.tplId||'-'}</td>
     <td>${CM[n.ch]||n.ch}</td><td style="font-size:11px">${n.period}</td><td>${n.time}</td>
-    <td><label class="tog"><input type="checkbox" ${n.on?'checked':''} onchange="n.on=this.checked"><span class="sl"></span></label></td>
-    <td>${n.date}</td><td><button class="btn bd bxs" onclick="editNotif('${n.id}')">수정</button></td>
+    <td>${isAff
+      ?`<label class="tog" title="조회만 가능"><input type="checkbox" ${n.on?'checked':''} disabled style="pointer-events:none"><span class="sl" style="opacity:.35;cursor:not-allowed"></span></label>`
+      :`<label class="tog"><input type="checkbox" ${n.on?'checked':''} onchange="NOTIFS.find(x=>x.id==='${n.id}').on=this.checked"><span class="sl"></span></label>`
+    }</td>
+    <td>${n.date}</td><td>${isAff?'':`<button class="btn bd bxs" onclick="editNotif('${n.id}')">수정</button>`}</td>
   </tr>`).join('');
 }
 
 function renderRewards(){
+  const isAff=currentUser.role==='affiliate';
   document.getElementById('reward-tbody').innerHTML=REWARDS.map(r=>`<tr>
     <td class="tid"><span style="color:var(--blue);cursor:pointer;text-decoration:underline" onclick="viewReward('${r.id}')">${r.id}</span></td>
     <td><b>${r.name}</b></td>
     <td>${TM[r.type]||r.type}</td>
     <td class="tmono" style="font-size:11px">${r.offerNo||'-'}</td>
     <td style="font-size:11px;color:var(--text2)">${r.cond}</td>
-    <td><label class="tog"><input type="checkbox" ${r.on?'checked':''} onchange="REWARDS.find(x=>x.id==='${r.id}').on=this.checked"><span class="sl"></span></label></td>
-    <td>${r.date}</td><td><button class="btn bd bxs" onclick="editReward('${r.id}')">수정</button></td>
+    <td>${isAff
+      ?`<label class="tog" title="조회만 가능"><input type="checkbox" ${r.on?'checked':''} disabled style="pointer-events:none"><span class="sl" style="opacity:.35;cursor:not-allowed"></span></label>`
+      :`<label class="tog"><input type="checkbox" ${r.on?'checked':''} onchange="REWARDS.find(x=>x.id==='${r.id}').on=this.checked"><span class="sl"></span></label>`
+    }</td>
+    <td>${r.date}</td><td>${isAff?`<button class="btn bd bxs" onclick="toast('결재 요청이 제출되었습니다')">결재 요청</button>`:`<button class="btn bd bxs" onclick="editReward('${r.id}')">수정</button>`}</td>
   </tr>`).join('');
 }
 
@@ -1698,48 +1839,76 @@ function renderAdminUsers(){
 }
 
 function renderHomeSvcCards(){
-  const visible=currentUser.role==='affiliate'?SERVICES.filter(s=>s.partner===currentUser.company):SERVICES.filter(s=>OPERATOR_SVC_IDS.includes(s.id));
+  const visible=currentUser.role==='master'?SERVICES:(currentUser.role==='affiliate'?SERVICES.filter(s=>s.partner===currentUser.company):SERVICES.filter(s=>OPERATOR_SVC_IDS.includes(s.id)));
   const el=document.getElementById('home-svc-cards');
   if(!el)return;
   el.innerHTML=visible.map(s=>`<div class="svc-card" onclick='enterService(${JSON.stringify(s).replace(/'/g,"\\'")})'><div class="svc-icon">${s.icon}</div><div class="svc-nm">${s.name}</div><div class="svc-pt" style="margin-bottom:6px">${s.partner}</div><div><span class="b ${s.opStatus==='운영중'?'bg':s.opStatus==='준비중'?'bo':'bgr'}">${s.opStatus||s.status}</span></div></div>`).join('');
 }
 
 function renderApprovals(){
-  // 탭1 내 결재: assignee=master이고 pending인 것
-  const mine=APPROVALS.filter(a=>a.status==='pending'&&a.assignee==='master');
-  // 탭2 위임됨: assignee=운영자이고 pending인 것 (읽기 전용)
-  const delegated=APPROVALS.filter(a=>a.status==='pending'&&a.assignee!=='master');
-  // 탭3 히스토리: 처리 완료된 것
-  const history=APPROVALS.filter(a=>a.status!=='pending');
+  const role=currentUser.role;
+  const isMaster=role==='master';
+  const isOp=role==='operator';
+  const isAffiliate=role==='affiliate';
+  if(isAffiliate){
+    const myReqs=APPROVALS.filter(a=>a.company===currentUser.company);
+    const tbody=document.getElementById('ap-myreqs-tbody');
+    if(tbody)tbody.innerHTML=myReqs.length===0
+      ?`<tr><td colspan="6" style="text-align:center;color:var(--text2);padding:24px">요청 내역이 없습니다</td></tr>`
+      :myReqs.map(a=>`<tr>
+          <td><span class="b bb">${a.type}</span></td>
+          <td style="font-size:12px">${a.summary}</td>
+          <td style="font-size:12px">${a.date}</td>
+          <td style="font-size:12px">${a.handler||'-'}</td>
+          <td>${a.status==='approved'?'<span class="b bg">승인</span>':a.status==='rejected'?'<span class="b br">반려</span>':'<span class="b bo">대기중</span>'}</td>
+          <td style="font-size:12px">${a.doneDate||'-'}</td>
+        </tr>`).join('');
+    return;
+  }
+  const mine=isMaster
+    ?APPROVALS.filter(a=>a.status==='pending'&&a.assignee==='master')
+    :APPROVALS.filter(a=>a.status==='pending'&&a.assignee===currentUser.name);
   const mineBody=document.getElementById('ap-mine-tbody');
-  const delegBody=document.getElementById('ap-delegated-tbody');
+  if(mineBody)mineBody.innerHTML=mine.length===0
+    ?`<tr><td colspan="6" style="text-align:center;color:var(--text2);padding:24px">처리 대기 중인 결재가 없습니다</td></tr>`
+    :mine.map(a=>`<tr>
+        <td><span class="b bb">${a.type}</span></td>
+        <td style="font-size:12px">${a.summary}</td>
+        <td>${a.requester}</td><td>${a.company}</td>
+        <td style="font-size:12px">${a.date}</td>
+        <td style="display:flex;gap:4px;padding-top:8px">
+          <button class="btn bxs" style="background:var(--green);color:#fff" onclick="approveItem('${a.id}')">승인</button>
+          <button class="btn bd bxs" onclick="rejectItem('${a.id}')">반려</button>
+        </td>
+      </tr>`).join('');
+  if(isMaster){
+    const delegated=APPROVALS.filter(a=>a.status==='pending'&&a.assignee!=='master');
+    const delegBody=document.getElementById('ap-delegated-tbody');
+    if(delegBody)delegBody.innerHTML=delegated.length===0
+      ?`<tr><td colspan="7" style="text-align:center;color:var(--text2);padding:24px">위임된 결재가 없습니다</td></tr>`
+      :delegated.map(a=>`<tr>
+          <td><span class="b bb">${a.type}</span></td>
+          <td style="font-size:12px">${a.summary}</td>
+          <td>${a.requester}</td><td>${a.company}</td>
+          <td><span class="b by">${a.assignee}</span></td>
+          <td style="font-size:12px">${a.date}</td>
+          <td><span class="b bo">처리중</span></td>
+        </tr>`).join('');
+  }
+  const history=isMaster
+    ?APPROVALS.filter(a=>a.status!=='pending')
+    :APPROVALS.filter(a=>a.status!=='pending'&&(a.assignee===currentUser.name||a.requester===currentUser.name));
   const histBody=document.getElementById('ap-history-tbody');
-  if(mineBody)mineBody.innerHTML=mine.length===0?`<tr><td colspan="6" style="text-align:center;color:var(--text2);padding:24px">처리 대기 중인 결재가 없습니다</td></tr>`:mine.map(a=>`<tr>
-    <td><span class="b bb">${a.type}</span></td>
-    <td style="font-size:12px">${a.summary}</td>
-    <td>${a.requester}</td><td>${a.company}</td>
-    <td style="font-size:12px">${a.date}</td>
-    <td style="display:flex;gap:4px;padding-top:8px">
-      <button class="btn bxs" style="background:var(--green);color:#fff" onclick="approveItem('${a.id}')">승인</button>
-      <button class="btn bd bxs" onclick="rejectItem('${a.id}')">반려</button>
-    </td>
-  </tr>`).join('');
-  if(delegBody)delegBody.innerHTML=delegated.length===0?`<tr><td colspan="7" style="text-align:center;color:var(--text2);padding:24px">위임된 결재가 없습니다</td></tr>`:delegated.map(a=>`<tr>
-    <td><span class="b bb">${a.type}</span></td>
-    <td style="font-size:12px">${a.summary}</td>
-    <td>${a.requester}</td><td>${a.company}</td>
-    <td><span class="b by">${a.assignee}</span></td>
-    <td style="font-size:12px">${a.date}</td>
-    <td><span class="b bo">처리중</span></td>
-  </tr>`).join('');
-  if(histBody)histBody.innerHTML=history.length===0?`<tr><td colspan="7" style="text-align:center;color:var(--text2);padding:24px">처리 내역이 없습니다</td></tr>`:history.map(a=>`<tr>
-    <td><span class="b bb">${a.type}</span></td>
-    <td style="font-size:12px">${a.summary}</td>
-    <td>${a.requester}</td><td>${a.company}</td>
-    <td style="font-size:12px">${a.handler||'-'}</td>
-    <td>${a.status==='approved'?'<span class="b bg">승인</span>':'<span class="b br">반려</span>'}</td>
-    <td style="font-size:12px">${a.doneDate||'-'}</td>
-  </tr>`).join('');
+  if(histBody)histBody.innerHTML=history.length===0
+    ?`<tr><td colspan="7" style="text-align:center;color:var(--text2);padding:24px">처리 내역이 없습니다</td></tr>`
+    :history.map(a=>`<tr>
+        <td><span class="b bb">${a.type}</span></td>
+        <td style="font-size:12px">${a.summary}</td>
+        <td>${a.requester}</td><td>${a.company}</td>
+        <td style="font-size:12px">${a.handler||'-'}</td>
+        <td>${a.status==='approved'?'<span class="b bg">승인</span>':'<span class="b br">반려</span>'}</td>
+        <td style="font-size:12px">${a.doneDate||'-'}</td>
+      </tr>`).join('');
 }
 function approveItem(id){
   const a=APPROVALS.find(x=>x.id===id);
@@ -1757,9 +1926,18 @@ function rejectItem(id){
 function renderHomeTodo(){
   const el=document.getElementById('home-todo');
   if(!el)return;
-  const isOp=currentUser.role==='operator';
-  if(isOp){
-    const pending=APPROVALS.filter(a=>a.status==='pending');
+  const role=currentUser.role;
+  const isMaster=role==='master';
+  const isOp=role==='operator';
+  if(isMaster){
+    const myPending=APPROVALS.filter(a=>a.status==='pending'&&a.assignee==='master');
+    const delegPending=APPROVALS.filter(a=>a.status==='pending'&&a.assignee!=='master');
+    el.innerHTML=`<div class="g2">
+      <div class="card"><div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:12px">내 직접 결재 <span class="b by" style="margin-left:4px">${myPending.length}</span></div><div class="act">${myPending.length===0?'<div style="color:var(--text2);font-size:12px;padding:8px 0">대기 중인 결재가 없습니다</div>':myPending.map(a=>`<div class="ai"><div class="adot y"></div><div class="atxt">${a.company} — ${a.summary}</div><div style="display:flex;gap:4px"><button class="btn bxs" style="background:var(--green);color:#fff" onclick="approveItem('${a.id}')">승인</button><button class="btn bd bxs" onclick="rejectItem('${a.id}')">반려</button></div></div>`).join('')}</div></div>
+      <div class="card"><div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:12px">외부팀 위임 현황 <span class="b bb" style="margin-left:4px">${delegPending.length}</span></div><div class="act">${delegPending.length===0?'<div style="color:var(--text2);font-size:12px;padding:8px 0">위임 처리 중인 결재가 없습니다</div>':delegPending.map(a=>`<div class="ai"><div class="adot b"></div><div class="atxt">${a.company} — ${a.summary}</div><div><span class="b bb">${a.assignee}</span></div></div>`).join('')}</div></div>
+    </div>`;
+  } else if(isOp){
+    const pending=APPROVALS.filter(a=>a.status==='pending'&&a.assignee===currentUser.name);
     el.innerHTML=`<div class="card"><div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:12px">처리할 결재 <span class="b by" style="margin-left:4px">${pending.length}</span></div><div class="act">${pending.length===0?'<div style="color:var(--text2);font-size:12px;padding:8px 0">대기 중인 결재가 없습니다</div>':pending.map(a=>`<div class="ai"><div class="adot y"></div><div class="atxt">${a.company} — ${a.summary}</div><div style="display:flex;gap:4px"><button class="btn bxs" style="background:var(--green);color:#fff" onclick="approveItem('${a.id}')">승인</button><button class="btn bd bxs" onclick="rejectItem('${a.id}')">반려</button></div></div>`).join('')}</div></div>`;
   } else {
     const myReqs=APPROVALS.filter(a=>a.company===currentUser.company);
