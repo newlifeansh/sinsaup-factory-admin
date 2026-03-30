@@ -25,8 +25,8 @@ input,select,textarea{font-family:inherit;font-size:13px;color:var(--text)}
 .llogo .n1{font-size:15px;font-weight:700}.llogo .n2{font-size:10px;color:var(--text2)}
 .fg{margin-bottom:14px}
 .fg label{display:block;font-size:11px;color:var(--text2);margin-bottom:5px;font-weight:600}
-.fg input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:9px 12px;color:var(--text);outline:none;transition:.15s}
-.fg input:focus{border-color:var(--primary)}
+.fg input,.fg select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:9px 12px;color:var(--text);outline:none;transition:.15s}
+.fg input:focus,.fg select:focus{border-color:var(--primary)}
 .btn-login{width:100%;background:var(--primary);color:#000;border:none;border-radius:6px;padding:11px;font-weight:700;font-size:14px;margin-top:6px}
 .btn-login:hover{filter:brightness(.92)}
 
@@ -211,6 +211,7 @@ input:checked+.sl:before{transform:translateX(16px)}
     </div>
     <div class="fg"><label>이메일</label><input type="email" id="em" value="master@factory.com"></div>
     <div class="fg"><label>비밀번호</label><input type="password" id="pw" value="password"></div>
+    <div class="fg"><label>역할</label><select id="role-select"><option value="operator">운영자 (내부팀)</option><option value="affiliate">제휴사</option></select></div>
     <button class="btn-login" onclick="doLogin()">로그인</button>
   </div>
 </div>
@@ -240,6 +241,14 @@ input:checked+.sl:before{transform:translateX(16px)}
       </div>
       <div class="ni ni-d1" id="n-partner-form" onclick="openPartnerCreate()">
         <span class="lbl">등록/수정</span>
+      </div>
+    </div>
+
+    <!-- 결재 관리 (운영자 전용) -->
+    <div class="ng" id="approval-nav" style="display:none">
+      <div class="nl">결재 관리</div>
+      <div class="ni ni-d1" id="n-approvals" onclick="go('approvals','결재 관리')">
+        <span class="lbl">결재 요청 목록</span>
       </div>
     </div>
 
@@ -356,13 +365,20 @@ input:checked+.sl:before{transform:translateX(16px)}
             </div>
           </div>
         </div>
+        <!-- 내 서비스 -->
+        <div id="home-my-services" style="margin-top:24px">
+          <div style="font-size:13px;font-weight:700;margin-bottom:14px">내 서비스</div>
+          <div class="svc-cards" id="home-svc-cards"></div>
+        </div>
+        <!-- 내 할 일 -->
+        <div id="home-todo" style="margin-top:24px"></div>
       </div>
 
       <!-- ══ PARTNERS ══ -->
       <div class="page" id="page-partners">
         <div class="ph">
           <div class="pt">파트너사 관리</div>
-          <button class="btn bp" onclick="openPartnerCreate()">＋ 파트너사 등록</button>
+          <button class="btn bp" id="btn-partner-create" onclick="openPartnerCreate()">＋ 파트너사 등록</button>
         </div>
         <div class="tabs">
           <div class="tab on" onclick="swTab(this,'pt-all');renderPartners('all')">전체 조회</div>
@@ -373,13 +389,13 @@ input:checked+.sl:before{transform:translateX(16px)}
             <input class="si" type="text" placeholder="파트너사명 검색" oninput="filterTr('partner-tbody',this.value)">
           </div>
           <div class="tw">
-            <table><thead><tr><th>파트너사 ID</th><th>파트너사명</th><th>대표자</th><th>카카오뱅크 서비스 명</th><th>등록자 (ID)</th><th>상태</th><th>가입일</th><th>액션</th></tr></thead>
+            <table><thead><tr><th>파트너사 ID</th><th>파트너사명</th><th>대표자</th><th>등록자 (ID)</th><th>관리 주체</th><th>상태</th><th>가입일</th><th>액션</th></tr></thead>
             <tbody id="partner-tbody"></tbody></table>
           </div>
         </div>
         <div id="pt-draft" class="tp">
           <div class="tw">
-            <table><thead><tr><th>파트너사 ID</th><th>파트너사명</th><th>대표자</th><th>카카오뱅크 서비스 명</th><th>등록자 (ID)</th><th>상태</th><th>가입일</th><th>액션</th></tr></thead>
+            <table><thead><tr><th>파트너사 ID</th><th>파트너사명</th><th>대표자</th><th>등록자 (ID)</th><th>관리 주체</th><th>상태</th><th>가입일</th><th>액션</th></tr></thead>
             <tbody id="partner-draft-tbody"></tbody></table>
           </div>
         </div>
@@ -397,20 +413,21 @@ input:checked+.sl:before{transform:translateX(16px)}
           <div class="fr"><div class="fi"><label>대표자명 <span class="r">*</span></label><input type="text" id="pf-ceo" placeholder="예: 홍길동"></div><div class="fi" id="pf-registrar-fi" style="display:none"><label>등록자 (ID)</label><input type="text" id="pf-registrar" disabled></div></div>
           <div class="fr"><div class="fi"><label>사업자등록번호 <span class="r">*</span></label><input type="text" id="pf-brn" placeholder="000-00-00000"></div><div class="fi"><label>담당자 이메일</label><input type="email" id="pf-email" placeholder="contact@company.com"></div></div>
           <div class="fr"><div class="fi"><label>연락처</label><input type="text" id="pf-tel" placeholder="02-0000-0000"></div><div class="fi"><label>상태 <span style="font-size:10px;color:var(--text3)">(마스터 전용)</span></label><select id="pf-st" disabled><option value="review">검토중</option><option value="active">활성</option><option value="inactive">비활성</option></select></div></div>
+          <div class="fr"><div class="fi"><label>관리 주체 <span class="r">*</span></label><select id="pf-owner" onchange="document.getElementById('pf-delegate-fi').style.display=this.value==='delegate'?'block':'none'"><option value="master">마스터 직접 관리</option><option value="delegate">외부 팀 위임</option></select></div><div class="fi" id="pf-delegate-fi" style="display:none"><label>담당 운영자</label><select id="pf-delegate-op"><option value="">선택</option><option value="이관리">이관리</option><option value="박운영">박운영</option><option value="최담당">최담당</option></select></div></div>
         </div>
-        <div class="fa"><button class="btn bd" onclick="go('partners','파트너사 관리')">취소</button><button class="btn bd" onclick="savePartner('draft')">임시저장</button><button class="btn bp" onclick="savePartner('save')">저장</button></div>
+        <div class="fa"><button class="btn bd" onclick="go('partners','파트너사 관리')">취소</button><button class="btn bd" id="pf-btn-draft" onclick="savePartner('draft')">임시저장</button><button class="btn bp" id="pf-btn-save" onclick="savePartner('save')">저장</button><button class="btn bp" id="pf-btn-approval" style="display:none" onclick="toast('결재 요청이 제출되었습니다')">결재 요청</button></div>
       </div>
 
       <!-- ══ SERVICES HOME ══ -->
       <div class="page" id="page-services">
-        <div class="ph"><div class="pt">서비스 홈</div></div>
+        <div class="ph"><div class="pt">서비스 홈</div><button class="btn bp" onclick="toast('서비스 등록 요청이 접수되었습니다. 담당자에게 라우팅됩니다.')">＋ 서비스 등록하기</button></div>
         <div class="notice">담당 서비스를 선택하면 왼쪽 메뉴에 해당 서비스 관리 항목이 펼쳐집니다.</div>
         <div class="svc-cards" id="svc-cards"></div>
       </div>
 
       <!-- ══ SVC: INFO ══ -->
       <div class="page" id="page-svc-info">
-        <div class="ph"><div class="pt">정보 수정</div><button class="btn bp" onclick="toast('저장되었습니다')">저장</button></div>
+        <div class="ph"><div class="pt">정보 수정</div><div style="display:flex;gap:8px"><button class="btn bp" id="svc-info-save" onclick="toast('저장되었습니다')">저장</button><button class="btn bp" id="svc-info-approval" style="display:none" onclick="toast('결재 요청이 제출되었습니다')">결재 요청</button></div></div>
         <div class="tabs">
           <div class="tab on" onclick="swTab(this,'si-basic')">기본 정보</div>
           <div class="tab" onclick="swTab(this,'si-oauth')">인증 정책</div>
@@ -576,7 +593,8 @@ input:checked+.sl:before{transform:translateX(16px)}
           <div class="pt" id="rform-title">리워드 등록/수정</div>
           <div style="display:flex;gap:8px">
             <button class="btn bd" onclick="svcGo('rewards','리워드 조회')">취소</button>
-            <button class="btn bp" onclick="saveRewardForm()">저장</button>
+            <button class="btn bp" id="rform-save-btn" onclick="saveRewardForm()">저장</button>
+            <button class="btn bp" id="rform-approval-btn" style="display:none" onclick="toast('결재 요청이 제출되었습니다')">결재 요청</button>
           </div>
         </div>
         <div class="fsec" style="margin-bottom:20px">
@@ -757,7 +775,7 @@ input:checked+.sl:before{transform:translateX(16px)}
       <!-- ══ ADMIN SERVICES ══ -->
       <div class="page" id="page-admin-services">
         <div class="ph"><div class="pt">전체 서비스 관리 <span class="mbadge">마스터 전용</span></div><button class="btn bp" onclick="openAdminSvcModal()">＋ 신규 서비스 등록</button></div>
-        <div class="tw"><table><thead><tr><th>서비스명</th><th>Client ID</th><th>파트너사</th><th>상태</th><th>출시일</th><th>관리</th></tr></thead><tbody id="admin-svc-tbody"></tbody></table></div>
+        <div class="tw"><table><thead><tr><th>서비스명</th><th>Client ID</th><th>파트너사</th><th>담당자(상신권자)</th><th>상태</th><th>출시일</th><th>관리</th></tr></thead><tbody id="admin-svc-tbody"></tbody></table></div>
       </div>
 
       <!-- ══ ADMIN SVC DETAIL ══ -->
@@ -786,6 +804,29 @@ input:checked+.sl:before{transform:translateX(16px)}
         <div class="ph"><div class="pt">사용자 관리 <span class="mbadge">마스터 전용</span></div><button class="btn bp" onclick="openUserModal(null)">＋ 관리자 등록</button></div>
         <div class="search-wrap"><input class="si" type="text" placeholder="이름 / 이메일 검색" oninput="filterTr('admin-user-tbody',this.value)"></div>
         <div class="tw"><table><thead><tr><th>관리자 ID</th><th>이름</th><th>이메일</th><th>역할</th><th>담당 서비스</th><th>상태</th><th>최근 로그인</th><th>관리</th></tr></thead><tbody id="admin-user-tbody"></tbody></table></div>
+      </div>
+
+      <!-- ══ APPROVALS ══ -->
+      <div class="page" id="page-approvals">
+        <div class="ph">
+          <div class="pt">결재 관리</div>
+        </div>
+        <div class="tabs">
+          <div class="tab on" onclick="swTab(this,'ap-mine')">내 결재</div>
+          <div class="tab" onclick="swTab(this,'ap-delegated')">위임됨</div>
+          <div class="tab" onclick="swTab(this,'ap-history')">히스토리</div>
+        </div>
+        <div id="ap-mine" class="tp on">
+          <div class="notice" style="margin-bottom:16px">직접 처리해야 할 핵심 결재 건들입니다.</div>
+          <div class="tw"><table><thead><tr><th>유형</th><th>대상</th><th>요청자</th><th>파트너사</th><th>요청일</th><th>관리</th></tr></thead><tbody id="ap-mine-tbody"></tbody></table></div>
+        </div>
+        <div id="ap-delegated" class="tp">
+          <div class="notice" style="margin-bottom:16px">운영자에게 위임된 결재입니다. 읽기 전용으로 모니터링만 가능합니다.</div>
+          <div class="tw"><table><thead><tr><th>유형</th><th>대상</th><th>요청자</th><th>파트너사</th><th>담당 운영자</th><th>요청일</th><th>상태</th></tr></thead><tbody id="ap-delegated-tbody"></tbody></table></div>
+        </div>
+        <div id="ap-history" class="tp">
+          <div class="tw"><table><thead><tr><th>유형</th><th>대상</th><th>요청자</th><th>파트너사</th><th>처리자</th><th>상태</th><th>처리일</th></tr></thead><tbody id="ap-history-tbody"></tbody></table></div>
+        </div>
       </div>
 
     </div><!-- /main -->
@@ -918,12 +959,12 @@ input:checked+.sl:before{transform:translateX(16px)}
 <script>
 // ══ DATA ══
 const PARTNERS=[
-  {id:'PRT-001',pid:'SMPK-001',name:'스마트픽 주식회사',ceo:'홍길동',kkbSvc:'스마트픽 쇼핑',registrar:'robert.kim',status:'active',date:'2025.01.15'},
-  {id:'PRT-002',pid:'PPLT-002',name:'픽플러스 테크',ceo:'이영희',kkbSvc:'픽플러스 구독',registrar:'venti.ice',status:'active',date:'2025.03.22'},
-  {id:'PRT-003',pid:'DLMT-003',name:'달맛 코퍼레이션',ceo:'박철수',kkbSvc:'달맛 커머스',registrar:'roger.f',status:'active',date:'2025.06.08'},
-  {id:'PRT-004',pid:'NXTD-004',name:'넥스트딜 주식회사',ceo:'김영수',kkbSvc:'-',registrar:'linus.k',status:'review',date:'2026.02.14'},
-  {id:'PRT-005',pid:'RWDF-005',name:'리워드팩토리',ceo:'최미래',kkbSvc:'-',registrar:'robert.kim',status:'inactive',date:'2025.11.30'},
-  {id:'PRT-006',pid:'DRFT-006',name:'신규 파트너사 (임시)',ceo:'김신규',kkbSvc:'-',registrar:'venti.ice',status:'draft',date:'2026.03.25'},
+  {id:'PRT-001',pid:'SMPK-001',name:'스마트픽 주식회사',ceo:'홍길동',registrar:'robert.kim',status:'active',date:'2025.01.15',owner:'delegate',delegateOp:'이관리'},
+  {id:'PRT-002',pid:'PPLT-002',name:'픽플러스 테크',ceo:'이영희',registrar:'venti.ice',status:'active',date:'2025.03.22',owner:'delegate',delegateOp:'이관리'},
+  {id:'PRT-003',pid:'DLMT-003',name:'달맛 코퍼레이션',ceo:'박철수',registrar:'roger.f',status:'active',date:'2025.06.08',owner:'delegate',delegateOp:'박운영'},
+  {id:'PRT-004',pid:'NXTD-004',name:'넥스트딜 주식회사',ceo:'김영수',registrar:'linus.k',status:'review',date:'2026.02.14',owner:'master',delegateOp:null},
+  {id:'PRT-005',pid:'RWDF-005',name:'리워드팩토리',ceo:'최미래',registrar:'robert.kim',status:'inactive',date:'2025.11.30',owner:'master',delegateOp:null},
+  {id:'PRT-006',pid:'DRFT-006',name:'신규 파트너사 (임시)',ceo:'김신규',registrar:'venti.ice',status:'draft',date:'2026.03.25',owner:'master',delegateOp:null},
 ];
 const SERVICES=[
   {id:'SVC-001',name:'스마트픽',icon:'S',partner:'스마트픽 주식회사',type:'쇼핑',offers:12,status:'active',opStatus:'운영중',period:'2025.02.01~2026.12.31',notifEnabled:true,rewardEnabled:true,offerEnabled:true,provisionEnabled:true,launch:'2025.02.01'},
@@ -933,6 +974,13 @@ const SERVICES=[
 ];
 // 이관리(ADM-002)의 담당 서비스: 스마트픽, 픽플러스
 const OPERATOR_SVC_IDS=['SVC-001','SVC-002'];
+let currentUser={role:'operator',name:'이관리',company:'스마트픽 주식회사'};
+let APPROVALS=[
+  {id:'APR-001',type:'파트너사 등록',requester:'김제휴',company:'스마트픽 주식회사',summary:'신규 파트너사 SSAM-002 등록',date:'2026.03.29',status:'pending',doneDate:null,assignee:'master',handler:null},
+  {id:'APR-002',type:'서비스 정보 수정',requester:'이파트너',company:'픽플러스 테크',summary:'픽플러스 Landing URI 변경',date:'2026.03.28',status:'pending',doneDate:null,assignee:'이관리',handler:null},
+  {id:'APR-003',type:'리워드 등록',requester:'박제휴',company:'달맛 코퍼레이션',summary:'달맛 여름 쿠폰 신규 등록',date:'2026.03.27',status:'approved',doneDate:'2026.03.28',assignee:'이관리',handler:'이관리'},
+  {id:'APR-004',type:'파트너사 수정',requester:'김제휴',company:'스마트픽 주식회사',summary:'대표자명 변경 요청',date:'2026.03.25',status:'rejected',doneDate:'2026.03.26',assignee:'master',handler:'마스터'},
+];
 let NOTIFS=[
   {id:'NTF-001',name:'신규가입 웰컴 알림',tplId:'KWD0100001',ch:'알림탭',period:'2026.01.01~2026.12.31',time:'09:00',on:true,date:'2026.01.01'},
   {id:'NTF-002',name:'구매완료 리워드 안내',tplId:'KWD0200001',ch:'앱푸쉬',period:'2026.02.01~2026.06.30',time:'18:00',on:true,date:'2026.02.01'},
@@ -970,12 +1018,12 @@ let PROVISIONS=[
   {dt:'2026.03.18 10:00',custNo:'4421-7788990',reward:'신규가입 웰컴 쿠폰',cashAmt:null,reason:'VIP 고객 특별 지급',by:'lee.admin'},
 ];
 const ADMIN_SVCS=[
-  {name:'스마트픽',cid:'client_sm_001',partner:'스마트픽 주식회사',status:'Active',date:'2025.02.01'},
-  {name:'픽플러스',cid:'client_pp_002',partner:'픽플러스 테크',status:'Active',date:'2025.04.15'},
-  {name:'달맛',cid:'client_dm_003',partner:'달맛 코퍼레이션',status:'Active',date:'2025.07.20'},
-  {name:'리워드X',cid:'client_rx_004',partner:'넥스트딜 주식회사',status:'Suspended',date:'-'},
-  {name:'픽플러스 프리미엄',cid:'client_ppp_005',partner:'픽플러스 테크',status:'Active',date:'2026.01.10'},
-  {name:'달맛 파트너스',cid:'client_dmp_006',partner:'달맛 코퍼레이션',status:'Active',date:'2026.02.20'},
+  {name:'스마트픽',cid:'client_sm_001',partner:'스마트픽 주식회사',status:'Active',date:'2025.02.01',handler:'이관리'},
+  {name:'픽플러스',cid:'client_pp_002',partner:'픽플러스 테크',status:'Active',date:'2025.04.15',handler:'이관리'},
+  {name:'달맛',cid:'client_dm_003',partner:'달맛 코퍼레이션',status:'Active',date:'2025.07.20',handler:'박운영'},
+  {name:'리워드X',cid:'client_rx_004',partner:'넥스트딜 주식회사',status:'Suspended',date:'-',handler:'마스터'},
+  {name:'픽플러스 프리미엄',cid:'client_ppp_005',partner:'픽플러스 테크',status:'Active',date:'2026.01.10',handler:'이관리'},
+  {name:'달맛 파트너스',cid:'client_dmp_006',partner:'달맛 코퍼레이션',status:'Active',date:'2026.02.20',handler:'박운영'},
 ];
 let USERS=[
   {id:'ADM-001',name:'홍길동',email:'hong@factory.com',role:'master',svcs:'전체',status:'active',login:'2026.03.24 09:00'},
@@ -1002,9 +1050,48 @@ function closeMo(id){document.getElementById(id).classList.remove('open')}
 
 // ══ AUTH ══
 function doLogin(){
+  const roleVal=document.getElementById('role-select').value;
+  currentUser=roleVal==='operator'
+    ?{role:'operator',name:'이관리',company:'스마트픽 주식회사'}
+    :{role:'affiliate',name:'김제휴',company:'스마트픽 주식회사'};
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='flex';
+  applyRoleUI(currentUser.role);
   renderAll();
+}
+function applyRoleUI(role){
+  const isOp=role==='operator';
+  // 사이드바 사용자 정보
+  document.querySelector('.si-name').textContent=currentUser.name;
+  document.querySelector('.si-email').textContent=isOp?'lee.admin@factory.com':currentUser.company;
+  const siAv=document.querySelector('.si-av');
+  siAv.textContent=isOp?'O':'A';
+  siAv.style.background=isOp?'var(--blue)':'var(--green)';
+  // 상단바 사용자 정보
+  document.querySelector('.tb-name').textContent=isOp?'신사업팩토리 어드민':currentUser.company;
+  const tbAv=document.querySelector('.tb-av');
+  tbAv.textContent=isOp?'O':'A';
+  tbAv.style.background=isOp?'var(--blue)':'var(--green)';
+  // 사이드바 메뉴
+  document.getElementById('n-partner-form').style.display=isOp?'flex':'none';
+  document.getElementById('approval-nav').style.display=isOp?'block':'none';
+  // 파트너사 등록 버튼
+  const createBtn=document.getElementById('btn-partner-create');
+  if(createBtn)createBtn.style.display=isOp?'inline-flex':'none';
+  // 파트너 폼 버튼
+  ['pf-btn-save','pf-btn-draft'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=isOp?'inline-flex':'none';});
+  const pfAppr=document.getElementById('pf-btn-approval');
+  if(pfAppr)pfAppr.style.display=isOp?'none':'inline-flex';
+  // 서비스 정보 버튼
+  const siSave=document.getElementById('svc-info-save');
+  const siAppr=document.getElementById('svc-info-approval');
+  if(siSave)siSave.style.display=isOp?'inline-flex':'none';
+  if(siAppr)siAppr.style.display=isOp?'none':'inline-flex';
+  // 리워드 폼 버튼
+  const rfSave=document.getElementById('rform-save-btn');
+  const rfAppr=document.getElementById('rform-approval-btn');
+  if(rfSave)rfSave.style.display=isOp?'inline-flex':'none';
+  if(rfAppr)rfAppr.style.display=isOp?'none':'inline-flex';
 }
 function doLogout(){
   document.getElementById('app').style.display='none';
@@ -1455,18 +1542,20 @@ function swTab(el,paneId){
 }
 
 // ══ RENDER ══
-function renderAll(){renderPartners('all');renderPartners('draft');renderSvcCards();renderNotifs();renderRewards();renderRewardLog();renderOffers();renderProvisions();renderAdminSvcs();renderAdminUsers();}
+function renderAll(){renderPartners('all');renderPartners('draft');renderSvcCards();renderHomeSvcCards();renderNotifs();renderRewards();renderRewardLog();renderOffers();renderProvisions();renderAdminSvcs();renderAdminUsers();renderApprovals();renderHomeTodo();}
 
 function renderPartners(tab){
   // 운영자: 삭제 버튼 없음
   const rows=t=>t.map(p=>`<tr>
     <td class="tid">${p.pid||p.id}</td><td><b>${p.name}</b></td><td>${p.ceo}</td>
-    <td style="font-size:12px">${p.kkbSvc||'-'}</td><td style="font-size:12px;color:var(--text2)">${p.registrar||'-'}</td>
+    <td style="font-size:12px;color:var(--text2)">${p.registrar||'-'}</td>
+    <td style="font-size:12px">${p.owner==='delegate'?`<span class="b bb">위임: ${p.delegateOp||'-'}</span>`:'<span class="b by">마스터</span>'}</td>
     <td>${SM[p.status]||SM['inactive']}</td><td>${p.date}</td>
     <td><button class="btn bd bxs" onclick="editPartner('${p.id}')">수정</button></td>
   </tr>`).join('');
-  if(!tab||tab==='all') document.getElementById('partner-tbody').innerHTML=rows(PARTNERS);
-  if(!tab||tab==='draft') document.getElementById('partner-draft-tbody').innerHTML=rows(PARTNERS.filter(p=>p.status==='draft'));
+  const data=currentUser.role==='affiliate'?PARTNERS.filter(p=>p.name===currentUser.company):PARTNERS;
+  if(!tab||tab==='all') document.getElementById('partner-tbody').innerHTML=rows(data);
+  if(!tab||tab==='draft') document.getElementById('partner-draft-tbody').innerHTML=rows(data.filter(p=>p.status==='draft'));
 }
 function editPartner(id){
   const p=PARTNERS.find(x=>x.id===id);
@@ -1483,8 +1572,8 @@ function editPartner(id){
 }
 
 function renderSvcCards(){
-  // 운영자: 담당 서비스만 노출
-  const visible=SERVICES.filter(s=>OPERATOR_SVC_IDS.includes(s.id));
+  // 역할별 서비스 필터
+  const visible=currentUser.role==='affiliate'?SERVICES.filter(s=>s.partner===currentUser.company):SERVICES.filter(s=>OPERATOR_SVC_IDS.includes(s.id));
   document.getElementById('svc-cards').innerHTML=visible.map(s=>`<div class="svc-card" onclick='enterService(${JSON.stringify(s).replace(/'/g,"\\'")})'>
     <div class="svc-icon">${s.icon}</div>
     <div class="svc-nm">${s.name}</div>
@@ -1578,7 +1667,9 @@ function renderAdminSvcs(){
   document.getElementById('admin-svc-tbody').innerHTML=ADMIN_SVCS.map(s=>`<tr>
     <td><b style="color:var(--blue);cursor:pointer;text-decoration:underline" onclick="viewAdminSvc('${s.name}')">${s.name}</b></td>
     <td class="tmono">${s.cid}</td>
-    <td>${s.partner}</td><td>${SM[s.status]}</td><td>${s.date}</td>
+    <td>${s.partner}</td>
+    <td>${s.handler==='마스터'?'<span class="b by">마스터</span>':`<span class="b bb">${s.handler}</span>`}</td>
+    <td>${SM[s.status]}</td><td>${s.date}</td>
     <td><button class="btn bd bxs" onclick="openAdminSvcModal()">수정</button></td>
   </tr>`).join('');
 }
@@ -1604,6 +1695,76 @@ function renderAdminUsers(){
     <td style="font-size:11px;color:var(--text2)">${u.login}</td>
     <td><button class="btn bd bxs" onclick="openUserModal(${i})">수정</button></td>
   </tr>`).join('');
+}
+
+function renderHomeSvcCards(){
+  const visible=currentUser.role==='affiliate'?SERVICES.filter(s=>s.partner===currentUser.company):SERVICES.filter(s=>OPERATOR_SVC_IDS.includes(s.id));
+  const el=document.getElementById('home-svc-cards');
+  if(!el)return;
+  el.innerHTML=visible.map(s=>`<div class="svc-card" onclick='enterService(${JSON.stringify(s).replace(/'/g,"\\'")})'><div class="svc-icon">${s.icon}</div><div class="svc-nm">${s.name}</div><div class="svc-pt" style="margin-bottom:6px">${s.partner}</div><div><span class="b ${s.opStatus==='운영중'?'bg':s.opStatus==='준비중'?'bo':'bgr'}">${s.opStatus||s.status}</span></div></div>`).join('');
+}
+
+function renderApprovals(){
+  // 탭1 내 결재: assignee=master이고 pending인 것
+  const mine=APPROVALS.filter(a=>a.status==='pending'&&a.assignee==='master');
+  // 탭2 위임됨: assignee=운영자이고 pending인 것 (읽기 전용)
+  const delegated=APPROVALS.filter(a=>a.status==='pending'&&a.assignee!=='master');
+  // 탭3 히스토리: 처리 완료된 것
+  const history=APPROVALS.filter(a=>a.status!=='pending');
+  const mineBody=document.getElementById('ap-mine-tbody');
+  const delegBody=document.getElementById('ap-delegated-tbody');
+  const histBody=document.getElementById('ap-history-tbody');
+  if(mineBody)mineBody.innerHTML=mine.length===0?`<tr><td colspan="6" style="text-align:center;color:var(--text2);padding:24px">처리 대기 중인 결재가 없습니다</td></tr>`:mine.map(a=>`<tr>
+    <td><span class="b bb">${a.type}</span></td>
+    <td style="font-size:12px">${a.summary}</td>
+    <td>${a.requester}</td><td>${a.company}</td>
+    <td style="font-size:12px">${a.date}</td>
+    <td style="display:flex;gap:4px;padding-top:8px">
+      <button class="btn bxs" style="background:var(--green);color:#fff" onclick="approveItem('${a.id}')">승인</button>
+      <button class="btn bd bxs" onclick="rejectItem('${a.id}')">반려</button>
+    </td>
+  </tr>`).join('');
+  if(delegBody)delegBody.innerHTML=delegated.length===0?`<tr><td colspan="7" style="text-align:center;color:var(--text2);padding:24px">위임된 결재가 없습니다</td></tr>`:delegated.map(a=>`<tr>
+    <td><span class="b bb">${a.type}</span></td>
+    <td style="font-size:12px">${a.summary}</td>
+    <td>${a.requester}</td><td>${a.company}</td>
+    <td><span class="b by">${a.assignee}</span></td>
+    <td style="font-size:12px">${a.date}</td>
+    <td><span class="b bo">처리중</span></td>
+  </tr>`).join('');
+  if(histBody)histBody.innerHTML=history.length===0?`<tr><td colspan="7" style="text-align:center;color:var(--text2);padding:24px">처리 내역이 없습니다</td></tr>`:history.map(a=>`<tr>
+    <td><span class="b bb">${a.type}</span></td>
+    <td style="font-size:12px">${a.summary}</td>
+    <td>${a.requester}</td><td>${a.company}</td>
+    <td style="font-size:12px">${a.handler||'-'}</td>
+    <td>${a.status==='approved'?'<span class="b bg">승인</span>':'<span class="b br">반려</span>'}</td>
+    <td style="font-size:12px">${a.doneDate||'-'}</td>
+  </tr>`).join('');
+}
+function approveItem(id){
+  const a=APPROVALS.find(x=>x.id===id);
+  if(a){a.status='approved';a.doneDate='2026.03.30';a.handler=currentUser.name;}
+  renderApprovals();renderHomeTodo();
+  toast('승인되었습니다');
+}
+function rejectItem(id){
+  const a=APPROVALS.find(x=>x.id===id);
+  if(a){a.status='rejected';a.doneDate='2026.03.30';a.handler=currentUser.name;}
+  renderApprovals();renderHomeTodo();
+  toast('반려되었습니다','var(--orange)');
+}
+
+function renderHomeTodo(){
+  const el=document.getElementById('home-todo');
+  if(!el)return;
+  const isOp=currentUser.role==='operator';
+  if(isOp){
+    const pending=APPROVALS.filter(a=>a.status==='pending');
+    el.innerHTML=`<div class="card"><div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:12px">처리할 결재 <span class="b by" style="margin-left:4px">${pending.length}</span></div><div class="act">${pending.length===0?'<div style="color:var(--text2);font-size:12px;padding:8px 0">대기 중인 결재가 없습니다</div>':pending.map(a=>`<div class="ai"><div class="adot y"></div><div class="atxt">${a.company} — ${a.summary}</div><div style="display:flex;gap:4px"><button class="btn bxs" style="background:var(--green);color:#fff" onclick="approveItem('${a.id}')">승인</button><button class="btn bd bxs" onclick="rejectItem('${a.id}')">반려</button></div></div>`).join('')}</div></div>`;
+  } else {
+    const myReqs=APPROVALS.filter(a=>a.company===currentUser.company);
+    el.innerHTML=`<div class="card"><div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:12px">내 요청 내역</div><div class="act">${myReqs.length===0?'<div style="color:var(--text2);font-size:12px;padding:8px 0">요청 내역이 없습니다</div>':myReqs.map(a=>`<div class="ai"><div class="adot" style="background:${a.status==='approved'?'var(--green)':a.status==='rejected'?'var(--red)':'var(--primary)'}"></div><div class="atxt">${a.summary}</div><div>${a.status==='approved'?'<span class="b bg">승인</span>':a.status==='rejected'?'<span class="b br">반려</span>':'<span class="b bo">대기중</span>'}</div></div>`).join('')}</div></div>`;
+  }
 }
 
 // 모달 외부 클릭
